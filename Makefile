@@ -1,2 +1,3 @@
 all:
-	g++ main.cpp -Isrc/include -Lsrc/lib -lSDL3 -o main.exe
+	cmake -S . -B build
+	cmake --build build
