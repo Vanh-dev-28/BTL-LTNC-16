@@ -1,0 +1,1 @@
+-I"C:/WorkSpace/LTNC/BTL-LTNC-16/include" -I"C:/WorkSpace/LTNC/BTL-LTNC-16/third_party/SDL3/include" -isystem "C:/WorkSpace/LTNC/BTL-LTNC-16/third_party/SDL3_image/include" -isystem "C:/WorkSpace/LTNC/BTL-LTNC-16/third_party/SDL3_ttf/include" -isystem "C:/WorkSpace/LTNC/BTL-LTNC-16/third_party/SDL3_mixer/include"

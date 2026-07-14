@@ -6,10 +6,18 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(SDL2 CONFIG REQUIRED)
-find_package(SDL2_image CONFIG REQUIRED)
-find_package(SDL2_ttf CONFIG REQUIRED)
-find_package(SDL2_mixer CONFIG REQUIRED)
+# Thêm đường dẫn tới các thư viện trong third_party
+list(APPEND CMAKE_PREFIX_PATH
+    "${CMAKE_SOURCE_DIR}/third_party/SDL3"
+    "${CMAKE_SOURCE_DIR}/third_party/SDL3_image"
+    "${CMAKE_SOURCE_DIR}/third_party/SDL3_ttf"
+    "${CMAKE_SOURCE_DIR}/third_party/SDL3_mixer"
+)
+
+find_package(SDL3 CONFIG REQUIRED)
+find_package(SDL3_image CONFIG REQUIRED)
+find_package(SDL3_ttf CONFIG REQUIRED)
+find_package(SDL3_mixer CONFIG REQUIRED)
 
 add_executable(SpaceInvaders
     main.cpp
@@ -32,11 +40,10 @@ add_executable(SpaceInvaders
 target_include_directories(SpaceInvaders PRIVATE include)
 
 target_link_libraries(SpaceInvaders PRIVATE
-    SDL2::SDL2
-    SDL2::SDL2main
-    SDL2_image::SDL2_image
-    SDL2_ttf::SDL2_ttf
-    SDL2_mixer::SDL2_mixer
+    SDL3::SDL3
+    SDL3_image::SDL3_image
+    SDL3_ttf::SDL3_ttf
+    SDL3_mixer::SDL3_mixer
 )
 
 if(MSVC)

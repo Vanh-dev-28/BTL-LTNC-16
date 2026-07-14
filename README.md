@@ -1,11 +1,11 @@
 # Space Invaders Engine
 
-SDL2/C++17 framework scaffold for a Space Invaders game. It contains engine services only;
+SDL3/C++17 framework scaffold for a Space Invaders game. It contains engine services only;
 gameplay entities and scenes are intentionally left for future development.
 
 ## Build
 
-Install SDL2, SDL2_image, SDL2_ttf, and SDL2_mixer so CMake can discover their config packages,
+Install SDL3, SDL3_image, SDL3_ttf, and SDL3_mixer so CMake can discover their config packages,
 then run:
 
 ```powershell

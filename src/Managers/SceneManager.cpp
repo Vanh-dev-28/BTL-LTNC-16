@@ -4,6 +4,8 @@
 
 namespace SpaceInvaders {
 
+SceneManager::~SceneManager() = default;
+
 void SceneManager::changeScene(std::unique_ptr<Scene> scene)
 {
     if (currentScene_ != nullptr) {

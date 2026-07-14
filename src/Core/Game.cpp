@@ -1,94 +1,130 @@
 #include "Core/Game.h"
 
+#include <iostream>
+#include "Scenes/Scene.h"
 #include "Managers/AudioManager.h"
 #include "Managers/FontManager.h"
 #include "Managers/TextureManager.h"
 #include "Utils/Constants.h"
-#include <SDL_image.h>
-#include <SDL_mixer.h>
-#include <SDL_ttf.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
-namespace SpaceInvaders {
-
-Game::~Game()
+namespace SpaceInvaders
 {
-    clean();
-}
 
-bool Game::initialize()
-{
-    if (initialized_) {
+    Game::~Game()
+    {
+        clean();
+    }
+
+    bool Game::initialize()
+    {
+        if (initialized_)
+        {
+            return true;
+        }
+
+        // SỬA: SDL3 trả về true nếu thành công, dùng toán tử phủ định ! để kiểm tra thất bại
+        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
+        {
+            std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
+            clean();
+            return false;
+        }
+
+        // SỬA: TTF_Init trong SDL3 cũng trả về bool (true nếu thành công)
+        if (!TTF_Init())
+        {
+            std::cerr << "TTF_Init failed: " << SDL_GetError() << std::endl;
+            clean();
+            return false;
+        }
+
+        if (!window_.create("Space Invaders", Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT))
+        {
+            std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
+            clean();
+            return false;
+        }
+
+        if (!renderer_.create(window_.getSDLWindow()))
+        {
+            std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
+            clean();
+            return false;
+        }
+
+        if (!AudioManager::instance().initialize())
+        {
+            std::cerr << "AudioManager initialization failed" << std::endl;
+            clean();
+            return false;
+        }
+
+        initialized_ = true;
+        running_ = true;
+        // Thêm thư viện chứa Scene tương ứng, ví dụ: #include "Scenes/MenuScene.h"
+        sceneManager_.changeScene(std::make_unique<Scene>());
         return true;
     }
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0 ||
-        (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG || TTF_Init() != 0 ||
-        Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048) != 0 ||
-        !window_.create("Space Invaders", Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT) ||
-        !renderer_.create(window_.getSDLWindow())) {
-        clean();
-        return false;
-    }
-
-    initialized_ = true;
-    running_ = true;
-    return true;
-}
-
-void Game::run()
-{
-    while (running_) {
-        handleEvents();
-        update();
-        render();
-    }
-}
-
-void Game::handleEvents()
-{
-    SDL_Event event;
-    while (SDL_PollEvent(&event) != 0) {
-        if (event.type == SDL_QUIT) {
-            running_ = false;
+    void Game::run()
+    {
+        while (running_)
+        {
+            handleEvents();
+            update();
+            render();
         }
     }
-    input_.update();
-}
 
-void Game::update()
-{
-    timer_.update();
-    sceneManager_.update(timer_.deltaTime());
-}
-
-void Game::render()
-{
-    renderer_.clear();
-    sceneManager_.render(renderer_);
-    renderer_.present();
-}
-
-void Game::clean()
-{
-    if (SDL_WasInit(0) == 0U) {
-        return;
+    void Game::handleEvents()
+    {
+        SDL_Event event;
+        while (SDL_PollEvent(&event) != 0)
+        {
+            if (event.type == SDL_EVENT_QUIT)
+            {
+                running_ = false;
+            }
+        }
+        input_.update();
     }
 
-    running_ = false;
-    sceneManager_.changeScene(nullptr);
-    TextureManager::instance().clear();
-    FontManager::instance().clear();
-    AudioManager::instance().clear();
-    renderer_.destroy();
-    window_.destroy();
-    Mix_CloseAudio();
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
-    initialized_ = false;
-}
+    void Game::update()
+    {
+        timer_.update();
+        sceneManager_.update(timer_.deltaTime());
+    }
 
-bool Game::isRunning() const { return running_; }
-Input& Game::input() { return input_; }
-SceneManager& Game::scenes() { return sceneManager_; }
+    void Game::render()
+    {
+        SDL_SetRenderDrawColor(renderer_.getSDLRenderer(), 255, 0, 0, 255);
+        renderer_.clear();
+        sceneManager_.render(renderer_);
+        renderer_.present();
+    }
+
+    void Game::clean()
+    {
+        if (SDL_WasInit(0) == 0U)
+        {
+            return;
+        }
+
+        running_ = false;
+        sceneManager_.changeScene(nullptr);
+        TextureManager::instance().clear();
+        FontManager::instance().clear();
+        AudioManager::instance().clear();
+        renderer_.destroy();
+        window_.destroy();
+        TTF_Quit();
+        SDL_Quit();
+        initialized_ = false;
+    }
+
+    bool Game::isRunning() const { return running_; }
+    Input &Game::input() { return input_; }
+    SceneManager &Game::scenes() { return sceneManager_; }
 
 } // namespace SpaceInvaders

@@ -1,6 +1,6 @@
 #include "Managers/TextureManager.h"
 
-#include <SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 
 namespace SpaceInvaders {
 
