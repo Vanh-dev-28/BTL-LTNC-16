@@ -1,3 +1,0 @@
-C:/Users/LEGION/Desktop/BTLT/ProjectGame/build/CMakeFiles/SpaceInvaders.dir
-C:/Users/LEGION/Desktop/BTLT/ProjectGame/build/CMakeFiles/edit_cache.dir
-C:/Users/LEGION/Desktop/BTLT/ProjectGame/build/CMakeFiles/rebuild_cache.dir

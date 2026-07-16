@@ -1,5 +1,0 @@
-Alice 5200
-Bob 4700
-Carol 3500
-David 2800
-Emma 1900
