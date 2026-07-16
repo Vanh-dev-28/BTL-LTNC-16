@@ -1,3 +1,3 @@
 CMakeFiles/SpaceInvaders.dir/src/UI/Widget.cpp.obj: \
- C:\WorkSpace\LTNC\BTL-LTNC-16\src\UI\Widget.cpp \
- C:/WorkSpace/LTNC/BTL-LTNC-16/include/UI/Widget.h
+ C:\Users\LEGION\Desktop\BTLT\ProjectGame\src\UI\Widget.cpp \
+ C:/Users/LEGION/Desktop/BTLT/ProjectGame/include/UI/Widget.h

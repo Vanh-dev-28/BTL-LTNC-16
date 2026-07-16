@@ -1,0 +1,116 @@
+[
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\main.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\main.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/main.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/main.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Core\\Game.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Core\\Game.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Core/Game.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Core/Game.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Core\\Input.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Core\\Input.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Core/Input.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Core/Input.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Core\\Renderer.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Core\\Renderer.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Core/Renderer.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Core/Renderer.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Core\\Timer.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Core\\Timer.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Core/Timer.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Core/Timer.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Core\\Window.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Core\\Window.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Core/Window.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Core/Window.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Entities\\Entity.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Entities\\Entity.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Entities/Entity.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Entities/Entity.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Managers\\AudioManager.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Managers\\AudioManager.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Managers/AudioManager.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Managers/AudioManager.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Managers\\FontManager.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Managers\\FontManager.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Managers/FontManager.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Managers/FontManager.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Managers\\SceneManager.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Managers\\SceneManager.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Managers/SceneManager.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Managers/SceneManager.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Managers\\TextureManager.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Managers\\TextureManager.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Managers/TextureManager.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Managers/TextureManager.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Managers\\RankingManager.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Managers\\RankingManager.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Managers/RankingManager.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Managers/RankingManager.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Scenes\\Scene.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Scenes\\Scene.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Scenes/Scene.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Scenes/Scene.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Scenes\\MenuScene.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Scenes\\MenuScene.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Scenes/MenuScene.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Scenes/MenuScene.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Scenes\\GameScene.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Scenes\\GameScene.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Scenes/GameScene.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Scenes/GameScene.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Scenes\\RankingScene.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Scenes\\RankingScene.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Scenes/RankingScene.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Scenes/RankingScene.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\UI\\Widget.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\UI\\Widget.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/UI/Widget.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/UI/Widget.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Utils\\Constants.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Utils\\Constants.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Utils/Constants.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Utils/Constants.cpp.obj"
+},
+{
+  "directory": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles\\SpaceInvaders.dir\\includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -o CMakeFiles\\SpaceInvaders.dir\\src\\Utils\\Vector2.cpp.obj -c C:\\Users\\LEGION\\Desktop\\BTLT\\ProjectGame\\src\\Utils\\Vector2.cpp",
+  "file": "C:/Users/LEGION/Desktop/BTLT/ProjectGame/src/Utils/Vector2.cpp",
+  "output": "CMakeFiles/SpaceInvaders.dir/src/Utils/Vector2.cpp.obj"
+}
+]

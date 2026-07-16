@@ -13,6 +13,7 @@ void SceneManager::changeScene(std::unique_ptr<Scene> scene)
     }
     currentScene_ = std::move(scene);
     if (currentScene_ != nullptr) {
+        currentScene_->setSceneManager(this);
         currentScene_->enter();
     }
 }

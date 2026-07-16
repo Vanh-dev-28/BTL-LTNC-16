@@ -47,27 +47,27 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\CMake\bin\cmake.exe"
+CMAKE_COMMAND = C:\msys64\ucrt64\bin\cmake.exe
 
 # The command to remove a file.
-RM = "C:\Program Files\CMake\bin\cmake.exe" -E rm -f
+RM = C:\msys64\ucrt64\bin\cmake.exe -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\WorkSpace\LTNC\BTL-LTNC-16
+CMAKE_SOURCE_DIR = C:\Users\LEGION\Desktop\BTLT\ProjectGame
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\WorkSpace\LTNC\BTL-LTNC-16\build
+CMAKE_BINARY_DIR = C:\Users\LEGION\Desktop\BTLT\ProjectGame\build
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
-	"C:\Program Files\CMake\bin\cmake-gui.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
+	C:\msys64\ucrt64\bin\cmake.exe -E echo "No interactive CMake dialog available."
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -77,7 +77,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake to regenerate build system..."
-	"C:\Program Files\CMake\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	C:\msys64\ucrt64\bin\cmake.exe --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -86,9 +86,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WorkSpace\LTNC\BTL-LTNC-16\build\CMakeFiles C:\WorkSpace\LTNC\BTL-LTNC-16\build\\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\LEGION\Desktop\BTLT\ProjectGame\build\CMakeFiles C:\Users\LEGION\Desktop\BTLT\ProjectGame\build\\CMakeFiles\progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WorkSpace\LTNC\BTL-LTNC-16\build\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\LEGION\Desktop\BTLT\ProjectGame\build\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -344,6 +344,30 @@ src/Managers/FontManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Managers/FontManager.cpp.s
 .PHONY : src/Managers/FontManager.cpp.s
 
+src/Managers/RankingManager.obj: src/Managers/RankingManager.cpp.obj
+.PHONY : src/Managers/RankingManager.obj
+
+# target to build an object file
+src/Managers/RankingManager.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Managers/RankingManager.cpp.obj
+.PHONY : src/Managers/RankingManager.cpp.obj
+
+src/Managers/RankingManager.i: src/Managers/RankingManager.cpp.i
+.PHONY : src/Managers/RankingManager.i
+
+# target to preprocess a source file
+src/Managers/RankingManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Managers/RankingManager.cpp.i
+.PHONY : src/Managers/RankingManager.cpp.i
+
+src/Managers/RankingManager.s: src/Managers/RankingManager.cpp.s
+.PHONY : src/Managers/RankingManager.s
+
+# target to generate assembly for a file
+src/Managers/RankingManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Managers/RankingManager.cpp.s
+.PHONY : src/Managers/RankingManager.cpp.s
+
 src/Managers/SceneManager.obj: src/Managers/SceneManager.cpp.obj
 .PHONY : src/Managers/SceneManager.obj
 
@@ -391,6 +415,78 @@ src/Managers/TextureManager.s: src/Managers/TextureManager.cpp.s
 src/Managers/TextureManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Managers/TextureManager.cpp.s
 .PHONY : src/Managers/TextureManager.cpp.s
+
+src/Scenes/GameScene.obj: src/Scenes/GameScene.cpp.obj
+.PHONY : src/Scenes/GameScene.obj
+
+# target to build an object file
+src/Scenes/GameScene.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/GameScene.cpp.obj
+.PHONY : src/Scenes/GameScene.cpp.obj
+
+src/Scenes/GameScene.i: src/Scenes/GameScene.cpp.i
+.PHONY : src/Scenes/GameScene.i
+
+# target to preprocess a source file
+src/Scenes/GameScene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/GameScene.cpp.i
+.PHONY : src/Scenes/GameScene.cpp.i
+
+src/Scenes/GameScene.s: src/Scenes/GameScene.cpp.s
+.PHONY : src/Scenes/GameScene.s
+
+# target to generate assembly for a file
+src/Scenes/GameScene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/GameScene.cpp.s
+.PHONY : src/Scenes/GameScene.cpp.s
+
+src/Scenes/MenuScene.obj: src/Scenes/MenuScene.cpp.obj
+.PHONY : src/Scenes/MenuScene.obj
+
+# target to build an object file
+src/Scenes/MenuScene.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/MenuScene.cpp.obj
+.PHONY : src/Scenes/MenuScene.cpp.obj
+
+src/Scenes/MenuScene.i: src/Scenes/MenuScene.cpp.i
+.PHONY : src/Scenes/MenuScene.i
+
+# target to preprocess a source file
+src/Scenes/MenuScene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/MenuScene.cpp.i
+.PHONY : src/Scenes/MenuScene.cpp.i
+
+src/Scenes/MenuScene.s: src/Scenes/MenuScene.cpp.s
+.PHONY : src/Scenes/MenuScene.s
+
+# target to generate assembly for a file
+src/Scenes/MenuScene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/MenuScene.cpp.s
+.PHONY : src/Scenes/MenuScene.cpp.s
+
+src/Scenes/RankingScene.obj: src/Scenes/RankingScene.cpp.obj
+.PHONY : src/Scenes/RankingScene.obj
+
+# target to build an object file
+src/Scenes/RankingScene.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/RankingScene.cpp.obj
+.PHONY : src/Scenes/RankingScene.cpp.obj
+
+src/Scenes/RankingScene.i: src/Scenes/RankingScene.cpp.i
+.PHONY : src/Scenes/RankingScene.i
+
+# target to preprocess a source file
+src/Scenes/RankingScene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/RankingScene.cpp.i
+.PHONY : src/Scenes/RankingScene.cpp.i
+
+src/Scenes/RankingScene.s: src/Scenes/RankingScene.cpp.s
+.PHONY : src/Scenes/RankingScene.s
+
+# target to generate assembly for a file
+src/Scenes/RankingScene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\SpaceInvaders.dir\build.make CMakeFiles/SpaceInvaders.dir/src/Scenes/RankingScene.cpp.s
+.PHONY : src/Scenes/RankingScene.cpp.s
 
 src/Scenes/Scene.obj: src/Scenes/Scene.cpp.obj
 .PHONY : src/Scenes/Scene.obj
@@ -524,12 +620,24 @@ help:
 	@echo ... src/Managers/FontManager.obj
 	@echo ... src/Managers/FontManager.i
 	@echo ... src/Managers/FontManager.s
+	@echo ... src/Managers/RankingManager.obj
+	@echo ... src/Managers/RankingManager.i
+	@echo ... src/Managers/RankingManager.s
 	@echo ... src/Managers/SceneManager.obj
 	@echo ... src/Managers/SceneManager.i
 	@echo ... src/Managers/SceneManager.s
 	@echo ... src/Managers/TextureManager.obj
 	@echo ... src/Managers/TextureManager.i
 	@echo ... src/Managers/TextureManager.s
+	@echo ... src/Scenes/GameScene.obj
+	@echo ... src/Scenes/GameScene.i
+	@echo ... src/Scenes/GameScene.s
+	@echo ... src/Scenes/MenuScene.obj
+	@echo ... src/Scenes/MenuScene.i
+	@echo ... src/Scenes/MenuScene.s
+	@echo ... src/Scenes/RankingScene.obj
+	@echo ... src/Scenes/RankingScene.i
+	@echo ... src/Scenes/RankingScene.s
 	@echo ... src/Scenes/Scene.obj
 	@echo ... src/Scenes/Scene.i
 	@echo ... src/Scenes/Scene.s

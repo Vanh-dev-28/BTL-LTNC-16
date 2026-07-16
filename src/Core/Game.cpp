@@ -8,6 +8,8 @@
 #include "Utils/Constants.h"
 #include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "Scenes/MenuScene.h"
+#include <filesystem>
 
 namespace SpaceInvaders
 {
@@ -60,11 +62,23 @@ namespace SpaceInvaders
             clean();
             return false;
         }
+        std::cout << "Current path: "
+          << std::filesystem::current_path()
+          << std::endl;
+        if (!FontManager::instance().loadFont(
+        "menu",
+        "assets/fonts/Roboto-Regular.ttf",
+        36))
+        {
+           std::cerr << "Failed to load font: assets/fonts/Roboto-Regular.ttf\n";
+          std::cerr << "TTF Error: " << SDL_GetError() << std::endl;
+           clean();
+           return false;
+       }
 
         initialized_ = true;
         running_ = true;
-        // Thêm thư viện chứa Scene tương ứng, ví dụ: #include "Scenes/MenuScene.h"
-        sceneManager_.changeScene(std::make_unique<Scene>());
+        sceneManager_.changeScene(std::make_unique<MenuScene>());
         return true;
     }
     void Game::run()
@@ -98,7 +112,6 @@ namespace SpaceInvaders
 
     void Game::render()
     {
-        SDL_SetRenderDrawColor(renderer_.getSDLRenderer(), 255, 0, 0, 255);
         renderer_.clear();
         sceneManager_.render(renderer_);
         renderer_.present();

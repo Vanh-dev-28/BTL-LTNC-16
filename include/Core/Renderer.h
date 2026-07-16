@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <string>
 
 namespace SpaceInvaders {
 
@@ -15,6 +17,12 @@ public:
 
     bool create(SDL_Window* window);
     void clear();
+    void drawText(
+    const std::string& text,
+    TTF_Font* font,
+    SDL_Color color,
+    int x,
+    int y);
     void present();
     void destroy();
     [[nodiscard]] SDL_Renderer* getSDLRenderer() const;

@@ -1,0 +1,233 @@
+{
+	"inputs" : 
+	[
+		{
+			"path" : "CMakeLists.txt"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "build/CMakeFiles/4.4.0/CMakeSystem.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Windows-Initialize.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "build/CMakeFiles/4.4.0/CMakeCXXCompiler.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeSystemSpecificInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeGenericSystem.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeInitializeConfigs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Windows.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/WindowsPaths.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeCXXInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeLanguageInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Compiler/GNU-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Compiler/GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Windows-GNU-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Windows-GNU.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "build/CMakeFiles/4.4.0/CMakeRCCompiler.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeRCInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Windows-windres.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Windows-GNU-CXX-ABI.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/CMakeCommonLanguageInclude.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Internal/CMakeCXXLinkerInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Internal/CMakeCommonLinkerInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Linker/GNU-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Linker/GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Linker/Windows-GNU-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Linker/Windows-GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/Platform/Linker/GNU.cmake"
+		},
+		{
+			"path" : "third_party/SDL3/lib/cmake/SDL3/SDL3ConfigVersion.cmake"
+		},
+		{
+			"path" : "third_party/SDL3/lib/cmake/SDL3/SDL3Config.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/FeatureSummary.cmake"
+		},
+		{
+			"path" : "third_party/SDL3/lib/cmake/SDL3/SDL3headersTargets.cmake"
+		},
+		{
+			"path" : "third_party/SDL3/lib/cmake/SDL3/SDL3sharedTargets.cmake"
+		},
+		{
+			"path" : "third_party/SDL3/lib/cmake/SDL3/SDL3sharedTargets-release.cmake"
+		},
+		{
+			"path" : "third_party/SDL3/lib/cmake/SDL3/SDL3testTargets.cmake"
+		},
+		{
+			"path" : "third_party/SDL3/lib/cmake/SDL3/SDL3testTargets-release.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_image/lib/cmake/SDL3_image/SDL3_imageConfigVersion.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_image/lib/cmake/SDL3_image/SDL3_imageConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/FeatureSummary.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_image/lib/cmake/SDL3_image/SDL3_image-shared-targets.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_image/lib/cmake/SDL3_image/SDL3_image-shared-targets-release.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_ttf/lib/cmake/SDL3_ttf/SDL3_ttfConfigVersion.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_ttf/lib/cmake/SDL3_ttf/SDL3_ttfConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/FeatureSummary.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_ttf/lib/cmake/SDL3_ttf/SDL3_ttf-shared-targets.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_ttf/lib/cmake/SDL3_ttf/SDL3_ttf-shared-targets-release.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_mixer/lib/cmake/SDL3_mixer/SDL3_mixerConfigVersion.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_mixer/lib/cmake/SDL3_mixer/SDL3_mixerConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "C:/msys64/ucrt64/share/cmake/Modules/FeatureSummary.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_mixer/lib/cmake/SDL3_mixer/SDL3_mixer-shared-targets.cmake"
+		},
+		{
+			"path" : "third_party/SDL3_mixer/lib/cmake/SDL3_mixer/SDL3_mixer-shared-targets-release.cmake"
+		}
+	],
+	"kind" : "cmakeFiles",
+	"paths" : 
+	{
+		"build" : "C:/Users/LEGION/Desktop/BTLT/ProjectGame/build",
+		"source" : "C:/Users/LEGION/Desktop/BTLT/ProjectGame"
+	},
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 1
+	}
+}
