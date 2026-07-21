@@ -8,6 +8,8 @@
 #include "Utils/Constants.h"
 #include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "Scenes/MenuScene.h"
+#include <filesystem>
 
 namespace SpaceInvaders
 {
@@ -60,11 +62,44 @@ namespace SpaceInvaders
             clean();
             return false;
         }
+        std::cout << "Current path: "
+          << std::filesystem::current_path()
+          << std::endl;
+        
+        // Font tiêu đề
+        if (!FontManager::instance().loadFont(
+            "menu_title",
+            "../assets/fonts/Orbitron-Bold.ttf",
+            72))
+        {
+            std::cerr << "Failed to load title font\n";
+            clean();
+            return false;
+        }
+
+        // Font menu
+        if (!FontManager::instance().loadFont(
+        "menu",
+        "../assets/fonts/Orbitron-Regular.ttf",
+        40))
+{
+    std::cerr << "Failed to load menu font\n";
+    clean();
+    return false;
+}
+        if (!TextureManager::instance().loadTexture(
+                                        "menu_background",
+                                        "../assets/image/menu/background.png",
+                                         renderer_.getSDLRenderer()))
+        {
+        std::cerr << "Failed to load menu background\n";
+        clean();
+        return false;
+      }
 
         initialized_ = true;
         running_ = true;
-        // Thêm thư viện chứa Scene tương ứng, ví dụ: #include "Scenes/MenuScene.h"
-        sceneManager_.changeScene(std::make_unique<Scene>());
+        sceneManager_.changeScene(std::make_unique<MenuScene>());
         return true;
     }
     void Game::run()
@@ -98,7 +133,6 @@ namespace SpaceInvaders
 
     void Game::render()
     {
-        SDL_SetRenderDrawColor(renderer_.getSDLRenderer(), 255, 0, 0, 255);
         renderer_.clear();
         sceneManager_.render(renderer_);
         renderer_.present();

@@ -31,7 +31,13 @@ add_executable(SpaceInvaders
     src/Managers/FontManager.cpp
     src/Managers/SceneManager.cpp
     src/Managers/TextureManager.cpp
+    src/Managers/RankingManager.cpp
+    src/Managers/SettingsManager.cpp
     src/Scenes/Scene.cpp
+    src/Scenes/MenuScene.cpp
+    src/Scenes/GameScene.cpp
+    src/Scenes/RankingScene.cpp
+    src/Scenes/SettingsScene.cpp
     src/UI/Widget.cpp
     src/Utils/Constants.cpp
     src/Utils/Vector2.cpp
@@ -44,6 +50,24 @@ target_link_libraries(SpaceInvaders PRIVATE
     SDL3_image::SDL3_image
     SDL3_ttf::SDL3_ttf
     SDL3_mixer::SDL3_mixer
+)
+# Copy SDL DLLs to executable folder after build
+add_custom_command(TARGET SpaceInvaders POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/third_party/SDL3/bin/SDL3.dll"
+        $<TARGET_FILE_DIR:SpaceInvaders>
+
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/third_party/SDL3_image/bin/SDL3_image.dll"
+        $<TARGET_FILE_DIR:SpaceInvaders>
+
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/third_party/SDL3_ttf/bin/SDL3_ttf.dll"
+        $<TARGET_FILE_DIR:SpaceInvaders>
+
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/third_party/SDL3_mixer/bin/SDL3_mixer.dll"
+        $<TARGET_FILE_DIR:SpaceInvaders>
 )
 
 if(MSVC)
