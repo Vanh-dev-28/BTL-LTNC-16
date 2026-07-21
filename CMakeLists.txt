@@ -32,10 +32,12 @@ add_executable(SpaceInvaders
     src/Managers/SceneManager.cpp
     src/Managers/TextureManager.cpp
     src/Managers/RankingManager.cpp
+    src/Managers/SettingsManager.cpp
     src/Scenes/Scene.cpp
     src/Scenes/MenuScene.cpp
     src/Scenes/GameScene.cpp
     src/Scenes/RankingScene.cpp
+    src/Scenes/SettingsScene.cpp
     src/UI/Widget.cpp
     src/Utils/Constants.cpp
     src/Utils/Vector2.cpp

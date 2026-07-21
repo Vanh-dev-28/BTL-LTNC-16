@@ -6,7 +6,10 @@
 #include <iostream>
 #include "Managers/SceneManager.h"
 #include "Managers/FontManager.h"
+#include "Managers/TextureManager.h"
+#include "Utils/Constants.h"
 #include <SDL3/SDL.h>
+#include "Scenes/SettingsScene.h"
 
 namespace SpaceInvaders
 {
@@ -50,7 +53,7 @@ void MenuScene::update(float)
         {
             selectedIndex_++;
 
-            if (selectedIndex_ >= menuItems_.size())
+            if (selectedIndex_ >= static_cast<int>(menuItems_.size()))
                 selectedIndex_ = 0;
         }
 
@@ -82,7 +85,8 @@ void MenuScene::update(float)
             break;
 
         case 2:
-            SDL_Log("Settings");
+            sceneManager_->changeScene(
+        std::make_unique<SettingsScene>());
             break;
 
         case 3:
@@ -101,21 +105,41 @@ else
 
 void MenuScene::render(Renderer& renderer)
 {
-    TTF_Font* font = FontManager::instance().getFont("menu");
+    SDL_Texture* background =
+    TextureManager::instance().getTexture("menu_background");
 
-    if (font == nullptr)
+    if (background != nullptr)
+    {
+        renderer.drawTexture(
+        background,
+        0.0f,
+        0.0f,
+        static_cast<float>(Constants::SCREEN_WIDTH),
+        static_cast<float>(Constants::SCREEN_HEIGHT));
+    }
+    TTF_Font* titleFont =
+    FontManager::instance().getFont("menu_title");
+
+    TTF_Font* menuFont =
+    FontManager::instance().getFont("menu");
+
+    if (titleFont == nullptr || menuFont == nullptr)
         return;
 
     SDL_Color white{255,255,255,255};
     SDL_Color yellow{255,255,0,255};
 
-    renderer.drawText(
-        "SPACE INVADERS",
-        font,
-        white,
-        180,
-        80);
-    int startY = 220;
+    const int titleY = 70;
+
+    const int menuStartY = 260;
+    const int menuSpacing = 70;
+
+    renderer.drawTextCentered(
+    "SPACE INVADERS",
+    titleFont,
+    white,
+    Constants::SCREEN_WIDTH / 2,
+    titleY);
 
 for (size_t i = 0; i < menuItems_.size(); i++)
 {
@@ -131,13 +155,13 @@ for (size_t i = 0; i < menuItems_.size(); i++)
         text = "> " + text;
     }
 
-    renderer.drawText(
-        text,
-        font,
-        color,
-        240,
-        startY + static_cast<int>(i) * 60);
-}
-}
+    renderer.drawTextCentered(
+    text,
+    menuFont,
+    color,
+    Constants::SCREEN_WIDTH / 2,
+    menuStartY + static_cast<int>(i) * menuSpacing);
 
 }
+}
+} // namespace SpaceInvaders

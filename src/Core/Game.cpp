@@ -65,16 +65,37 @@ namespace SpaceInvaders
         std::cout << "Current path: "
           << std::filesystem::current_path()
           << std::endl;
+        
+        // Font tiêu đề
+        if (!FontManager::instance().loadFont(
+            "menu_title",
+            "../assets/fonts/Orbitron-Bold.ttf",
+            72))
+        {
+            std::cerr << "Failed to load title font\n";
+            clean();
+            return false;
+        }
+
+        // Font menu
         if (!FontManager::instance().loadFont(
         "menu",
-        "assets/fonts/Roboto-Regular.ttf",
-        36))
+        "../assets/fonts/Orbitron-Regular.ttf",
+        40))
+{
+    std::cerr << "Failed to load menu font\n";
+    clean();
+    return false;
+}
+        if (!TextureManager::instance().loadTexture(
+                                        "menu_background",
+                                        "../assets/image/menu/background.png",
+                                         renderer_.getSDLRenderer()))
         {
-           std::cerr << "Failed to load font: assets/fonts/Roboto-Regular.ttf\n";
-          std::cerr << "TTF Error: " << SDL_GetError() << std::endl;
-           clean();
-           return false;
-       }
+        std::cerr << "Failed to load menu background\n";
+        clean();
+        return false;
+      }
 
         initialized_ = true;
         running_ = true;
