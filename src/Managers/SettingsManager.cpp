@@ -38,20 +38,6 @@ void SettingsManager::setSFXVolume(int volume)
 }
 
 //======================
-// Fullscreen
-//======================
-
-bool SettingsManager::isFullscreen() const
-{
-    return pendingFullscreen_;
-}
-
-void SettingsManager::setFullscreen(bool fullscreen)
-{
-    pendingFullscreen_ = fullscreen;
-}
-
-//======================
 // Resolution
 //======================
 
@@ -68,19 +54,28 @@ void SettingsManager::setResolution(const std::string& resolution)
 void SettingsManager::apply()
 {
     currentResolution_ = pendingResolution_;
-    currentFullscreen_ = pendingFullscreen_;
 
     currentMusicVolume_ = pendingMusicVolume_;
     currentSFXVolume_ = pendingSFXVolume_;
+    applyRequested_ = true;
 }
 
 void SettingsManager::discard()
 {
     pendingResolution_ = currentResolution_;
-    pendingFullscreen_ = currentFullscreen_;
 
     pendingMusicVolume_ = currentMusicVolume_;
     pendingSFXVolume_ = currentSFXVolume_;
+}
+bool SettingsManager::consumeApplyRequest()
+{
+    if (!applyRequested_)
+    {
+        return false;
+    }
+
+    applyRequested_ = false;
+    return true;
 }
 
 }

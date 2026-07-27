@@ -67,6 +67,7 @@ namespace SpaceInvaders
         bool initialized_{false};
 
         /** Quản lý cửa sổ hiển thị của game (kích thước, tiêu đề). */
+        void applySettings();
         Window window_;
 
         /** Quản lý việc vẽ/hiển thị đồ họa (SDL_Renderer). */
@@ -80,6 +81,7 @@ namespace SpaceInvaders
 
         /** Quản lý các màn chơi / cảnh trong game (Menu, Play, End Game). */
         SceneManager sceneManager_;
+        
     };
 
 } // namespace SpaceInvaders
