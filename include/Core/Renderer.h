@@ -7,89 +7,62 @@
 namespace SpaceInvaders
 {
 
-    /** Owns the SDL renderer and exposes frame-level rendering operations. */
-    class Renderer
-    {
-    public:
-        Renderer() = default;
-        ~Renderer();
+class Renderer
+{
+public:
+    Renderer() = default;
+    ~Renderer();
 
-        Renderer(const Renderer &) = delete;
-        Renderer &operator=(const Renderer &) = delete;
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
 
-        bool create(SDL_Window *window);
-        void clear();
-        void drawText(
-            const std::string &text,
-            TTF_Font *font,
-            SDL_Color color,
-            int x,
-            int y);
-        void present();
-        void drawTexture(
-            SDL_Texture *texture,
-            float x,
-            float y,
-            float width,
-            float height,
-            const SDL_FRect *sourceRect = nullptr);
-        void destroy();
-        [[nodiscard]] SDL_Renderer *getSDLRenderer() const;
-        bool measureText(
-            const std::string &text,
-            TTF_Font *font,
-            int &width,
-            int &height) const;
-        void drawTextCentered(
-            const std::string &text,
-            TTF_Font *font,
-            SDL_Color color,
-            int centerX,
-            int y);
-        void drawRect(float x, float y, float width, float height, SDL_Color color);
-        void fillRect(float x, float y, float width, float height, SDL_Color color);
-        void drawLine(float x1, float y1, float x2, float y2, SDL_Color color);
-
-    private:
-        SDL_Renderer *renderer_{nullptr};
-    };
     bool create(SDL_Window* window);
     void clear();
+
     void drawText(
-    const std::string& text,
-    TTF_Font* font,
-    SDL_Color color,
-    int x,
-    int y);
+        const std::string& text,
+        TTF_Font* font,
+        SDL_Color color,
+        int x,
+        int y);
+
     void present();
+
     void drawTexture(
-    SDL_Texture* texture,
-    float x,
-    float y,
-    float width,
-    float height);
+        SDL_Texture* texture,
+        float x,
+        float y,
+        float width,
+        float height,
+        const SDL_FRect* sourceRect = nullptr);
+
     void destroy();
+
     [[nodiscard]] SDL_Renderer* getSDLRenderer() const;
+
     bool measureText(
-    const std::string& text,
-    TTF_Font* font,
-    int& width,
-    int& height) const;
+        const std::string& text,
+        TTF_Font* font,
+        int& width,
+        int& height) const;
+
     void drawTextCentered(
-         const std::string& text,
-         TTF_Font* font,
-         SDL_Color color,
-         int centerX,
-         int y);
+        const std::string& text,
+        TTF_Font* font,
+        SDL_Color color,
+        int centerX,
+        int y);
+
     void drawRect(float x, float y, float width, float height, SDL_Color color);
     void fillRect(float x, float y, float width, float height, SDL_Color color);
     void drawLine(float x1, float y1, float x2, float y2, SDL_Color color);
+
     void updateViewport(SDL_Window* window);
 
 private:
-    SDL_Renderer* renderer_ {nullptr};
-    float scale_ = 1.0f;
+    SDL_Renderer* renderer_{nullptr};
 
+    float scale_ = 1.0f;
     float offsetX_ = 0.0f;
     float offsetY_ = 0.0f;
 };
