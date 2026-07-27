@@ -16,7 +16,10 @@ public:
 
     bool create(const std::string& title, int width, int height);
     void destroy();
+    void setSize(int width, int height);
+    void center();
     [[nodiscard]] SDL_Window* getSDLWindow() const;
+    
 
 private:
     SDL_Window* window_ {nullptr};

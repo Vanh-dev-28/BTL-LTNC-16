@@ -33,11 +33,13 @@ namespace SpaceInvaders
     private:
         bool running_{false};
         bool initialized_{false};
+        void applySettings();
         Window window_;
         Renderer renderer_;
         Input input_;
         Timer timer_;
         SceneManager sceneManager_;
+        
     };
 
 } // namespace SpaceInvaders
