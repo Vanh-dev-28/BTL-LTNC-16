@@ -8,6 +8,7 @@
 #include "Utils/Constants.h"
 #include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "Scenes/GameScene.h"
 #include "Scenes/MenuScene.h"
 #include <filesystem>
 
@@ -63,14 +64,14 @@ namespace SpaceInvaders
             return false;
         }
         std::cout << "Current path: "
-          << std::filesystem::current_path()
-          << std::endl;
-        
+                  << std::filesystem::current_path()
+                  << std::endl;
+
         // Font tiêu đề
         if (!FontManager::instance().loadFont(
-            "menu_title",
-            "../assets/fonts/Orbitron-Bold.ttf",
-            72))
+                "menu_title",
+                "../assets/fonts/Orbitron-Bold.ttf",
+                72))
         {
             std::cerr << "Failed to load title font\n";
             clean();
@@ -79,23 +80,53 @@ namespace SpaceInvaders
 
         // Font menu
         if (!FontManager::instance().loadFont(
-        "menu",
-        "../assets/fonts/Orbitron-Regular.ttf",
-        40))
-{
-    std::cerr << "Failed to load menu font\n";
-    clean();
-    return false;
-}
-        if (!TextureManager::instance().loadTexture(
-                                        "menu_background",
-                                        "../assets/image/menu/background.png",
-                                         renderer_.getSDLRenderer()))
+                "menu",
+                "../assets/fonts/Orbitron-Regular.ttf",
+                40))
         {
-        std::cerr << "Failed to load menu background\n";
-        clean();
-        return false;
-      }
+            std::cerr << "Failed to load menu font\n";
+            clean();
+            return false;
+        }
+        if (!TextureManager::instance().loadTexture(
+                "menu_background",
+                "../assets/image/menu/background.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load menu background\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
+                "gameplay_background",
+                "../assets/image/gameplay_background.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load gameplay background\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
+                "bugs_invaders",
+                "../assets/image/bugs_invaders.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load bugs invaders sprite\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
+                "ship",
+                "../assets/image/ship.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load ship sprite\n";
+            clean();
+            return false;
+        }
 
         initialized_ = true;
         running_ = true;
