@@ -46,9 +46,14 @@ public:
     void drawRect(float x, float y, float width, float height, SDL_Color color);
     void fillRect(float x, float y, float width, float height, SDL_Color color);
     void drawLine(float x1, float y1, float x2, float y2, SDL_Color color);
+    void updateViewport(SDL_Window* window);
 
 private:
     SDL_Renderer* renderer_ {nullptr};
+    float scale_ = 1.0f;
+
+    float offsetX_ = 0.0f;
+    float offsetY_ = 0.0f;
 };
 
 } // namespace SpaceInvaders

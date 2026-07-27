@@ -31,7 +31,8 @@ private:
         "Resolution",
         "Music Volume",
         "SFX Volume",
-        "Fullscreen"
+        "Apply",
+        "Discard"
     };
     std::vector<std::string> resolutionOptions_
     {

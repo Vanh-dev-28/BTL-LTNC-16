@@ -5,6 +5,7 @@
 #include "Managers/AudioManager.h"
 #include "Managers/FontManager.h"
 #include "Managers/TextureManager.h"
+#include "Managers/SettingsManager.h"
 #include "Utils/Constants.h"
 #include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -129,10 +130,41 @@ namespace SpaceInvaders
     {
         timer_.update();
         sceneManager_.update(timer_.deltaTime());
+        applySettings();
     }
+
+    void Game::applySettings()
+{
+    SettingsManager& settings = SettingsManager::instance();
+
+    if (!settings.consumeApplyRequest())
+    {
+        return;
+    }
+
+    const std::string& resolution = settings.getResolution();
+
+    int width = 1280;
+    int height = 720;
+
+    if (resolution == "1600x900")
+    {
+        width = 1600;
+        height = 900;
+    }
+    else if (resolution == "1920x1080")
+    {
+        width = 1920;
+        height = 1080;
+    }
+
+    window_.setSize(width, height);
+}
 
     void Game::render()
     {
+        renderer_.updateViewport(window_.getSDLWindow());
+
         renderer_.clear();
         sceneManager_.render(renderer_);
         renderer_.present();

@@ -41,8 +41,8 @@ void SettingsScene::updateNormal()
 
     static bool upPressed = false;
     static bool downPressed = false;
-    static bool escPressed = false;
     static bool rightPressed = false;
+    static bool enterPressed = false;
 
     if (keyboard[SDL_SCANCODE_UP])
     {
@@ -83,35 +83,104 @@ void SettingsScene::updateNormal()
         downPressed = false;
     }
 
-    if (keyboard[SDL_SCANCODE_ESCAPE])
+    if (keyboard[SDL_SCANCODE_RIGHT])
+{
+    if (!rightPressed)
     {
-        if (!escPressed)
+        switch (selectedIndex_)
         {
-            sceneManager_->changeScene(std::make_unique<MenuScene>());
+        case 0: 
+            state_ = SettingsState::ResolutionPopup;
+            break;
+
+        case 1:     // Music 
+        {
+            int volume = SettingsManager::instance().getMusicVolume();
+            volume = std::min(volume + 10, 100);
+            SettingsManager::instance().setMusicVolume(volume);
+            break;
         }
 
-        escPressed = true;
-    }
-    else
-    {
-        escPressed = false;
-    }
-
-    if (keyboard[SDL_SCANCODE_RIGHT])
-    {  
-        if (!rightPressed)
-       {
-        if (selectedIndex_ == 0)
+        case 2:     // SFX 
         {
-            state_ = SettingsState::ResolutionPopup;
+            int volume = SettingsManager::instance().getSFXVolume();
+            volume = std::min(volume + 10, 100);
+            SettingsManager::instance().setSFXVolume(volume);
+            break;
+        }
+
+        default:
+            break;
         }
     }
 
     rightPressed = true;
+}
+else
+{
+    rightPressed = false;
+}
+    static bool leftPressed = false;
+
+    if (keyboard[SDL_SCANCODE_LEFT])
+{
+    if (!leftPressed)
+    {
+        switch (selectedIndex_)
+        {
+        case 1:
+        {
+            int volume = SettingsManager::instance().getMusicVolume();
+            volume = std::max(volume - 10, 0);
+            SettingsManager::instance().setMusicVolume(volume);
+            break;
+        }
+
+        case 2:
+        {
+            int volume = SettingsManager::instance().getSFXVolume();
+            volume = std::max(volume - 10, 0);
+            SettingsManager::instance().setSFXVolume(volume);
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+
+    leftPressed = true;
+}
+else
+{
+    leftPressed = false;
+}
+    if (keyboard[SDL_SCANCODE_RETURN])
+    {
+    if (!enterPressed)
+    {
+        switch (selectedIndex_)
+        {
+        case 3:
+            SettingsManager::instance().apply();
+            sceneManager_->changeScene(std::make_unique<MenuScene>());
+            break;
+
+        case 4:
+            SettingsManager::instance().discard();
+            sceneManager_->changeScene(std::make_unique<MenuScene>());
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    enterPressed = true;
     }
     else
     {
-    rightPressed = false;
+    enterPressed = false;
     }
 }
 void SettingsScene::render(Renderer& renderer)
@@ -146,24 +215,23 @@ void SettingsScene::render(Renderer& renderer)
     SettingsManager& settings = SettingsManager::instance();
     switch (i)
     {
-case 0:
+case 0:     // Resolution
     text += " : " + settings.getResolution();
     break;
 
-case 1:
-    text += settings.isFullscreen()
-        ? " : ON"
-        : " : OFF";
-    break;
-
-case 2:
+case 1:     // Music
     text += " : " +
         std::to_string(settings.getMusicVolume()) + "%";
     break;
 
-case 3:
+case 2:     // SFX
     text += " : " +
         std::to_string(settings.getSFXVolume()) + "%";
+    break;
+case 3:     // Apply
+    break;
+
+case 4:     // Discard
     break;
     }
     
@@ -182,7 +250,7 @@ case 3:
     }
 
     renderer.drawTextCentered(
-        "ESC : Back",
+        "Apply to save - Discard to cancel",
         font,
         white,
         640,
@@ -199,6 +267,9 @@ void SettingsScene::updateResolutionPopup()
     const bool* keyboard = SDL_GetKeyboardState(nullptr);
 
     static bool leftPressed = false;
+    static bool upPressed = false;
+    static bool downPressed = false;
+    static bool enterPressed = false;
 
     if (keyboard[SDL_SCANCODE_LEFT])
     {
@@ -213,6 +284,63 @@ void SettingsScene::updateResolutionPopup()
     {
     leftPressed = false;
     }
+
+    if (keyboard[SDL_SCANCODE_UP])
+{
+    if (!upPressed)
+    {
+        resolutionPopupIndex_--;
+
+        if (resolutionPopupIndex_ < 0)
+        {
+            resolutionPopupIndex_ =
+                static_cast<int>(resolutionOptions_.size()) - 1;
+        }
+    }
+
+    upPressed = true;
+}
+else
+{
+    upPressed = false;
+}
+
+if (keyboard[SDL_SCANCODE_DOWN])
+{
+    if (!downPressed)
+    {
+        resolutionPopupIndex_++;
+
+        if (resolutionPopupIndex_ >=
+            static_cast<int>(resolutionOptions_.size()))
+        {
+            resolutionPopupIndex_ = 0;
+        }
+    }
+
+    downPressed = true;
+}
+else
+{
+    downPressed = false;
+}
+
+if (keyboard[SDL_SCANCODE_RETURN])
+{
+    if (!enterPressed)
+    {
+        SettingsManager::instance().setResolution(
+            resolutionOptions_[resolutionPopupIndex_]);
+
+        state_ = SettingsState::Normal;
+    }
+
+    enterPressed = true;
+}
+else
+{
+    enterPressed = false;
+}
 }
 
 void SettingsScene::renderResolutionPopup(Renderer& renderer)
