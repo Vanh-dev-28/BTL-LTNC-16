@@ -72,11 +72,6 @@ namespace SpaceInvaders
             return;
         }
 
-        SDL_FRect dst{
-            static_cast<float>(x),
-            static_cast<float>(y),
-            static_cast<float>(surface->w),
-            static_cast<float>(surface->h)};
     SDL_FRect dst{
     offsetX_ + x * scale_,
     offsetY_ + y * scale_,
@@ -143,12 +138,6 @@ namespace SpaceInvaders
         {
             return;
         }
-
-        SDL_FRect dstRect{
-            x,
-            y,
-            width,
-            height};
     SDL_FRect dstRect{
         offsetX_ + x * scale_,
         offsetY_ + y * scale_,
@@ -178,8 +167,6 @@ namespace SpaceInvaders
     }
     void Renderer::fillRect(float x, float y, float width, float height, SDL_Color color)
     {
-        SDL_FRect rect{x, y, width, height};
-    void Renderer::fillRect(float x, float y, float width, float height, SDL_Color color) {
     SDL_FRect rect{
     offsetX_ + x * scale_,
     offsetY_ + y * scale_,
@@ -198,8 +185,6 @@ namespace SpaceInvaders
 
     void Renderer::drawRect(float x, float y, float width, float height, SDL_Color color)
     {
-        SDL_FRect rect{x, y, width, height};
-    void Renderer::drawRect(float x, float y, float width, float height, SDL_Color color) {
     SDL_FRect rect{
     offsetX_ + x * scale_,
     offsetY_ + y * scale_,
@@ -217,27 +202,6 @@ namespace SpaceInvaders
     }
 
     void Renderer::drawLine(
-        float x1,
-        float y1,
-        float x2,
-        float y2,
-        SDL_Color color)
-    {
-        SDL_SetRenderDrawColor(
-            renderer_,
-            color.r,
-            color.g,
-            color.b,
-            color.a);
-
-        SDL_RenderLine(
-            renderer_,
-            x1,
-            y1,
-            x2,
-            y2);
-    }
-}
     float x1,
     float y1,
     float x2,
@@ -252,11 +216,11 @@ namespace SpaceInvaders
         color.a);
 
     SDL_RenderLine(
-    renderer_,
-    offsetX_ + x1 * scale_,
-    offsetY_ + y1 * scale_,
-    offsetX_ + x2 * scale_,
-    offsetY_ + y2 * scale_);
+        renderer_,
+        offsetX_ + x1 * scale_,
+        offsetY_ + y1 * scale_,
+        offsetX_ + x2 * scale_,
+        offsetY_ + y2 * scale_);
 }
 void Renderer::updateViewport(SDL_Window* window)
 {
