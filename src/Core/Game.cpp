@@ -27,16 +27,12 @@ namespace SpaceInvaders
         {
             return true;
         }
-
-        // SỬA: SDL3 trả về true nếu thành công, dùng toán tử phủ định ! để kiểm tra thất bại
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
         {
             std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
             clean();
             return false;
         }
-
-        // SỬA: TTF_Init trong SDL3 cũng trả về bool (true nếu thành công)
         if (!TTF_Init())
         {
             std::cerr << "TTF_Init failed: " << SDL_GetError() << std::endl;
@@ -131,6 +127,7 @@ namespace SpaceInvaders
 
         initialized_ = true;
         running_ = true;
+        sceneManager_.setInput(&input_);
         sceneManager_.changeScene(std::make_unique<MenuScene>());
         return true;
     }
