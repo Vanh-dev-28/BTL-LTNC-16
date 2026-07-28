@@ -6,6 +6,7 @@
 namespace SpaceInvaders {
 
 class Renderer;
+class Input;
 
 /** Owns the active scene and delegates its frame lifecycle. */
 class SceneManager {
@@ -16,9 +17,14 @@ public:
     [[nodiscard]] Scene* currentScene() const;
     void update(float deltaTime);
     void render(Renderer& renderer);
+    void setInput(Input* input);
+
+    [[nodiscard]]
+    Input& input() const;
 
 private:
     std::unique_ptr<Scene> currentScene_;
+    Input* input_ = nullptr;
 };
 
 } // namespace SpaceInvaders

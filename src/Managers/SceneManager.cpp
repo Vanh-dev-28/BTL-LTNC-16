@@ -34,4 +34,14 @@ void SceneManager::render(Renderer& renderer)
     }
 }
 
+void SceneManager::setInput(Input* input)
+{
+    input_ = input;
+}
+
+Input& SceneManager::input() const
+{
+    return *input_;
+}
+
 } // namespace SpaceInvaders

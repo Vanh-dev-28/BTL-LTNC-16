@@ -5,11 +5,13 @@ namespace SpaceInvaders {
 
 class Renderer;
 class SceneManager;
+class Input;
 
 /** Defines the lifecycle and frame operations for an application scene. */
 class Scene {
 protected:
     SceneManager* sceneManager_ = nullptr;
+    Input& input() const;
 public:
     virtual ~Scene() = default;
 

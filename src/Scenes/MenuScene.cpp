@@ -10,6 +10,7 @@
 #include "Utils/Constants.h"
 #include <SDL3/SDL.h>
 #include "Scenes/SettingsScene.h"
+#include "Core/Input.h"
 
 namespace SpaceInvaders
 {
@@ -24,59 +25,34 @@ void MenuScene::exit()
 
 void MenuScene::update(float)
 {
-    const bool* keyboard = SDL_GetKeyboardState(nullptr);
-
-    static bool upPressed = false;
-    static bool downPressed = false;
-    static bool enterPressed = false;
-
-    if (keyboard[SDL_SCANCODE_UP])
+    if (input().isKeyPressed(SDL_SCANCODE_UP))
     {
-        if (!upPressed)
-        {
-            selectedIndex_--;
+        selectedIndex_--;
 
-            if (selectedIndex_ < 0)
-                selectedIndex_ = menuItems_.size() - 1;
-        }
-
-        upPressed = true;
-    }
-    else
-    {
-        upPressed = false;
+        if (selectedIndex_ < 0)
+            selectedIndex_ = static_cast<int>(menuItems_.size()) - 1;
     }
 
-    if (keyboard[SDL_SCANCODE_DOWN])
+    if (input().isKeyPressed(SDL_SCANCODE_DOWN))
     {
-        if (!downPressed)
-        {
-            selectedIndex_++;
+        selectedIndex_++;
 
-            if (selectedIndex_ >= static_cast<int>(menuItems_.size()))
-                selectedIndex_ = 0;
-        }
-
-        downPressed = true;
-    }
-    else
-    {
-        downPressed = false;
+        if (selectedIndex_ >= static_cast<int>(menuItems_.size()))
+             selectedIndex_ = 0;
     }
 
-    if (keyboard[SDL_SCANCODE_RETURN])
-{
-    if (!enterPressed)
+    if (input().isKeyPressed(SDL_SCANCODE_RETURN))
     {
+        
         switch (selectedIndex_)
         {
         case 0:
             SDL_Log("Start Game");
 
             if (sceneManager_ != nullptr)
-    {
-        sceneManager_->changeScene(std::make_unique<GameScene>());
-    }
+        {
+            sceneManager_->changeScene(std::make_unique<GameScene>());
+        }
             break;
 
         case 1:
@@ -94,13 +70,6 @@ void MenuScene::update(float)
             break;
         }
     }
-
-    enterPressed = true;
-}
-else
-{
-    enterPressed = false;
-}
 }
 
 void MenuScene::render(Renderer& renderer)
