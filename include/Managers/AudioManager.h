@@ -18,6 +18,7 @@ namespace SpaceInvaders
         bool initialize();
         bool playMusic(const std::string &path, int loops = -1);
         bool playSFX(const std::string &path, int loops = 0);
+        void setMusicVolume(int volume);
         void stopMusic();
         void clear();
 
@@ -32,6 +33,7 @@ namespace SpaceInvaders
         MIX_Track *musicTrack_{nullptr};
         bool mixerLibraryInitialized_{false};
         MIX_Audio *currentMusic_{nullptr};
+        int musicVolume_ = 100;
         std::unordered_map<std::string, MIX_Audio *> soundEffects_;
         std::vector<MIX_Track *> loopingSfxTracks_;
     };

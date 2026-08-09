@@ -1,4 +1,5 @@
 #include "Managers/AudioManager.h"
+#include <algorithm>
 
 namespace SpaceInvaders
 {
@@ -74,6 +75,7 @@ namespace SpaceInvaders
         }
 
         const bool configured = SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, loops);
+        MIX_SetTrackGain(musicTrack_, static_cast<float>(musicVolume_) / 100.0f);
         const bool playing = configured && MIX_PlayTrack(musicTrack_, options);
         SDL_DestroyProperties(options);
         if (!playing)
@@ -185,5 +187,18 @@ namespace SpaceInvaders
             mixerLibraryInitialized_ = false;
         }
     }
+
+    void AudioManager::setMusicVolume(int volume)
+{
+    volume = std::clamp(volume, 0, 100);
+
+    musicVolume_ = volume;
+
+    if (musicTrack_ != nullptr)
+    {
+        float gain = static_cast<float>(musicVolume_) / 100.0f;
+        MIX_SetTrackGain(musicTrack_, gain);
+    }
+}
 
 } // namespace SpaceInvaders

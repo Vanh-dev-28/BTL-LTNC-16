@@ -7,7 +7,7 @@
 #include "Scenes/MenuScene.h"
 #include "Utils/Constants.h"
 #include "Core/Input.h"
-
+#include "Managers/TextureManager.h"
 #include <SDL3/SDL.h>
 #include <memory>
 
@@ -132,6 +132,18 @@ void SettingsScene::updateNormal()
 }
 void SettingsScene::render(Renderer& renderer)
 {
+    SDL_Texture* background =
+    TextureManager::instance().getTexture("settings_background");
+
+if (background != nullptr)
+{
+    renderer.drawTexture(
+        background,
+        0.0f,
+        0.0f,
+        static_cast<float>(Constants::SCREEN_WIDTH),
+        static_cast<float>(Constants::SCREEN_HEIGHT));
+}
     TTF_Font* font = FontManager::instance().getFont("menu");
 
     if (font == nullptr)
@@ -249,7 +261,6 @@ void SettingsScene::updateResolutionPopup()
 
 void SettingsScene::renderResolutionPopup(Renderer& renderer)
 {
-    // ===== Popup Layout =====
     const float popupWidth = 700.0f;
     const float popupHeight = 320.0f;
 
@@ -264,34 +275,29 @@ void SettingsScene::renderResolutionPopup(Renderer& renderer)
     const float listStartY = popupY + 95.0f;
     const float itemSpacing = 55.0f;
 
-    // ===== Colors =====
     SDL_Color background{25, 25, 35, 240};
     SDL_Color border{255, 255, 255, 255};
     SDL_Color white{255, 255, 255, 255};
     SDL_Color yellow{255, 255, 0, 255};
 
-    // ===== Font =====
     TTF_Font* font = FontManager::instance().getFont("menu");
 
     if (font == nullptr)
         return;
 
-    // ===== Popup =====
-    renderer.fillRect(
+    SDL_Texture* popup =
+    TextureManager::instance().getTexture("resolution_popup");
+
+    if (popup != nullptr)
+    {
+    renderer.drawTexture(
+        popup,
         popupX,
         popupY,
         popupWidth,
-        popupHeight,
-        background);
+        popupHeight);
+    }
 
-    renderer.drawRect(
-        popupX,
-        popupY,
-        popupWidth,
-        popupHeight,
-        border);
-
-    // ===== Title =====
     renderer.drawTextCentered(
         "RESOLUTION",
         font,
