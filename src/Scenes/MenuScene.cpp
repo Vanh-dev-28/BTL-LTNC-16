@@ -66,7 +66,9 @@ void MenuScene::update(float)
             break;
 
         case 3:
-            SDL_Log("Exit");
+            SDL_Event quitEvent;
+            quitEvent.type = SDL_EVENT_QUIT;
+            SDL_PushEvent(&quitEvent);
             break;
         }
     }

@@ -60,11 +60,27 @@ namespace SpaceInvaders
             clean();
             return false;
         }
+
+        AudioManager& audio = AudioManager::instance();
+
+        if (!audio.initialize())
+        {
+        std::cerr << "AudioManager initialization failed\n";
+        clean();
+        return false;
+        }
+
+        audio.setMusicVolume(SettingsManager::instance().getMusicVolume());
+
+        if (!audio.playMusic("../assets/audio/music/background_music.mp3"))
+        {
+        std::cerr << "Failed to play background music\n";
+        }
+
         std::cout << "Current path: "
                   << std::filesystem::current_path()
                   << std::endl;
 
-        // Font tiêu đề
         if (!FontManager::instance().loadFont(
                 "menu_title",
                 "../assets/fonts/Orbitron-Bold.ttf",
@@ -75,7 +91,6 @@ namespace SpaceInvaders
             return false;
         }
 
-        // Font menu
         if (!FontManager::instance().loadFont(
                 "menu",
                 "../assets/fonts/Orbitron-Regular.ttf",
@@ -94,7 +109,6 @@ namespace SpaceInvaders
             clean();
             return false;
         }
-
         if (!TextureManager::instance().loadTexture(
                 "gameplay_background",
                 "../assets/image/gameplay_background.png",
@@ -104,6 +118,25 @@ namespace SpaceInvaders
             clean();
             return false;
         }
+        if (!TextureManager::instance().loadTexture(
+                "settings_background",
+                "../assets/image/menu/settings_bg.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load settings background\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
+                "resolution_popup",
+                "../assets/image/menu/popup_bg.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load resolution popup\n";
+            clean();
+            return false;
+        }       
 
         if (!TextureManager::instance().loadTexture(
                 "bugs_invaders",
@@ -162,7 +195,7 @@ namespace SpaceInvaders
     }
 
     void Game::applySettings()
-{
+    {
     SettingsManager& settings = SettingsManager::instance();
 
     if (!settings.consumeApplyRequest())
@@ -187,7 +220,9 @@ namespace SpaceInvaders
     }
 
     window_.setSize(width, height);
-}
+    //ket noi voi AudioManager de thay doi am luong nhac nen
+    AudioManager::instance().setMusicVolume(settings.getMusicVolume());
+    }
 
     void Game::render()
     {
