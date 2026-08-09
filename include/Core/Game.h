@@ -46,6 +46,8 @@ namespace SpaceInvaders
         /** Dọn dẹp tài nguyên, đóng SDL và thoát game an toàn. */
         void clean();
 
+        void applySettings();
+
         // --- CÁC HÀM GETTER / TRUY XUẤT TRẠNG THÁI ---
 
         /** Kiểm tra xem game có đang chạy hay không. */
@@ -67,7 +69,7 @@ namespace SpaceInvaders
         bool initialized_{false};
 
         /** Quản lý cửa sổ hiển thị của game (kích thước, tiêu đề). */
-        void applySettings();
+
         Window window_;
 
         /** Quản lý việc vẽ/hiển thị đồ họa (SDL_Renderer). */
@@ -81,7 +83,6 @@ namespace SpaceInvaders
 
         /** Quản lý các màn chơi / cảnh trong game (Menu, Play, End Game). */
         SceneManager sceneManager_;
-        
     };
 
 } // namespace SpaceInvaders

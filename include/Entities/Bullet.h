@@ -1,19 +1,21 @@
+#pragma once
+
+#include "Core/Renderer.h"
+
 namespace SpaceInvaders
 {
-    class Renderer;
     class Bullet
     {
     public:
-        void update(float dt);
+        float x, y;
+        bool active;
 
-        void render(Renderer &renderer);
+        Bullet(float startX, float startY, float spd);
 
-        void move();
-
-        void shoot();
+        void update(float deltaTime);
+        void render(Renderer &renderer) const;
 
     private:
-        float bulletX;
-        float bulletY;
+        float speed_;
     };
 }

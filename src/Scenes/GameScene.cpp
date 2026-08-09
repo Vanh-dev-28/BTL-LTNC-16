@@ -1,19 +1,18 @@
 #include "Scenes/GameScene.h"
 #include "Core/Renderer.h"
 #include "Managers/TextureManager.h"
+#include "Managers/FontManager.h"
 #include "Utils/Constants.h"
 
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 namespace SpaceInvaders
 {
 
     void GameScene::enter()
     {
-        playerX_ = Constants::SCREEN_WIDTH / 2.0f - 32.0f;
-        playerY_ = Constants::SCREEN_HEIGHT - 90.0f;
-        playerSpeed_ = 360.0f;
-        fireCooldown_ = 0.0f;
+        player_.init();
         enemyDirection_ = 1.0f;
         score_ = 0;
         gameOver_ = false;
@@ -35,32 +34,7 @@ namespace SpaceInvaders
             return;
         }
 
-        const bool *keyboardState = SDL_GetKeyboardState(nullptr);
-
-        if (keyboardState[SDL_SCANCODE_A] || keyboardState[SDL_SCANCODE_LEFT])
-        {
-            playerX_ -= playerSpeed_ * deltaTime;
-        }
-        if (keyboardState[SDL_SCANCODE_D] || keyboardState[SDL_SCANCODE_RIGHT])
-        {
-            playerX_ += playerSpeed_ * deltaTime;
-        }
-
-        if (playerX_ < 20.0f)
-        {
-            playerX_ = 20.0f;
-        }
-        if (playerX_ > Constants::SCREEN_WIDTH - 64.0f)
-        {
-            playerX_ = Constants::SCREEN_WIDTH - 64.0f;
-        }
-
-        fireCooldown_ -= deltaTime;
-        if (fireCooldown_ <= 0.0f && (keyboardState[SDL_SCANCODE_SPACE] || keyboardState[SDL_SCANCODE_J]))
-        {
-            spawnBullet();
-            fireCooldown_ = 0.18f;
-        }
+        player_.update(deltaTime, bullets_);
 
         updateBullets(deltaTime);
         updateEnemies(deltaTime);
@@ -90,49 +64,24 @@ namespace SpaceInvaders
             SDL_RenderClear(renderer.getSDLRenderer());
         }
 
-        SDL_Texture *enemyTexture = TextureManager::instance().getTexture("bugs_invaders");
         for (const auto &enemy : enemies_)
         {
-            if (!enemy.alive)
-            {
-                continue;
-            }
-
-            if (enemyTexture != nullptr)
-            {
-                renderer.drawTexture(enemyTexture, enemy.x, enemy.y, 42.0f, 42.0f);
-            }
-            else
-            {
-                renderer.fillRect(enemy.x, enemy.y, 42.0f, 42.0f, SDL_Color{255, 80, 80, 255});
-            }
+            enemy.render(renderer);
         }
 
         for (const auto &bullet : bullets_)
         {
-            if (bullet.active)
-            {
-                renderer.fillRect(bullet.x, bullet.y, 4.0f, 14.0f, SDL_Color{255, 255, 120, 255});
-            }
+            bullet.render(renderer);
         }
 
-        SDL_Texture *playerTexture = TextureManager::instance().getTexture("ship");
-        if (playerTexture != nullptr)
-        {
-            renderer.drawTexture(playerTexture, playerX_, playerY_, 48.0f, 48.0f);
-        }
-        else
-        {
-            // Fallback to drawing rectangles if the texture isn't found
-            renderer.fillRect(playerX_, playerY_, 52.0f, 24.0f, SDL_Color{255, 255, 255, 255});
-            renderer.fillRect(playerX_ + 16.0f, playerY_ - 12.0f, 20.0f, 16.0f, SDL_Color{255, 255, 255, 255});
-        }
+        player_.render(renderer);
 
         if (gameOver_)
         {
+            TTF_Font *font = FontManager::instance().getFont("menu");
             renderer.drawTextCentered(
                 allEnemiesDefeated() ? "YOU WIN" : "GAME OVER",
-                nullptr,
+                font,
                 SDL_Color{255, 80, 80, 255},
                 Constants::SCREEN_WIDTH / 2,
                 Constants::SCREEN_HEIGHT / 2);
@@ -151,37 +100,38 @@ namespace SpaceInvaders
         enemies_.clear();
         for (int row = 0; row < rows; ++row)
         {
+            EnemyType type = EnemyType::Bomber; // Mặc định
+            switch (row)
+            {
+            case 0:
+                type = EnemyType::Bomber;
+                break;
+            case 1:
+                type = EnemyType::Drone;
+                break;
+            case 2:
+                type = EnemyType::HealthSpaceship;
+                break;
+            case 3:
+                type = EnemyType::Drone; // Hàng cuối cùng là Drone
+                break;
+            }
             for (int col = 0; col < columns; ++col)
             {
-                Enemy enemy{};
-                enemy.x = startX + col * spacingX;
-                enemy.y = startY + row * spacingY;
-                enemy.speed = 60.0f + row * 4.0f;
-                enemy.alive = true;
-                enemies_.push_back(enemy);
+                enemies_.emplace_back(
+                    startX + col * spacingX,
+                    startY + row * spacingY,
+                    60.0f + row * 4.0f,
+                    type);
             }
         }
-    }
-
-    void GameScene::spawnBullet()
-    {
-        bullets_.push_back(Bullet{playerX_ + 22.0f, playerY_ - 14.0f, -420.0f, true});
     }
 
     void GameScene::updateBullets(float deltaTime)
     {
         for (auto &bullet : bullets_)
         {
-            if (!bullet.active)
-            {
-                continue;
-            }
-
-            bullet.y += bullet.speed * deltaTime;
-            if (bullet.y < -20.0f || bullet.y > Constants::SCREEN_HEIGHT + 20.0f)
-            {
-                bullet.active = false;
-            }
+            bullet.update(deltaTime);
         }
     }
 
@@ -190,13 +140,8 @@ namespace SpaceInvaders
         bool hitEdge = false;
         for (auto &enemy : enemies_)
         {
-            if (!enemy.alive)
-            {
-                continue;
-            }
-
-            enemy.x += enemyDirection_ * enemy.speed * deltaTime;
-            if (enemy.x < 20.0f || enemy.x > Constants::SCREEN_WIDTH - 58.0f)
+            enemy.update(deltaTime, enemyDirection_);
+            if (enemy.alive && (enemy.x < 20.0f || enemy.x > Constants::SCREEN_WIDTH - (enemy.width + 20.0f)))
             {
                 hitEdge = true;
             }
@@ -216,7 +161,7 @@ namespace SpaceInvaders
 
         for (const auto &enemy : enemies_)
         {
-            if (enemy.alive && enemy.y + 42.0f >= playerY_)
+            if (enemy.alive && enemy.y + enemy.height >= player_.y)
             {
                 gameOver_ = true;
                 break;
@@ -240,8 +185,8 @@ namespace SpaceInvaders
                     continue;
                 }
 
-                const bool hit = bullet.x >= enemy.x && bullet.x <= enemy.x + 42.0f &&
-                                 bullet.y >= enemy.y && bullet.y <= enemy.y + 42.0f;
+                const bool hit = bullet.x >= enemy.x && bullet.x <= enemy.x + enemy.width &&
+                                 bullet.y >= enemy.y && bullet.y <= enemy.y + enemy.height;
                 if (hit)
                 {
                     enemy.alive = false;

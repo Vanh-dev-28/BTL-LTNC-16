@@ -5,38 +5,28 @@
 namespace SpaceInvaders
 {
 
+    enum class EnemyType
+    {
+        Bomber,
+        Drone,
+        HealthSpaceship
+    };
+
     class Enemy
     {
     public:
-        Enemy() = default;
-        ~Enemy() = default;
+        float x, y;
+        float width, height;
+        bool alive;
 
-        // Khởi tạo vị trí
-        void spawn(float x, float y);
+        Enemy(float startX, float startY, float spd, EnemyType type);
 
-        // Cập nhật mỗi frame
-        void update(float deltaTime);
-
-        // Vẽ lên màn hình
-        void render(Renderer &renderer);
-
-        // Bị tiêu diệt
-        void destroy();
-
-        // Kiểm tra còn sống không
-        bool isAlive() const;
-
-        // Lấy vị trí
-        float getX() const;
-        float getY() const;
+        void update(float deltaTime, float direction);
+        void render(Renderer &renderer) const;
 
     private:
-        float x_{};
-        float y_{};
-
-        float speed_{150.0f};
-
-        bool alive_{true};
+        float speed_;
+        EnemyType type_;
     };
 
 }
