@@ -7,64 +7,66 @@
 namespace SpaceInvaders
 {
 
-class Renderer
-{
-public:
-    Renderer() = default;
-    ~Renderer();
+    class Renderer
+    {
+    public:
+        static float s_scale;
+        static float s_offsetX;
 
-    Renderer(const Renderer&) = delete;
-    Renderer& operator=(const Renderer&) = delete;
+    public:
+        Renderer() = default;
 
-    bool create(SDL_Window* window);
-    void clear();
+        ~Renderer();
 
-    void drawText(
-        const std::string& text,
-        TTF_Font* font,
-        SDL_Color color,
-        int x,
-        int y);
+        bool create(SDL_Window *window);
+        void clear();
 
-    void present();
+        void drawText(
+            const std::string &text,
+            TTF_Font *font,
+            SDL_Color color,
+            int x,
+            int y);
 
-    void drawTexture(
-        SDL_Texture* texture,
-        float x,
-        float y,
-        float width,
-        float height,
-        const SDL_FRect* sourceRect = nullptr);
+        void present();
 
-    void destroy();
+        void drawTexture(
+            SDL_Texture *texture,
+            float x,
+            float y,
+            float width,
+            float height,
+            const SDL_FRect *sourceRect = nullptr);
 
-    [[nodiscard]] SDL_Renderer* getSDLRenderer() const;
+        void destroy();
 
-    bool measureText(
-        const std::string& text,
-        TTF_Font* font,
-        int& width,
-        int& height) const;
+        [[nodiscard]] SDL_Renderer *getSDLRenderer() const;
 
-    void drawTextCentered(
-        const std::string& text,
-        TTF_Font* font,
-        SDL_Color color,
-        int centerX,
-        int y);
+        bool measureText(
+            const std::string &text,
+            TTF_Font *font,
+            int &width,
+            int &height) const;
 
-    void drawRect(float x, float y, float width, float height, SDL_Color color);
-    void fillRect(float x, float y, float width, float height, SDL_Color color);
-    void drawLine(float x1, float y1, float x2, float y2, SDL_Color color);
+        void drawTextCentered(
+            const std::string &text,
+            TTF_Font *font,
+            SDL_Color color,
+            int centerX,
+            int y);
 
-    void updateViewport(SDL_Window* window);
+        void drawRect(float x, float y, float width, float height, SDL_Color color);
+        void fillRect(float x, float y, float width, float height, SDL_Color color);
+        void drawLine(float x1, float y1, float x2, float y2, SDL_Color color);
 
-private:
-    SDL_Renderer* renderer_{nullptr};
+        void updateViewport(SDL_Window *window);
 
-    float scale_ = 1.0f;
-    float offsetX_ = 0.0f;
-    float offsetY_ = 0.0f;
-};
+    private:
+        SDL_Renderer *renderer_{nullptr};
+
+        float scale_{1.0f};
+        float offsetX_{0.0f};
+        float offsetY_{0.0f};
+    };
 
 } // namespace SpaceInvaders

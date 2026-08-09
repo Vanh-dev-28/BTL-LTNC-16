@@ -27,6 +27,9 @@ add_executable(SpaceInvaders
     src/Core/Timer.cpp
     src/Core/Window.cpp
     src/Entities/Entity.cpp
+    src/Entities/Player.cpp
+    src/Entities/Enemy.cpp
+    src/Entities/Bullet.cpp
     src/Managers/AudioManager.cpp
     src/Managers/FontManager.cpp
     src/Managers/SceneManager.cpp

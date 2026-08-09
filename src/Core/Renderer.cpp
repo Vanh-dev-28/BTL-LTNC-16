@@ -6,6 +6,8 @@
 #include <string>
 namespace SpaceInvaders
 {
+    float Renderer::s_scale = 1.0f;
+    float Renderer::s_offsetX = 0.0f;
 
     Renderer::~Renderer()
     {
@@ -22,7 +24,7 @@ namespace SpaceInvaders
             return false;
         }
 
-    return true;
+        return true;
     }
 
     void Renderer::clear()
@@ -72,12 +74,11 @@ namespace SpaceInvaders
             return;
         }
 
-    SDL_FRect dst{
-    offsetX_ + x * scale_,
-    offsetY_ + y * scale_,
-    surface->w * scale_,
-    surface->h * scale_
-    };
+        SDL_FRect dst{
+            offsetX_ + x * scale_,
+            offsetY_ + y * scale_,
+            surface->w * scale_,
+            surface->h * scale_};
 
         SDL_DestroySurface(surface);
 
@@ -138,12 +139,11 @@ namespace SpaceInvaders
         {
             return;
         }
-    SDL_FRect dstRect{
-        offsetX_ + x * scale_,
-        offsetY_ + y * scale_,
-        width * scale_,
-        height * scale_   
-    };
+        SDL_FRect dstRect{
+            offsetX_ + x * scale_,
+            offsetY_ + y * scale_,
+            width * scale_,
+            height * scale_};
 
         SDL_RenderTexture(renderer_, texture, sourceRect, &dstRect);
     }
@@ -167,12 +167,11 @@ namespace SpaceInvaders
     }
     void Renderer::fillRect(float x, float y, float width, float height, SDL_Color color)
     {
-    SDL_FRect rect{
-    offsetX_ + x * scale_,
-    offsetY_ + y * scale_,
-    width * scale_,
-    height * scale_
-    };
+        SDL_FRect rect{
+            offsetX_ + x * scale_,
+            offsetY_ + y * scale_,
+            width * scale_,
+            height * scale_};
 
         SDL_SetRenderDrawColor(renderer_,
                                color.r,
@@ -185,12 +184,11 @@ namespace SpaceInvaders
 
     void Renderer::drawRect(float x, float y, float width, float height, SDL_Color color)
     {
-    SDL_FRect rect{
-    offsetX_ + x * scale_,
-    offsetY_ + y * scale_,
-    width * scale_,
-    height * scale_
-    };
+        SDL_FRect rect{
+            offsetX_ + x * scale_,
+            offsetY_ + y * scale_,
+            width * scale_,
+            height * scale_};
 
         SDL_SetRenderDrawColor(renderer_,
                                color.r,
@@ -202,52 +200,57 @@ namespace SpaceInvaders
     }
 
     void Renderer::drawLine(
-    float x1,
-    float y1,
-    float x2,
-    float y2,
-    SDL_Color color)
-{
-    SDL_SetRenderDrawColor(
-        renderer_,
-        color.r,
-        color.g,
-        color.b,
-        color.a);
+        float x1,
+        float y1,
+        float x2,
+        float y2,
+        SDL_Color color)
+    {
+        SDL_SetRenderDrawColor(
+            renderer_,
+            color.r,
+            color.g,
+            color.b,
+            color.a);
 
-    SDL_RenderLine(
-        renderer_,
-        offsetX_ + x1 * scale_,
-        offsetY_ + y1 * scale_,
-        offsetX_ + x2 * scale_,
-        offsetY_ + y2 * scale_);
+        SDL_RenderLine(
+            renderer_,
+            offsetX_ + x1 * scale_,
+            offsetY_ + y1 * scale_,
+            offsetX_ + x2 * scale_,
+            offsetY_ + y2 * scale_);
+    }
+    void Renderer::updateViewport(SDL_Window *window)
+    {
+        int windowWidth;
+        int windowHeight;
+
+        SDL_GetWindowSize(
+            window,
+            &windowWidth,
+            &windowHeight);
+
+        float scaleX =
+            static_cast<float>(windowWidth) /
+            Constants::SCREEN_WIDTH;
+
+        float scaleY =
+            static_cast<float>(windowHeight) /
+            Constants::SCREEN_HEIGHT;
+
+        scale_ = std::min(scaleX, scaleY);
+
+        offsetX_ =
+            (windowWidth -
+             Constants::SCREEN_WIDTH * scale_) *
+            0.5f;
+
+        offsetY_ =
+            (windowHeight -
+             Constants::SCREEN_HEIGHT * scale_) *
+            0.5f;
+
+        s_scale = scale_;
+        s_offsetX = offsetX_;
+    }
 }
-void Renderer::updateViewport(SDL_Window* window)
-{
-    int windowWidth;
-    int windowHeight;
-
-    SDL_GetWindowSize(
-        window,
-        &windowWidth,
-        &windowHeight);
-
-    float scaleX =
-        static_cast<float>(windowWidth) /
-        Constants::SCREEN_WIDTH;
-
-    float scaleY =
-        static_cast<float>(windowHeight) /
-        Constants::SCREEN_HEIGHT;
-
-    scale_ = std::min(scaleX, scaleY);
-
-    offsetX_ =
-        (windowWidth -
-         Constants::SCREEN_WIDTH * scale_) * 0.5f;
-
-    offsetY_ =
-        (windowHeight -
-         Constants::SCREEN_HEIGHT * scale_) * 0.5f;
-}
-} 

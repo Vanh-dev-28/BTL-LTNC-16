@@ -61,60 +61,62 @@ namespace SpaceInvaders
             return false;
         }
 
-        AudioManager& audio = AudioManager::instance();
+        const std::filesystem::path assetRoot =
+            (std::filesystem::current_path() / ".." / "assets").lexically_normal();
 
-        if (!audio.initialize())
-        {
-        std::cerr << "AudioManager initialization failed\n";
-        clean();
-        return false;
-        }
+        std::cout << "Current path: " << std::filesystem::current_path() << std::endl;
+        std::cout << "Resolved asset root: " << assetRoot << std::endl;
 
+        AudioManager &audio = AudioManager::instance();
         audio.setMusicVolume(SettingsManager::instance().getMusicVolume());
 
-        if (!audio.playMusic("../assets/audio/music/background_music.mp3"))
+        if (!audio.playMusic((assetRoot / "audio" / "music" / "background_music.mp3").string()))
         {
-        std::cerr << "Failed to play background music\n";
+            std::cerr << "Failed to play background music\n";
         }
-
-        std::cout << "Current path: "
-                  << std::filesystem::current_path()
-                  << std::endl;
 
         if (!FontManager::instance().loadFont(
                 "menu_title",
-                "../assets/fonts/Orbitron-Bold.ttf",
+                (assetRoot / "fonts" / "Orbitron-Bold.ttf").string(),
                 72))
         {
-            std::cerr << "Failed to load title font\n";
+            std::cerr << "Failed to load title font from '"
+                      << (assetRoot / "fonts" / "Orbitron-Bold.ttf")
+                      << "'\n";
             clean();
             return false;
         }
 
         if (!FontManager::instance().loadFont(
                 "menu",
-                "../assets/fonts/Orbitron-Regular.ttf",
+                (assetRoot / "fonts" / "Orbitron-Regular.ttf").string(),
                 40))
         {
-            std::cerr << "Failed to load menu font\n";
+            std::cerr << "Failed to load menu font from '"
+                      << (assetRoot / "fonts" / "Orbitron-Regular.ttf")
+                      << "'\n";
             clean();
             return false;
         }
         if (!TextureManager::instance().loadTexture(
                 "menu_background",
-                "../assets/image/menu/background.png",
+                (assetRoot / "image" / "menu" / "background.png").string(),
                 renderer_.getSDLRenderer()))
         {
-            std::cerr << "Failed to load menu background\n";
+            std::cerr << "Failed to load menu background from '"
+                      << (assetRoot / "image" / "menu" / "background.png")
+                      << "'\n";
             clean();
             return false;
         }
         if (!TextureManager::instance().loadTexture(
                 "gameplay_background",
-                "../assets/image/gameplay_background.png",
+                (assetRoot / "image" / "Background" / "gameplay_background.png").string(),
                 renderer_.getSDLRenderer()))
         {
-            std::cerr << "Failed to load gameplay background\n";
+            std::cerr << "Failed to load gameplay background from '"
+                      << (assetRoot / "image" / "Background" / "gameplay_background.png")
+                      << "': " << SDL_GetError() << "\n";
             clean();
             return false;
         }
@@ -136,21 +138,39 @@ namespace SpaceInvaders
             std::cerr << "Failed to load resolution popup\n";
             clean();
             return false;
-        }       
+        }
 
         if (!TextureManager::instance().loadTexture(
-                "bugs_invaders",
-                "../assets/image/bugs_invaders.png",
+                "enemy_bomber",
+                "../assets/image/Enemies/bomber.png",
                 renderer_.getSDLRenderer()))
         {
-            std::cerr << "Failed to load bugs invaders sprite\n";
+            std::cerr << "Failed to load enemy_bomber sprite\n";
+            clean();
+            return false;
+        }
+        if (!TextureManager::instance().loadTexture(
+                "enemy_drone",
+                "../assets/image/Enemies/drone.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load enemy_drone sprite\n";
+            clean();
+            return false;
+        }
+        if (!TextureManager::instance().loadTexture(
+                "enemy_health_spaceship",
+                "../assets/image/Enemies/health-spaceship.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load enemy_health_spaceship sprite\n";
             clean();
             return false;
         }
 
         if (!TextureManager::instance().loadTexture(
                 "ship",
-                "../assets/image/ship.png",
+                "../assets/image/Ships/fighter.png",
                 renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load ship sprite\n";
@@ -164,6 +184,7 @@ namespace SpaceInvaders
         sceneManager_.changeScene(std::make_unique<MenuScene>());
         return true;
     }
+
     void Game::run()
     {
         while (running_)
@@ -196,32 +217,32 @@ namespace SpaceInvaders
 
     void Game::applySettings()
     {
-    SettingsManager& settings = SettingsManager::instance();
+        SettingsManager &settings = SettingsManager::instance();
 
-    if (!settings.consumeApplyRequest())
-    {
-        return;
-    }
+        if (!settings.consumeApplyRequest())
+        {
+            return;
+        }
 
-    const std::string& resolution = settings.getResolution();
+        const std::string &resolution = settings.getResolution();
 
-    int width = 1280;
-    int height = 720;
+        int width = 1280;
+        int height = 720;
 
-    if (resolution == "1600x900")
-    {
-        width = 1600;
-        height = 900;
-    }
-    else if (resolution == "1920x1080")
-    {
-        width = 1920;
-        height = 1080;
-    }
+        if (resolution == "1600x900")
+        {
+            width = 1600;
+            height = 900;
+        }
+        else if (resolution == "1920x1080")
+        {
+            width = 1920;
+            height = 1080;
+        }
 
-    window_.setSize(width, height);
-    //ket noi voi AudioManager de thay doi am luong nhac nen
-    AudioManager::instance().setMusicVolume(settings.getMusicVolume());
+        window_.setSize(width, height);
+        // Kết nối với AudioManager để thay đổi âm lượng nhạc nền
+        AudioManager::instance().setMusicVolume(settings.getMusicVolume());
     }
 
     void Game::render()

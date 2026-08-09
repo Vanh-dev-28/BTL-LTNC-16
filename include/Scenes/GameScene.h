@@ -2,6 +2,9 @@
 
 #include "Scenes/Scene.h"
 #include <vector>
+#include "Entities/Player.h"
+#include "Entities/Enemy.h"
+#include "Entities/Bullet.h"
 
 namespace SpaceInvaders
 {
@@ -19,23 +22,6 @@ namespace SpaceInvaders
         void render(Renderer &renderer) override;
 
     private:
-        struct Bullet
-        {
-            float x{};
-            float y{};
-            float speed{};
-            bool active{};
-        };
-
-        struct Enemy
-        {
-            float x{};
-            float y{};
-            float speed{};
-            bool alive{};
-        };
-
-        void spawnBullet();
         void updateBullets(float deltaTime);
         void updateEnemies(float deltaTime);
         void checkCollisions();
@@ -43,10 +29,8 @@ namespace SpaceInvaders
 
         void resetWave();
 
-        float playerX_{};
-        float playerY_{};
-        float playerSpeed_{};
-        float fireCooldown_{};
+        Player player_{};
+
         float enemyDirection_{};
         int score_{};
         bool gameOver_{};

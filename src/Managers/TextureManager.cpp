@@ -1,6 +1,7 @@
 #include "Managers/TextureManager.h"
 
 #include <SDL3_image/SDL_image.h>
+#include <iostream>
 
 namespace SpaceInvaders {
 
@@ -23,6 +24,8 @@ bool TextureManager::loadTexture(const std::string& id, const std::string& path,
     unloadTexture(id);
     SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
     if (texture == nullptr) {
+        std::cerr << "IMG_LoadTexture failed for '" << path << "': "
+                  << SDL_GetError() << std::endl;
         return false;
     }
     textures_.emplace(id, texture);
