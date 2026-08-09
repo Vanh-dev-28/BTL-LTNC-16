@@ -6,7 +6,8 @@
 #include "Managers/SettingsManager.h"
 #include "Scenes/MenuScene.h"
 #include "Utils/Constants.h"
-
+#include "Core/Input.h"
+#include "Managers/TextureManager.h"
 #include <SDL3/SDL.h>
 #include <memory>
 
@@ -37,55 +38,28 @@ void SettingsScene::update(float)
 
 void SettingsScene::updateNormal()
 {
-    const bool* keyboard = SDL_GetKeyboardState(nullptr);
-
-    static bool upPressed = false;
-    static bool downPressed = false;
-    static bool rightPressed = false;
-    static bool enterPressed = false;
-
-    if (keyboard[SDL_SCANCODE_UP])
+    if (input().isKeyPressed(SDL_SCANCODE_UP))
     {
-        if (!upPressed)
+        selectedIndex_--;
+
+        if (selectedIndex_ < 0)
         {
-            selectedIndex_--;
-
-            if (selectedIndex_ < 0)
-            {
-                selectedIndex_ =
-                    static_cast<int>(settingItems_.size()) - 1;
-            }
+        selectedIndex_ =
+            static_cast<int>(settingItems_.size()) - 1;
         }
-
-        upPressed = true;
-    }
-    else
-    {
-        upPressed = false;
     }
 
-    if (keyboard[SDL_SCANCODE_DOWN])
+    if (input().isKeyPressed(SDL_SCANCODE_DOWN))
     {
-        if (!downPressed)
+        selectedIndex_++;
+
+        if (selectedIndex_ >= static_cast<int>(settingItems_.size()))
         {
-            selectedIndex_++;
-
-            if (selectedIndex_ >= static_cast<int>(settingItems_.size()))
-            {
-                selectedIndex_ = 0;
-            }
+            selectedIndex_ = 0;
         }
-
-        downPressed = true;
-    }
-    else
-    {
-        downPressed = false;
     }
 
-    if (keyboard[SDL_SCANCODE_RIGHT])
-{
-    if (!rightPressed)
+    if (input().isKeyPressed(SDL_SCANCODE_RIGHT))
     {
         switch (selectedIndex_)
         {
@@ -114,17 +88,7 @@ void SettingsScene::updateNormal()
         }
     }
 
-    rightPressed = true;
-}
-else
-{
-    rightPressed = false;
-}
-    static bool leftPressed = false;
-
-    if (keyboard[SDL_SCANCODE_LEFT])
-{
-    if (!leftPressed)
+    if (input().isKeyPressed(SDL_SCANCODE_LEFT))
     {
         switch (selectedIndex_)
         {
@@ -148,16 +112,7 @@ else
             break;
         }
     }
-
-    leftPressed = true;
-}
-else
-{
-    leftPressed = false;
-}
-    if (keyboard[SDL_SCANCODE_RETURN])
-    {
-    if (!enterPressed)
+    if (input().isKeyPressed(SDL_SCANCODE_RETURN))
     {
         switch (selectedIndex_)
         {
@@ -165,26 +120,30 @@ else
             SettingsManager::instance().apply();
             sceneManager_->changeScene(std::make_unique<MenuScene>());
             break;
-
         case 4:
             SettingsManager::instance().discard();
             sceneManager_->changeScene(std::make_unique<MenuScene>());
-            break;
+        break;
 
         default:
             break;
         }
     }
-
-    enterPressed = true;
-    }
-    else
-    {
-    enterPressed = false;
-    }
 }
 void SettingsScene::render(Renderer& renderer)
 {
+    SDL_Texture* background =
+    TextureManager::instance().getTexture("settings_background");
+
+if (background != nullptr)
+{
+    renderer.drawTexture(
+        background,
+        0.0f,
+        0.0f,
+        static_cast<float>(Constants::SCREEN_WIDTH),
+        static_cast<float>(Constants::SCREEN_HEIGHT));
+}
     TTF_Font* font = FontManager::instance().getFont("menu");
 
     if (font == nullptr)
@@ -264,50 +223,23 @@ if (state_ == SettingsState::ResolutionPopup)
 
 void SettingsScene::updateResolutionPopup()
 {
-    const bool* keyboard = SDL_GetKeyboardState(nullptr);
-
-    static bool leftPressed = false;
-    static bool upPressed = false;
-    static bool downPressed = false;
-    static bool enterPressed = false;
-
-    if (keyboard[SDL_SCANCODE_LEFT])
+    if (input().isKeyPressed(SDL_SCANCODE_LEFT))
     {
-       if (!leftPressed)
-       {
         state_ = SettingsState::Normal;
-       }
-
-    leftPressed = true;
-    }
-    else
-    {
-    leftPressed = false;
     }
 
-    if (keyboard[SDL_SCANCODE_UP])
-{
-    if (!upPressed)
+    if (input().isKeyPressed(SDL_SCANCODE_UP))
     {
         resolutionPopupIndex_--;
 
         if (resolutionPopupIndex_ < 0)
         {
             resolutionPopupIndex_ =
-                static_cast<int>(resolutionOptions_.size()) - 1;
+            static_cast<int>(resolutionOptions_.size()) - 1;
         }
     }
 
-    upPressed = true;
-}
-else
-{
-    upPressed = false;
-}
-
-if (keyboard[SDL_SCANCODE_DOWN])
-{
-    if (!downPressed)
+    if (input().isKeyPressed(SDL_SCANCODE_DOWN))
     {
         resolutionPopupIndex_++;
 
@@ -318,34 +250,17 @@ if (keyboard[SDL_SCANCODE_DOWN])
         }
     }
 
-    downPressed = true;
-}
-else
-{
-    downPressed = false;
-}
-
-if (keyboard[SDL_SCANCODE_RETURN])
-{
-    if (!enterPressed)
+    if (input().isKeyPressed(SDL_SCANCODE_RETURN))
     {
         SettingsManager::instance().setResolution(
             resolutionOptions_[resolutionPopupIndex_]);
 
         state_ = SettingsState::Normal;
     }
-
-    enterPressed = true;
-}
-else
-{
-    enterPressed = false;
-}
 }
 
 void SettingsScene::renderResolutionPopup(Renderer& renderer)
 {
-    // ===== Popup Layout =====
     const float popupWidth = 700.0f;
     const float popupHeight = 320.0f;
 
@@ -360,34 +275,29 @@ void SettingsScene::renderResolutionPopup(Renderer& renderer)
     const float listStartY = popupY + 95.0f;
     const float itemSpacing = 55.0f;
 
-    // ===== Colors =====
     SDL_Color background{25, 25, 35, 240};
     SDL_Color border{255, 255, 255, 255};
     SDL_Color white{255, 255, 255, 255};
     SDL_Color yellow{255, 255, 0, 255};
 
-    // ===== Font =====
     TTF_Font* font = FontManager::instance().getFont("menu");
 
     if (font == nullptr)
         return;
 
-    // ===== Popup =====
-    renderer.fillRect(
+    SDL_Texture* popup =
+    TextureManager::instance().getTexture("resolution_popup");
+
+    if (popup != nullptr)
+    {
+    renderer.drawTexture(
+        popup,
         popupX,
         popupY,
         popupWidth,
-        popupHeight,
-        background);
+        popupHeight);
+    }
 
-    renderer.drawRect(
-        popupX,
-        popupY,
-        popupWidth,
-        popupHeight,
-        border);
-
-    // ===== Title =====
     renderer.drawTextCentered(
         "RESOLUTION",
         font,

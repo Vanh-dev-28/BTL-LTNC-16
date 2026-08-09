@@ -27,16 +27,12 @@ namespace SpaceInvaders
         {
             return true;
         }
-
-        // SỬA: SDL3 trả về true nếu thành công, dùng toán tử phủ định ! để kiểm tra thất bại
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
         {
             std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
             clean();
             return false;
         }
-
-        // SỬA: TTF_Init trong SDL3 cũng trả về bool (true nếu thành công)
         if (!TTF_Init())
         {
             std::cerr << "TTF_Init failed: " << SDL_GetError() << std::endl;
@@ -71,7 +67,14 @@ namespace SpaceInvaders
         std::cout << "Current path: " << std::filesystem::current_path() << std::endl;
         std::cout << "Resolved asset root: " << assetRoot << std::endl;
 
-        // Font tiêu đề
+        AudioManager &audio = AudioManager::instance();
+        audio.setMusicVolume(SettingsManager::instance().getMusicVolume());
+
+        if (!audio.playMusic((assetRoot / "audio" / "music" / "background_music.mp3").string()))
+        {
+            std::cerr << "Failed to play background music\n";
+        }
+
         if (!FontManager::instance().loadFont(
                 "menu_title",
                 (assetRoot / "fonts" / "Orbitron-Bold.ttf").string(),
@@ -84,7 +87,6 @@ namespace SpaceInvaders
             return false;
         }
 
-        // Font menu
         if (!FontManager::instance().loadFont(
                 "menu",
                 (assetRoot / "fonts" / "Orbitron-Regular.ttf").string(),
@@ -107,7 +109,6 @@ namespace SpaceInvaders
             clean();
             return false;
         }
-
         if (!TextureManager::instance().loadTexture(
                 "gameplay_background",
                 (assetRoot / "image" / "Background" / "gameplay_background.png").string(),
@@ -116,6 +117,25 @@ namespace SpaceInvaders
             std::cerr << "Failed to load gameplay background from '"
                       << (assetRoot / "image" / "Background" / "gameplay_background.png")
                       << "': " << SDL_GetError() << "\n";
+            clean();
+            return false;
+        }
+        if (!TextureManager::instance().loadTexture(
+                "settings_background",
+                "../assets/image/menu/settings_bg.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load settings background\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
+                "resolution_popup",
+                "../assets/image/menu/popup_bg.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load resolution popup\n";
             clean();
             return false;
         }
@@ -160,9 +180,11 @@ namespace SpaceInvaders
 
         initialized_ = true;
         running_ = true;
+        sceneManager_.setInput(&input_);
         sceneManager_.changeScene(std::make_unique<MenuScene>());
         return true;
     }
+
     void Game::run()
     {
         while (running_)
@@ -219,6 +241,8 @@ namespace SpaceInvaders
         }
 
         window_.setSize(width, height);
+        // Kết nối với AudioManager để thay đổi âm lượng nhạc nền
+        AudioManager::instance().setMusicVolume(settings.getMusicVolume());
     }
 
     void Game::render()
@@ -241,7 +265,7 @@ namespace SpaceInvaders
         sceneManager_.changeScene(nullptr);
         TextureManager::instance().clear();
         FontManager::instance().clear();
-        AudioManager::instance().clear(); // This line was already there
+        AudioManager::instance().clear();
         renderer_.destroy();
         window_.destroy();
         TTF_Quit();
