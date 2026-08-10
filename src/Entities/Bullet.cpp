@@ -26,13 +26,13 @@ namespace SpaceInvaders
         if (owner == BulletOwner::Player)
         {
             // Player's bullet is a yellow rectangle
-            renderer.fillRect(x, y, 4.0f, 14.0f, SDL_Color{255, 255, 120, 255});
+            renderer.fillRect(x, y, 6.0f, 20.0f, SDL_Color{255, 255, 120, 255});
         }
         else // Enemy's bullet
         {
             SDL_Texture *laserTexture = TextureManager::instance().getTexture("enemy_laser");
             if (laserTexture != nullptr)
-                renderer.drawTexture(laserTexture, x, y, 9.0f, 17.0f);
+                renderer.drawTexture(laserTexture, x, y, 12.0f, 22.0f);
             else
                 // Fallback to a red rectangle if texture fails to load
                 renderer.fillRect(x, y, 4.0f, 16.0f, SDL_Color{255, 40, 40, 255});

@@ -104,6 +104,18 @@ namespace SpaceInvaders
             clean();
             return false;
         }
+        if (!FontManager::instance().loadFont(
+                "hud_font",
+                (assetRoot / "fonts" / "Orbitron-Regular.ttf").string(),
+                20))
+        {
+            std::cerr << "Failed to load hud font from '"
+                      << (assetRoot / "fonts" / "Orbitron-Regular.ttf")
+                      << "'\n";
+            clean();
+            return false;
+        }
+
         if (!TextureManager::instance().loadTexture(
                 "menu_background",
                 (assetRoot / "image" / "menu" / "background.png").string(),

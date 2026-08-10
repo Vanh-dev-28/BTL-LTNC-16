@@ -15,9 +15,11 @@ namespace SpaceInvaders
     {
         player_.init();
         enemyDirection_ = 1.0f;
+        currentWave_ = 1;
         enemyFireCooldown_ = 1.5f; // Initial delay before first shot
         score_ = 0;
         gameOver_ = false;
+        playerWon_ = false;
         bullets_.clear();
         enemies_.clear();
         resetWave();
@@ -48,6 +50,22 @@ namespace SpaceInvaders
         }
 
         if (allEnemiesDefeated())
+        {
+            currentWave_++;
+            if (currentWave_ > 3) // 3 waves total
+            {
+                gameOver_ = true; // Player wins
+                playerWon_ = true;
+                // Thoát ngay sau khi xác nhận chiến thắng để không kiểm tra các điều kiện thua nữa
+                return;
+            }
+            else
+            {
+                resetWave();
+            }
+        }
+
+        if (!player_.isAlive())
         {
             gameOver_ = true;
         }
@@ -83,35 +101,41 @@ namespace SpaceInvaders
 
         player_.render(renderer);
 
-        TTF_Font *hudFont = FontManager::instance().getFont("menu");
-        if (hudFont)
+        TTF_Font *hudFont = FontManager::instance().getFont("hud_font");
+        if (hudFont && player_.isAlive())
         {
-            // --- Render Score ---
-            std::string scoreText = "SCORE: " + std::to_string(score_);
-            renderer.drawText(scoreText, hudFont, {255, 255, 255, 255}, 10, 40);
+            // HUD is positioned below the player
+            const float playerWidth = 48.0f;
+            const float playerHeight = 48.0f;
+            const float hudYOffset = playerHeight + 8.0f;
 
-            // --- Render Health Bar ---
+            // Health Bar
+            const float healthBarWidth = 80.0f;
+            const float healthBarHeight = 10.0f;
+            const float healthBarX = player_.x + (playerWidth - healthBarWidth) / 2.0f;
+            const float healthBarY = player_.y + hudYOffset;
+
             // Background
-            renderer.fillRect(10, 10, 204, 24, SDL_Color{40, 40, 40, 255});
+            renderer.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight, SDL_Color{50, 50, 50, 200});
             // Foreground
             float healthPercentage = player_.getHealth() / player_.getMaxHealth();
             if (healthPercentage > 0)
             {
-                renderer.fillRect(12, 12, 200 * healthPercentage, 20, SDL_Color{40, 200, 40, 255});
+                renderer.fillRect(healthBarX, healthBarY, healthBarWidth * healthPercentage, healthBarHeight, SDL_Color{40, 200, 40, 255});
             }
             // Border
-            renderer.drawRect(10, 10, 204, 24, SDL_Color{180, 180, 180, 255});
+            renderer.drawRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight, SDL_Color{180, 180, 180, 200});
 
-            // --- Render HP Text ---
-            std::string hpText = "HP: " + std::to_string(static_cast<int>(player_.getHealth())) + " / " + std::to_string(static_cast<int>(player_.getMaxHealth()));
-            renderer.drawText(hpText, hudFont, {255, 255, 255, 255}, 220, 12);
+            // Score Text
+            std::string scoreText = "Score: " + std::to_string(score_);
+            renderer.drawTextCentered(scoreText, hudFont, {255, 255, 255, 255}, healthBarX + healthBarWidth / 2, healthBarY + healthBarHeight + 2.0f);
         }
 
         if (gameOver_)
         {
             TTF_Font *font = FontManager::instance().getFont("menu");
             renderer.drawTextCentered(
-                allEnemiesDefeated() ? "YOU WIN" : "GAME OVER",
+                playerWon_ ? "YOU WIN" : "GAME OVER",
                 font,
                 SDL_Color{255, 80, 80, 255},
                 Constants::SCREEN_WIDTH / 2,
@@ -121,40 +145,74 @@ namespace SpaceInvaders
 
     void GameScene::resetWave()
     {
-        const int columns = 8;
-        const int rows = 4;
-        const float spacingX = 72.0f;
-        const float spacingY = 58.0f;
-        const float startX = 70.0f;
-        const float startY = 50.0f;
-
         enemies_.clear();
-        for (int row = 0; row < rows; ++row)
+        bullets_.clear();
+
+        switch (currentWave_)
         {
-            EnemyType type = EnemyType::Bomber; // Mặc định
-            switch (row)
+        case 1:
+        {
+            const int columns = 8;
+            const int rows = 2;
+            for (int row = 0; row < rows; ++row)
             {
-            case 0:
-                type = EnemyType::Bomber;
-                break;
-            case 1:
-                type = EnemyType::Drone;
-                break;
-            case 2:
-                type = EnemyType::HealthSpaceship;
-                break;
-            case 3:
-                type = EnemyType::Drone; // Hàng cuối cùng là Drone
-                break;
+                for (int col = 0; col < columns; ++col)
+                {
+                    enemies_.emplace_back(
+                        70.0f + col * 72.0f,
+                        50.0f + row * 58.0f,
+                        60.0f,
+                        EnemyType::Drone,
+                        EnemyMovementPattern::Horizontal);
+                }
             }
-            for (int col = 0; col < columns; ++col)
+            break;
+        }
+        case 2:
+        {
+            const int columns = 10;
+            const int rows = 3;
+            for (int row = 0; row < rows; ++row)
             {
-                enemies_.emplace_back(
-                    startX + col * spacingX,
-                    startY + row * spacingY,
-                    60.0f + row * 4.0f,
-                    type);
+                EnemyMovementPattern pattern = (row % 2 == 0) ? EnemyMovementPattern::Horizontal : EnemyMovementPattern::SineWave;
+                EnemyType type = (row == 0) ? EnemyType::Bomber : EnemyType::Drone;
+                for (int col = 0; col < columns; ++col)
+                {
+                    enemies_.emplace_back(
+                        70.0f + col * 68.0f,
+                        50.0f + row * 58.0f,
+                        75.0f,
+                        type,
+                        pattern);
+                }
             }
+            break;
+        }
+        case 3:
+        {
+            const int columns = 10;
+            const int rows = 4;
+            for (int row = 0; row < rows; ++row)
+            {
+                EnemyMovementPattern pattern = EnemyMovementPattern::SineWave;
+                EnemyType type = EnemyType::HealthSpaceship;
+                if (row % 2 == 0)
+                {
+                    type = EnemyType::Bomber;
+                }
+
+                for (int col = 0; col < columns; ++col)
+                {
+                    enemies_.emplace_back(
+                        70.0f + col * 68.0f,
+                        50.0f + row * 58.0f,
+                        90.0f,
+                        type,
+                        pattern);
+                }
+            }
+            break;
+        }
         }
     }
 
@@ -195,7 +253,9 @@ namespace SpaceInvaders
                 bullets_.emplace_back(shooter.x + shooter.width / 2.0f - 2.0f, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
             }
 
-            enemyFireCooldown_ = 0.75f + (static_cast<float>(rand()) / RAND_MAX); // Cooldown between 0.75s and 1.75s
+            // Fire rate increases with waves
+            float baseCooldown = 1.5f - (currentWave_ * 0.25f);                                 // Wave 1: 1.25, Wave 2: 1.0, Wave 3: 0.75
+            enemyFireCooldown_ = baseCooldown + (static_cast<float>(rand()) / RAND_MAX) * 0.5f; // Add some randomness
         }
 
         bool hitEdge = false;

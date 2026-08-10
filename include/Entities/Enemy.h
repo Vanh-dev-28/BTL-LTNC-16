@@ -12,6 +12,12 @@ namespace SpaceInvaders
         HealthSpaceship
     };
 
+    enum class EnemyMovementPattern
+    {
+        Horizontal,
+        SineWave
+    };
+
     class Enemy
     {
     public:
@@ -19,7 +25,7 @@ namespace SpaceInvaders
         float width, height;
         bool alive;
 
-        Enemy(float startX, float startY, float spd, EnemyType type);
+        Enemy(float startX, float startY, float spd, EnemyType type, EnemyMovementPattern pattern);
 
         void update(float deltaTime, float direction);
         void render(Renderer &renderer) const;
@@ -27,6 +33,11 @@ namespace SpaceInvaders
     private:
         float speed_;
         EnemyType type_;
+        EnemyMovementPattern pattern_;
+
+        // State for movement patterns
+        float time_;
+        float originalY_;
     };
 
 }

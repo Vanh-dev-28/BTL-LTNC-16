@@ -33,8 +33,10 @@ namespace SpaceInvaders
 
         float enemyDirection_{};
         float enemyFireCooldown_{};
+        int currentWave_{0};
         int score_{};
         bool gameOver_{};
+        bool playerWon_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
     };
