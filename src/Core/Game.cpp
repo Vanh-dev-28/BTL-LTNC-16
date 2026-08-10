@@ -11,6 +11,8 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include "Scenes/GameScene.h"
 #include "Scenes/MenuScene.h"
+#include <cstdlib> // For rand() and srand()
+#include <ctime>   // For time()
 #include <filesystem>
 
 namespace SpaceInvaders
@@ -27,6 +29,10 @@ namespace SpaceInvaders
         {
             return true;
         }
+
+        // Seed the random number generator
+        srand(static_cast<unsigned int>(time(nullptr)));
+
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
         {
             std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
@@ -174,6 +180,16 @@ namespace SpaceInvaders
                 renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load ship sprite\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
+                "enemy_laser",
+                (assetRoot / "image" / "Bullet" / "laserBullet.png").string(),
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load enemy_laser sprite\n";
             clean();
             return false;
         }

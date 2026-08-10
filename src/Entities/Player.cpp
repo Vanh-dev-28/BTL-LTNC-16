@@ -7,7 +7,7 @@
 
 namespace SpaceInvaders
 {
-    Player::Player() : x(0), y(0), speed_(0), fireCooldown_(0.18f) {}
+    Player::Player() : x(0), y(0), speed_(0), fireCooldown_(0.18f), health_(Constants::PLAYER_MAX_HEALTH), maxHealth_(Constants::PLAYER_MAX_HEALTH) {}
 
     void Player::init()
     {
@@ -15,6 +15,7 @@ namespace SpaceInvaders
         y = Constants::SCREEN_HEIGHT - 90.0f;
         speed_ = 360.0f;
         fireCooldown_ = 0.0f;
+        health_ = maxHealth_;
     }
 
     void Player::update(float deltaTime, std::vector<Bullet> &bullets)
@@ -64,6 +65,30 @@ namespace SpaceInvaders
 
     void Player::shoot(std::vector<Bullet> &bullets)
     {
-        bullets.emplace_back(x + 22.0f, y - 14.0f, -420.0f);
+        bullets.emplace_back(x + 22.0f, y - 14.0f, -420.0f, BulletOwner::Player);
+    }
+
+    void Player::takeDamage(float damage)
+    {
+        health_ -= damage;
+        if (health_ < 0)
+        {
+            health_ = 0;
+        }
+    }
+
+    bool Player::isAlive() const
+    {
+        return health_ > 0;
+    }
+
+    float Player::getHealth() const
+    {
+        return health_;
+    }
+
+    float Player::getMaxHealth() const
+    {
+        return maxHealth_;
     }
 }
