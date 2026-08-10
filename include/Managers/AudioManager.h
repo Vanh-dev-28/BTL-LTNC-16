@@ -33,6 +33,7 @@ namespace SpaceInvaders
         MIX_Track *musicTrack_{nullptr};
         bool mixerLibraryInitialized_{false};
         MIX_Audio *currentMusic_{nullptr};
+        std::string currentMusicPath_;
         int musicVolume_ = 100;
         std::unordered_map<std::string, MIX_Audio *> soundEffects_;
         std::vector<MIX_Track *> loopingSfxTracks_;

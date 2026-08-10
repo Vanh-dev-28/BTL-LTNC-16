@@ -7,6 +7,7 @@
 #include "Managers/SceneManager.h"
 #include "Managers/FontManager.h"
 #include "Managers/TextureManager.h"
+#include "Managers/AudioManager.h"
 #include "Utils/Constants.h"
 #include <SDL3/SDL.h>
 #include "Scenes/SettingsScene.h"
@@ -17,6 +18,7 @@ namespace SpaceInvaders
 
 void MenuScene::enter()
 {
+    AudioManager::instance().playMusic("../assets/audio/music/background_music.mp3");
 }
 
 void MenuScene::exit()
