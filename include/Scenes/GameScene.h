@@ -28,12 +28,16 @@ namespace SpaceInvaders
         bool allEnemiesDefeated() const;
 
         void resetWave();
+        void updateEndGame();
+        void renderEndGame(Renderer& renderer);
 
         Player player_{};
 
         float enemyDirection_{};
         int score_{};
         bool gameOver_{};
+        bool playerWon_{};
+        int endMenuIndex_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
     };

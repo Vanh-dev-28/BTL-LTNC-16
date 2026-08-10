@@ -56,6 +56,12 @@ namespace SpaceInvaders
             return false;
         }
 
+        if (currentMusic_ != nullptr &&
+        currentMusicPath_ == path)
+        {
+            return true;
+        }
+
         stopMusic();
         currentMusic_ = MIX_LoadAudio(mixer_, path.c_str(), false);
         if (currentMusic_ == nullptr || !MIX_SetTrackAudio(musicTrack_, currentMusic_))
@@ -84,6 +90,7 @@ namespace SpaceInvaders
             MIX_DestroyAudio(currentMusic_);
             currentMusic_ = nullptr;
         }
+        currentMusicPath_ = path;
         return playing;
     }
 
@@ -153,6 +160,7 @@ namespace SpaceInvaders
             MIX_DestroyAudio(currentMusic_);
             currentMusic_ = nullptr;
         }
+        currentMusicPath_.clear();
     }
 
     void AudioManager::clear()
