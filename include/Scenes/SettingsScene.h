@@ -41,7 +41,15 @@ private:
         "1920x1080"
     };
 
+    void drawVolumeBar(
+        Renderer& renderer,
+        const std::string& label,
+        int volume,
+        int y,
+        bool selected);
+
     int selectedIndex_ = 0;
+
     SettingsState state_ = SettingsState::Normal;
     int resolutionPopupIndex_ = 0;
 };

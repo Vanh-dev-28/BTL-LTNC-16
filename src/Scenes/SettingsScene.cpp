@@ -10,6 +10,7 @@
 #include "Managers/TextureManager.h"
 #include <SDL3/SDL.h>
 #include <memory>
+#include <algorithm>
 
 namespace SpaceInvaders
 {
@@ -38,112 +39,147 @@ void SettingsScene::update(float)
 
 void SettingsScene::updateNormal()
 {
-    if (input().isKeyPressed(SDL_SCANCODE_UP))
-    {
-        selectedIndex_--;
+    const float mouseX = input().getMouseX();
+    const float mouseY = input().getMouseY();
 
-        if (selectedIndex_ < 0)
+    const int menuStartY = 180;
+    const int menuSpacing = 65;
+
+    const int left = 250;
+    const int right = 1030;
+
+    for (size_t i = 0; i < settingItems_.size(); ++i)
+    {
+        const int itemY =
+            menuStartY + static_cast<int>(i) * menuSpacing;
+
+        const int top = itemY - 30;
+        const int bottom = itemY + 30;
+
+        if (mouseX >= left &&
+            mouseX <= right &&
+            mouseY >= top &&
+            mouseY <= bottom)
         {
-        selectedIndex_ =
-            static_cast<int>(settingItems_.size()) - 1;
+            selectedIndex_ = static_cast<int>(i);
+            break;
         }
     }
 
-    if (input().isKeyPressed(SDL_SCANCODE_DOWN))
-    {
-        selectedIndex_++;
 
-        if (selectedIndex_ >= static_cast<int>(settingItems_.size()))
-        {
-            selectedIndex_ = 0;
-        }
-    }
-
-    if (input().isKeyPressed(SDL_SCANCODE_RIGHT))
+    if (selectedIndex_ == 0 &&
+        input().isMousePressed(SDL_BUTTON_LEFT))
     {
-        switch (selectedIndex_)
+        const int itemY = menuStartY;
+
+        if (mouseY >= itemY - 30 &&
+            mouseY <= itemY + 30)
         {
-        case 0: 
             state_ = SettingsState::ResolutionPopup;
-            break;
-
-        case 1:     // Music 
-        {
-            int volume = SettingsManager::instance().getMusicVolume();
-            volume = std::min(volume + 10, 100);
-            SettingsManager::instance().setMusicVolume(volume);
-            break;
-        }
-
-        case 2:     // SFX 
-        {
-            int volume = SettingsManager::instance().getSFXVolume();
-            volume = std::min(volume + 10, 100);
-            SettingsManager::instance().setSFXVolume(volume);
-            break;
-        }
-
-        default:
-            break;
         }
     }
 
-    if (input().isKeyPressed(SDL_SCANCODE_LEFT))
+
+    if (selectedIndex_ == 1 &&
+        input().isMousePressed(SDL_BUTTON_LEFT))
     {
-        switch (selectedIndex_)
-        {
-        case 1:
-        {
-            int volume = SettingsManager::instance().getMusicVolume();
-            volume = std::max(volume - 10, 0);
-            SettingsManager::instance().setMusicVolume(volume);
-            break;
-        }
+        const float barX = 500.0f;
+        const float barWidth = 350.0f;
 
-        case 2:
+        if (mouseX >= barX &&
+            mouseX <= barX + barWidth)
         {
-            int volume = SettingsManager::instance().getSFXVolume();
-            volume = std::max(volume - 10, 0);
-            SettingsManager::instance().setSFXVolume(volume);
-            break;
-        }
+            float percent =
+                (mouseX - barX) / barWidth;
 
-        default:
-            break;
+            percent = std::clamp(percent, 0.0f, 1.0f);
+
+            int volume =
+                static_cast<int>(percent * 100.0f);
+
+            SettingsManager::instance()
+                .setMusicVolume(volume);
         }
     }
-    if (input().isKeyPressed(SDL_SCANCODE_RETURN))
+
+
+    if (selectedIndex_ == 2 &&
+        input().isMousePressed(SDL_BUTTON_LEFT))
     {
-        switch (selectedIndex_)
+        const float barX = 500.0f;
+        const float barWidth = 350.0f;
+
+        if (mouseX >= barX &&
+            mouseX <= barX + barWidth)
         {
-        case 3:
+            float percent =
+                (mouseX - barX) / barWidth;
+
+            percent = std::clamp(percent, 0.0f, 1.0f);
+
+            int volume =
+                static_cast<int>(percent * 100.0f);
+
+            SettingsManager::instance()
+                .setSFXVolume(volume);
+        }
+    }
+
+
+    if (selectedIndex_ == 3 &&
+        input().isMousePressed(SDL_BUTTON_LEFT))
+    {
+        const int itemY =
+            menuStartY + 3 * menuSpacing;
+
+        if (mouseY >= itemY - 30 &&
+            mouseY <= itemY + 30)
+        {
             SettingsManager::instance().apply();
-            sceneManager_->changeScene(std::make_unique<MenuScene>());
-            break;
-        case 4:
-            SettingsManager::instance().discard();
-            sceneManager_->changeScene(std::make_unique<MenuScene>());
-        break;
 
-        default:
-            break;
+            if (sceneManager_ != nullptr)
+            {
+                sceneManager_->changeScene(
+                    std::make_unique<MenuScene>());
+            }
+        }
+    }
+
+
+    if (selectedIndex_ == 4 &&
+        input().isMousePressed(SDL_BUTTON_LEFT))
+    {
+        const int itemY =
+            menuStartY + 4 * menuSpacing;
+
+        if (mouseY >= itemY - 30 &&
+            mouseY <= itemY + 30)
+        {
+            SettingsManager::instance().discard();
+
+            if (sceneManager_ != nullptr)
+            {
+                sceneManager_->changeScene(
+                    std::make_unique<MenuScene>());
+            }
         }
     }
 }
+
 void SettingsScene::render(Renderer& renderer)
 {
-    SDL_Texture* background =
-    TextureManager::instance().getTexture("settings_background");
+    SDL_Texture* background = TextureManager::instance().getTexture("settings_background");
 
-if (background != nullptr)
-{
-    renderer.drawTexture(
-        background,
-        0.0f,
-        0.0f,
-        static_cast<float>(Constants::SCREEN_WIDTH),
-        static_cast<float>(Constants::SCREEN_HEIGHT));
-}
+    if (background != nullptr)
+    {
+        renderer.drawTexture(
+            background,
+            0.0f,
+            0.0f,
+            static_cast<float>(Constants::SCREEN_WIDTH),
+            static_cast<float>(Constants::SCREEN_HEIGHT));
+    }
+
     TTF_Font* font = FontManager::instance().getFont("menu");
 
     if (font == nullptr)
@@ -163,100 +199,200 @@ if (background != nullptr)
 
     SDL_Color yellow{255,255,0,255};
 
-    for (size_t i = 0; i < settingItems_.size(); i++)
+    for (size_t i = 0; i < settingItems_.size(); ++i)
     {
-    SDL_Color color =
-        (i == static_cast<size_t>(selectedIndex_))
-            ? yellow
-            : white;
+        const bool selected = i == static_cast<size_t>(selectedIndex_);
 
-    std::string text = settingItems_[i];
-    SettingsManager& settings = SettingsManager::instance();
-    switch (i)
-    {
-case 0:     // Resolution
-    text += " : " + settings.getResolution();
-    break;
+        if (i == 1)
+        {
+            drawVolumeBar(
+                renderer,
+                "Music",
+                SettingsManager::instance().getMusicVolume(),
+                menuStartY + static_cast<int>(i) * menuSpacing,
+                selected);
 
-case 1:     // Music
-    text += " : " +
-        std::to_string(settings.getMusicVolume()) + "%";
-    break;
+            continue;
+        }
+        if (i == 2)
+        {
+            drawVolumeBar(
+                renderer,
+                "SFX",
+                SettingsManager::instance().getSFXVolume(),
+                menuStartY + static_cast<int>(i) * menuSpacing,
+                selected);
 
-case 2:     // SFX
-    text += " : " +
-        std::to_string(settings.getSFXVolume()) + "%";
-    break;
-case 3:     // Apply
-    break;
+            continue;
+        }
+        SDL_Color color =
+            selected
+                ? SDL_Color{255, 255, 0, 255}
+                : white;
 
-case 4:     // Discard
-    break;
+        std::string text = settingItems_[i];
+
+        if (i == 0)
+        {
+            text += " : " +
+                SettingsManager::instance().getResolution();
+        }
+
+        if (selected)
+        {
+            text = "-> " + text;
+        }
+
+        renderer.drawTextCentered(
+            text,
+            font,
+            color,
+            Constants::SCREEN_WIDTH / 2,
+            menuStartY + static_cast<int>(i) * menuSpacing);
     }
-    
-
-    if (i == static_cast<size_t>(selectedIndex_))
-    {
-        text = "-> " + text;
-    }
-
-    renderer.drawTextCentered(
-        text,
-        font,
-        color,
-        Constants::SCREEN_WIDTH / 2,
-        menuStartY + static_cast<int>(i) * menuSpacing);
-    }
-
     renderer.drawTextCentered(
         "Apply to save - Discard to cancel",
         font,
         white,
-        640,
+        Constants::SCREEN_WIDTH / 2,
         620);
 
-if (state_ == SettingsState::ResolutionPopup)
-{
-    renderResolutionPopup(renderer);
-}
+    
+    if (state_ == SettingsState::ResolutionPopup)
+    {
+        renderResolutionPopup(renderer);
+    }
 }
 
 void SettingsScene::updateResolutionPopup()
 {
-    if (input().isKeyPressed(SDL_SCANCODE_LEFT))
+    const float mouseX = input().getMouseX();
+    const float mouseY = input().getMouseY();
+
+    const float popupWidth = 700.0f;
+    const float popupHeight = 320.0f;
+
+    const float popupX =
+        (Constants::SCREEN_WIDTH - popupWidth) / 2.0f;
+
+    const float popupY = 170.0f;
+
+    const float listX = popupX + 70.0f;
+    const float listStartY = popupY + 95.0f;
+    const float itemSpacing = 55.0f;
+
+
+    if (input().isMousePressed(SDL_BUTTON_LEFT))
     {
-        state_ = SettingsState::Normal;
+        if (mouseX < popupX ||
+            mouseX > popupX + popupWidth ||
+            mouseY < popupY ||
+            mouseY > popupY + popupHeight)
+        {
+            state_ = SettingsState::Normal;
+            return;
+        }
     }
 
-    if (input().isKeyPressed(SDL_SCANCODE_UP))
-    {
-        resolutionPopupIndex_--;
 
-        if (resolutionPopupIndex_ < 0)
+    for (size_t i = 0;
+         i < resolutionOptions_.size();
+         ++i)
+    {
+        const float itemY =
+            listStartY +
+            static_cast<float>(i) * itemSpacing;
+
+        const float left = popupX + 40.0f;
+        const float right = popupX + popupWidth - 40.0f;
+
+        const float top = itemY - 25.0f;
+        const float bottom = itemY + 25.0f;
+
+        if (mouseX >= left &&
+            mouseX <= right &&
+            mouseY >= top &&
+            mouseY <= bottom)
         {
             resolutionPopupIndex_ =
-            static_cast<int>(resolutionOptions_.size()) - 1;
+                static_cast<int>(i);
+
+
+            if (input().isMousePressed(SDL_BUTTON_LEFT))
+            {
+                SettingsManager::instance()
+                    .setResolution(
+                        resolutionOptions_[i]);
+
+                state_ = SettingsState::Normal;
+            }
+
+            break;
         }
     }
+}
 
-    if (input().isKeyPressed(SDL_SCANCODE_DOWN))
-    {
-        resolutionPopupIndex_++;
+void SettingsScene::drawVolumeBar(
+    Renderer& renderer,
+    const std::string& label,
+    int volume,
+    int y,
+    bool selected)
+{
+    TTF_Font* font =
+        FontManager::instance().getFont("menu");
 
-        if (resolutionPopupIndex_ >=
-            static_cast<int>(resolutionOptions_.size()))
-        {
-            resolutionPopupIndex_ = 0;
-        }
-    }
+    if (font == nullptr)
+        return;
 
-    if (input().isKeyPressed(SDL_SCANCODE_RETURN))
-    {
-        SettingsManager::instance().setResolution(
-            resolutionOptions_[resolutionPopupIndex_]);
+    SDL_Color white{255, 255, 255, 255};
+    SDL_Color yellow{255, 255, 0, 255};
+    SDL_Color dark{60, 60, 60, 255};
 
-        state_ = SettingsState::Normal;
-    }
+    SDL_Color color = selected ? yellow : white;
+
+    renderer.drawText(
+        label,
+        font,
+        color,
+        300,
+        y);
+
+    const float barX = 500.0f;
+    const float barY = static_cast<float>(y + 8);
+    const float barWidth = 350.0f;
+    const float barHeight = 24.0f;
+
+    renderer.fillRect(
+        barX,
+        barY,
+        barWidth,
+        barHeight,
+        dark);
+
+    const float filledWidth =
+        barWidth * static_cast<float>(volume) / 100.0f;
+
+    renderer.fillRect(
+        barX,
+        barY,
+        filledWidth,
+        barHeight,
+        color);
+
+    renderer.drawRect(
+        barX,
+        barY,
+        barWidth,
+        barHeight,
+        white);
+
+    renderer.drawText(
+        std::to_string(volume) + "%",
+        font,
+        color,
+        static_cast<int>(barX + barWidth + 20),
+        y);
 }
 
 void SettingsScene::renderResolutionPopup(Renderer& renderer)
@@ -311,8 +447,6 @@ void SettingsScene::renderResolutionPopup(Renderer& renderer)
         popupX + popupWidth,
         separatorY,
         white);
-
-    // ===== Resolution List =====
     for (size_t i = 0; i < resolutionOptions_.size(); i++)
     {
         SDL_Color color =

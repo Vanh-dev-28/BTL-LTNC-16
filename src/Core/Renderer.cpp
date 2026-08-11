@@ -7,7 +7,9 @@
 namespace SpaceInvaders
 {
     float Renderer::s_scale = 1.0f;
+
     float Renderer::s_offsetX = 0.0f;
+    float Renderer::s_offsetY = 0.0f;
 
     Renderer::~Renderer()
     {
@@ -252,5 +254,6 @@ namespace SpaceInvaders
 
         s_scale = scale_;
         s_offsetX = offsetX_;
+        s_offsetY = offsetY_;
     }
 }
