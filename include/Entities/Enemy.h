@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Renderer.h"
+#include "Utils/Vector2.h"
 
 namespace SpaceInvaders
 {
@@ -18,6 +19,19 @@ namespace SpaceInvaders
         SineWave
     };
 
+    enum class EnemyEntryPattern
+    {
+        FromTop,
+        ArcFromLeft,
+        ArcFromRight
+    };
+
+    enum class EnemyState
+    {
+        Entering,
+        Active
+    };
+
     class Enemy
     {
     public:
@@ -25,9 +39,9 @@ namespace SpaceInvaders
         float width, height;
         bool alive;
 
-        Enemy(float startX, float startY, float spd, EnemyType type, EnemyMovementPattern pattern);
+        Enemy(EnemyType type, EnemyMovementPattern movePattern, EnemyEntryPattern entryPattern, Vector2 startPos, Vector2 targetPos, float speed);
 
-        void update(float deltaTime, float direction);
+        void update(float deltaTime, float swarmDirection);
         void render(Renderer &renderer) const;
 
     private:
@@ -35,7 +49,14 @@ namespace SpaceInvaders
         EnemyType type_;
         EnemyMovementPattern pattern_;
 
-        // State for movement patterns
+        // Entry state
+        EnemyState state_;
+        EnemyEntryPattern entryPattern_;
+        Vector2 startPosition_;
+        Vector2 targetPosition_;
+        float entryProgress_; // 0.0 to 1.0
+
+        // Active state
         float time_;
         float originalY_;
     };

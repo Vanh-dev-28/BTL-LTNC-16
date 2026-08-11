@@ -1,5 +1,6 @@
 #include "Scenes/GameScene.h"
 #include "Core/Renderer.h"
+#include "Utils/Vector2.h"
 #include "Managers/TextureManager.h"
 #include "Managers/FontManager.h"
 #include "Utils/Constants.h"
@@ -16,13 +17,14 @@ namespace SpaceInvaders
         player_.init();
         enemyDirection_ = 1.0f;
         currentWave_ = 1;
-        enemyFireCooldown_ = 1.5f; // Initial delay before first shot
+        enemyFireCooldown_ = 3.0f; // Longer initial delay for first wave
         score_ = 0;
         gameOver_ = false;
         playerWon_ = false;
+        inWaveTransition_ = true;
+        waveTransitionTimer_ = 2.0f; // Time for "WAVE 1" announcement
         bullets_.clear();
         enemies_.clear();
-        resetWave();
     }
 
     void GameScene::exit()
@@ -38,30 +40,41 @@ namespace SpaceInvaders
             return;
         }
 
+        // Handle wave transitions
+        if (inWaveTransition_)
+        {
+            waveTransitionTimer_ -= deltaTime;
+            if (waveTransitionTimer_ <= 0.0f)
+            {
+                inWaveTransition_ = false;
+                resetWave(); // Spawn enemies for the new wave
+            }
+            // We can still update the player during transition
+            player_.update(deltaTime, bullets_);
+            updateBullets(deltaTime);
+            return; // But not enemies
+        }
+
         player_.update(deltaTime, bullets_);
 
         updateBullets(deltaTime);
         updateEnemies(deltaTime);
         checkCollisions();
 
-        if (!player_.isAlive())
-        {
-            gameOver_ = true;
-        }
-
         if (allEnemiesDefeated())
         {
             currentWave_++;
-            if (currentWave_ > 3) // 3 waves total
+            if (currentWave_ > 3) // Max waves reached
             {
                 gameOver_ = true; // Player wins
                 playerWon_ = true;
-                // Thoát ngay sau khi xác nhận chiến thắng để không kiểm tra các điều kiện thua nữa
                 return;
             }
-            else
+            else // Prepare for next wave
             {
-                resetWave();
+                inWaveTransition_ = true;
+                waveTransitionTimer_ = 2.0f; // 2-second delay
+                enemies_.clear();            // Clear the vector of dead enemies
             }
         }
 
@@ -131,6 +144,26 @@ namespace SpaceInvaders
             renderer.drawTextCentered(scoreText, hudFont, {255, 255, 255, 255}, healthBarX + healthBarWidth / 2, healthBarY + healthBarHeight + 2.0f);
         }
 
+        // Render current wave in top-right corner
+        if (hudFont)
+        {
+            std::string waveText = "WAVE " + std::to_string(currentWave_);
+            int textWidth, textHeight;
+            renderer.measureText(waveText, hudFont, textWidth, textHeight);
+            renderer.drawText(waveText, hudFont, {255, 255, 255, 200}, Constants::SCREEN_WIDTH - textWidth - 20, 20);
+        }
+
+        // Wave Announcement
+        if (inWaveTransition_ && currentWave_ <= 3)
+        {
+            TTF_Font *titleFont = FontManager::instance().getFont("menu_title");
+            if (titleFont)
+            {
+                std::string announcementText = "WAVE " + std::to_string(currentWave_);
+                renderer.drawTextCentered(announcementText, titleFont, {255, 255, 0, 255}, Constants::SCREEN_WIDTH / 2, Constants::SCREEN_HEIGHT / 2 - 100);
+            }
+        }
+
         if (gameOver_)
         {
             TTF_Font *font = FontManager::instance().getFont("menu");
@@ -147,69 +180,105 @@ namespace SpaceInvaders
     {
         enemies_.clear();
         bullets_.clear();
+        enemyDirection_ = 1.0f;
 
         switch (currentWave_)
         {
         case 1:
         {
+            // Wave 1: From Top
             const int columns = 8;
-            const int rows = 2;
+            const int rows = 3;
+            const float speed = 60.0f;
             for (int row = 0; row < rows; ++row)
             {
                 for (int col = 0; col < columns; ++col)
                 {
+                    Vector2 targetPos = {150.0f + col * 80.0f, 100.0f + row * 60.0f};
+                    Vector2 startPos = {targetPos.x, -50.0f - row * 60.0f}; // Start from above the screen
                     enemies_.emplace_back(
-                        70.0f + col * 72.0f,
-                        50.0f + row * 58.0f,
-                        60.0f,
                         EnemyType::Drone,
-                        EnemyMovementPattern::Horizontal);
+                        EnemyMovementPattern::Horizontal,
+                        EnemyEntryPattern::FromTop,
+                        startPos,
+                        targetPos,
+                        speed);
                 }
             }
             break;
         }
         case 2:
         {
-            const int columns = 10;
-            const int rows = 3;
-            for (int row = 0; row < rows; ++row)
+            // Wave 2: Arc from sides
+            const int perSide = 8;
+            const float speed = 75.0f;
+            for (int i = 0; i < perSide; ++i)
             {
-                EnemyMovementPattern pattern = (row % 2 == 0) ? EnemyMovementPattern::Horizontal : EnemyMovementPattern::SineWave;
-                EnemyType type = (row == 0) ? EnemyType::Bomber : EnemyType::Drone;
-                for (int col = 0; col < columns; ++col)
-                {
-                    enemies_.emplace_back(
-                        70.0f + col * 68.0f,
-                        50.0f + row * 58.0f,
-                        75.0f,
-                        type,
-                        pattern);
-                }
+                // Left side
+                Vector2 targetPosL = {200.0f + (i % 4) * 100.0f, 120.0f + (i / 4) * 70.0f};
+                Vector2 startPosL = {-100.0f, 100.0f + i * 20.0f};
+                enemies_.emplace_back(
+                    EnemyType::Bomber,
+                    EnemyMovementPattern::SineWave,
+                    EnemyEntryPattern::ArcFromLeft,
+                    startPosL,
+                    targetPosL,
+                    speed);
+
+                // Right side
+                Vector2 targetPosR = {Constants::SCREEN_WIDTH - 200.0f - (i % 4) * 100.0f, 120.0f + (i / 4) * 70.0f};
+                Vector2 startPosR = {Constants::SCREEN_WIDTH + 100.0f, 100.0f + i * 20.0f};
+                enemies_.emplace_back(
+                    EnemyType::Bomber,
+                    EnemyMovementPattern::SineWave,
+                    EnemyEntryPattern::ArcFromRight,
+                    startPosR,
+                    targetPosR,
+                    speed);
             }
             break;
         }
         case 3:
         {
-            const int columns = 10;
-            const int rows = 4;
-            for (int row = 0; row < rows; ++row)
+            // Wave 3: Mixed
+            const float speed = 90.0f;
+            // From Top group
+            for (int i = 0; i < 5; ++i)
             {
-                EnemyMovementPattern pattern = EnemyMovementPattern::SineWave;
-                EnemyType type = EnemyType::HealthSpaceship;
-                if (row % 2 == 0)
-                {
-                    type = EnemyType::Bomber;
-                }
+                Vector2 targetPos = {340.0f + i * 120.0f, 250.0f};
+                Vector2 startPos = {targetPos.x, -50.0f};
+                enemies_.emplace_back(
+                    EnemyType::HealthSpaceship,
+                    EnemyMovementPattern::Horizontal,
+                    EnemyEntryPattern::FromTop,
+                    startPos,
+                    targetPos,
+                    speed);
+            }
+            // Arc from sides group
+            for (int i = 0; i < 6; ++i)
+            {
+                // Left
+                Vector2 targetPosL = {150.0f + (i % 3) * 100.0f, 100.0f + (i / 3) * 60.0f};
+                Vector2 startPosL = {-100.0f, 150.0f + i * 15.0f};
+                enemies_.emplace_back(
+                    EnemyType::Drone,
+                    EnemyMovementPattern::SineWave,
+                    EnemyEntryPattern::ArcFromLeft,
+                    startPosL,
+                    targetPosL,
+                    speed);
 
-                for (int col = 0; col < columns; ++col)
-                {
-                    enemies_.emplace_back(
-                        70.0f + col * 68.0f,
-                        50.0f + row * 58.0f,
-                        90.0f,
-                        type,
-                        pattern);
-                }
+                // Right
+                Vector2 targetPosR = {Constants::SCREEN_WIDTH - 150.0f - (i % 3) * 100.0f, 100.0f + (i / 3) * 60.0f};
+                Vector2 startPosR = {Constants::SCREEN_WIDTH + 100.0f, 150.0f + i * 15.0f};
+                enemies_.emplace_back(
+                    EnemyType::Drone,
+                    EnemyMovementPattern::SineWave,
+                    EnemyEntryPattern::ArcFromRight,
+                    startPosR,
+                    targetPosR,
+                    speed);
             }
             break;
         }
@@ -341,13 +410,23 @@ namespace SpaceInvaders
 
     bool GameScene::allEnemiesDefeated() const
     {
+        // If we are in transition, or the wave hasn't spawned enemies yet,
+        // then they are not "all defeated" in a way that should trigger the next wave.
+        if (inWaveTransition_ || enemies_.empty())
+        {
+            return false;
+        }
+
+        // Check if any enemy is still alive.
         for (const auto &enemy : enemies_)
         {
             if (enemy.alive)
             {
-                return false;
+                return false; // Found a live one.
             }
         }
+
+        // If we got here, no enemies were alive.
         return true;
     }
 

@@ -32,7 +32,7 @@ namespace SpaceInvaders
         {
             SDL_Texture *laserTexture = TextureManager::instance().getTexture("enemy_laser");
             if (laserTexture != nullptr)
-                renderer.drawTexture(laserTexture, x, y, 12.0f, 22.0f);
+                renderer.drawTexture(laserTexture, x, y, 16.0f, 30.0f);
             else
                 // Fallback to a red rectangle if texture fails to load
                 renderer.fillRect(x, y, 4.0f, 16.0f, SDL_Color{255, 40, 40, 255});

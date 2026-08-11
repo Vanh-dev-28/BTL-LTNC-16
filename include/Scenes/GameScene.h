@@ -37,6 +37,8 @@ namespace SpaceInvaders
         int score_{};
         bool gameOver_{};
         bool playerWon_{};
+        bool inWaveTransition_{false};
+        float waveTransitionTimer_{0.0f};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
     };
