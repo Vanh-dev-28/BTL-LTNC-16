@@ -1,10 +1,14 @@
 #include "Scenes/GameScene.h"
+#include "Scenes/MenuScene.h"
 #include "Core/Renderer.h"
 #include "Utils/Vector2.h"
 #include "Managers/TextureManager.h"
 #include "Managers/FontManager.h"
+#include "Managers/AudioManager.h"
+#include "Managers/SceneManager.h"
 #include "Utils/Constants.h"
 
+#include <memory>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <algorithm>
@@ -14,6 +18,7 @@ namespace SpaceInvaders
 
     void GameScene::enter()
     {
+        AudioManager::instance().playMusic("../assets/audio/music/gameplay_music.mp3");
         player_.init();
         enemyDirection_ = 1.0f;
         currentWave_ = 1;
@@ -23,6 +28,9 @@ namespace SpaceInvaders
         playerWon_ = false;
         inWaveTransition_ = true;
         waveTransitionTimer_ = 2.0f; // Time for "WAVE 1" announcement
+
+        endMenuIndex_ = 0;
+
         bullets_.clear();
         enemies_.clear();
     }
@@ -31,12 +39,14 @@ namespace SpaceInvaders
     {
         bullets_.clear();
         enemies_.clear();
+        AudioManager::instance().playMusic("../assets/audio/music/background_music.mp3");
     }
 
     void GameScene::update(float deltaTime)
     {
         if (gameOver_)
         {
+            updateEndGame();
             return;
         }
 
@@ -81,6 +91,7 @@ namespace SpaceInvaders
         if (!player_.isAlive())
         {
             gameOver_ = true;
+            playerWon_ = true;
         }
     }
 
@@ -173,6 +184,7 @@ namespace SpaceInvaders
                 SDL_Color{255, 80, 80, 255},
                 Constants::SCREEN_WIDTH / 2,
                 Constants::SCREEN_HEIGHT / 2);
+            renderEndGame(renderer);
         }
     }
 
@@ -354,6 +366,7 @@ namespace SpaceInvaders
             if (enemy.alive && enemy.y + enemy.height >= player_.y)
             {
                 gameOver_ = true;
+                playerWon_ = false;
                 break;
             }
         }
@@ -429,5 +442,168 @@ namespace SpaceInvaders
         // If we got here, no enemies were alive.
         return true;
     }
+    void GameScene::updateEndGame()
+    {
+        const bool *keyboard = SDL_GetKeyboardState(nullptr);
 
+        static bool upPressed = false;
+        static bool downPressed = false;
+        static bool enterPressed = false;
+
+        // UP
+        if (keyboard[SDL_SCANCODE_UP])
+        {
+            if (!upPressed)
+            {
+                endMenuIndex_--;
+
+                if (endMenuIndex_ < 0)
+                {
+                    endMenuIndex_ = 1;
+                }
+            }
+
+            upPressed = true;
+        }
+        else
+        {
+            upPressed = false;
+        }
+
+        // DOWN
+        if (keyboard[SDL_SCANCODE_DOWN])
+        {
+            if (!downPressed)
+            {
+                endMenuIndex_++;
+
+                if (endMenuIndex_ > 1)
+                {
+                    endMenuIndex_ = 0;
+                }
+            }
+
+            downPressed = true;
+        }
+        else
+        {
+            downPressed = false;
+        }
+
+        // ENTER
+        if (keyboard[SDL_SCANCODE_RETURN])
+        {
+            if (!enterPressed)
+            {
+                if (endMenuIndex_ == 0)
+                {
+                    // REPLAY
+                    enter();
+                }
+                else
+                {
+                    // MENU
+                    AudioManager::instance().playMusic(
+                        "../assets/audio/music/background_music.mp3");
+
+                    if (sceneManager_ != nullptr)
+                    {
+                        sceneManager_->changeScene(
+                            std::make_unique<MenuScene>());
+                    }
+                }
+            }
+
+            enterPressed = true;
+        }
+        else
+        {
+            enterPressed = false;
+        }
+    }
+
+    void GameScene::renderEndGame(Renderer &renderer)
+    {
+        SDL_Texture *popup = TextureManager::instance().getTexture("endgame_popup");
+        if (popup != nullptr)
+        {
+            const float popupWidth = 700.0f;
+            const float popupHeight = 500.0f;
+
+            const float popupX = (Constants::SCREEN_WIDTH - popupWidth) / 2.0f;
+            const float popupY = (Constants::SCREEN_HEIGHT - popupHeight) / 2.0f;
+
+            renderer.drawTexture(
+                popup,
+                popupX,
+                popupY,
+                popupWidth,
+                popupHeight);
+        }
+
+        TTF_Font *font =
+            FontManager::instance().getFont("menu");
+
+        if (font == nullptr)
+        {
+            return;
+        }
+
+        SDL_Color white{
+            255, 255, 255, 255};
+
+        SDL_Color yellow{
+            255, 255, 0, 255};
+
+        SDL_Color red{
+            255, 80, 80, 255};
+
+        renderer.drawTextCentered(
+            playerWon_ ? "YOU WIN" : "GAME OVER",
+            font,
+            red,
+            Constants::SCREEN_WIDTH / 2,
+            180);
+
+        renderer.drawTextCentered(
+            "SCORE : " + std::to_string(score_),
+            font,
+            white,
+            Constants::SCREEN_WIDTH / 2,
+            280);
+
+        SDL_Color replayColor =
+            (endMenuIndex_ == 0)
+                ? yellow
+                : white;
+
+        std::string replayText =
+            (endMenuIndex_ == 0)
+                ? "> REPLAY"
+                : "REPLAY";
+
+        renderer.drawTextCentered(
+            replayText,
+            font,
+            replayColor,
+            Constants::SCREEN_WIDTH / 2,
+            390);
+
+        SDL_Color menuColor =
+            (endMenuIndex_ == 1)
+                ? yellow
+                : white;
+
+        std::string menuText =
+            (endMenuIndex_ == 1)
+                ? "> MENU"
+                : "MENU";
+
+        renderer.drawTextCentered(
+            menuText,
+            font,
+            menuColor,
+            Constants::SCREEN_WIDTH / 2,
+            460);
+    }
 }

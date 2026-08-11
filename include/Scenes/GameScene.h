@@ -28,6 +28,8 @@ namespace SpaceInvaders
         bool allEnemiesDefeated() const;
 
         void resetWave();
+        void updateEndGame();
+        void renderEndGame(Renderer &renderer);
 
         Player player_{};
 
@@ -39,6 +41,7 @@ namespace SpaceInvaders
         bool playerWon_{};
         bool inWaveTransition_{false};
         float waveTransitionTimer_{0.0f};
+        int endMenuIndex_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
     };

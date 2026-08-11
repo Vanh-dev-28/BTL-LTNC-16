@@ -159,6 +159,16 @@ namespace SpaceInvaders
         }
 
         if (!TextureManager::instance().loadTexture(
+        "endgame_popup",
+        "../assets/image/menu/endgame_popup.png",
+        renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load endgame popup\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
                 "enemy_bomber",
                 "../assets/image/Enemies/bomber.png",
                 renderer_.getSDLRenderer()))
