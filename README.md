@@ -9,6 +9,7 @@ Install SDL3, SDL3_image, SDL3_ttf, and SDL3_mixer so CMake can discover their c
 then run:
 
 ```powershell
+cmake -B build -G "MinGW Makefiles"
 cmake -S . -B build
 cmake --build build
 ```

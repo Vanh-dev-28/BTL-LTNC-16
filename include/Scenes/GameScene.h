@@ -29,14 +29,18 @@ namespace SpaceInvaders
 
         void resetWave();
         void updateEndGame();
-        void renderEndGame(Renderer& renderer);
+        void renderEndGame(Renderer &renderer);
 
         Player player_{};
 
         float enemyDirection_{};
+        float enemyFireCooldown_{};
+        int currentWave_{0};
         int score_{};
         bool gameOver_{};
         bool playerWon_{};
+        bool inWaveTransition_{false};
+        float waveTransitionTimer_{0.0f};
         int endMenuIndex_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
