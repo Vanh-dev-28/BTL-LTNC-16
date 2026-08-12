@@ -25,96 +25,88 @@ void MenuScene::exit()
 {
 }
 
+SDL_FRect MenuScene::getMenuItemRect(int index) const
+{
+    const float centerX =
+        Constants::SCREEN_WIDTH / 2.0f;
+
+    const float menuStartY = 260.0f;
+    const float menuSpacing = 70.0f;
+    const float width = 500.0f;
+    const float height = 65.0f;
+
+    const float x =
+        centerX - width / 2.0f;
+
+    const float y =
+        menuStartY +
+        static_cast<float>(index) * menuSpacing
+        - height / 2.0f;
+
+    return SDL_FRect{
+        x,
+        y,
+        width,
+        height
+    };
+}
+
 void MenuScene::update(float)
 {
     const float mouseX = input().getMouseX();
     const float mouseY = input().getMouseY();
 
-    const int menuStartY = 260;
-    const int menuSpacing = 70;
-
-    const int itemWidth = 400;
-    const int itemHeight = 55;
-
-    const int centerX = Constants::SCREEN_WIDTH / 2;
-
-    // Xác định item đang được hover
     for (size_t i = 0; i < menuItems_.size(); ++i)
     {
-        const int itemY =
-            menuStartY + static_cast<int>(i) * menuSpacing;
-
-        const int left =
-            centerX - itemWidth / 2;
-
-        const int right =
-            centerX + itemWidth / 2;
-
-        const int top =
-            itemY - itemHeight / 2;
-
-        const int bottom =
-            itemY + itemHeight / 2;
+        SDL_FRect rect =
+            getMenuItemRect(static_cast<int>(i));
 
         const bool mouseInside =
-            mouseX >= left &&
-            mouseX <= right &&
-            mouseY >= top &&
-            mouseY <= bottom;
+            mouseX >= rect.x &&
+            mouseX <= rect.x + rect.w &&
+            mouseY >= rect.y &&
+            mouseY <= rect.y + rect.h;
 
         if (!mouseInside)
-        {
             continue;
-        }
-
-        // Hover
         selectedIndex_ = static_cast<int>(i);
-
-        // Click chuột trái
         if (input().isMousePressed(SDL_BUTTON_LEFT))
         {
             switch (selectedIndex_)
             {
             case 0:
-                // START GAME
-                SDL_Log("Start Game");
-
                 if (sceneManager_ != nullptr)
                 {
                     sceneManager_->changeScene(
                         std::make_unique<GameScene>());
                 }
-                break;
+                return;
 
             case 1:
-                // RANKING
                 if (sceneManager_ != nullptr)
                 {
                     sceneManager_->changeScene(
                         std::make_unique<RankingScene>());
                 }
-                break;
+                return;
 
             case 2:
-                // SETTINGS
                 if (sceneManager_ != nullptr)
                 {
                     sceneManager_->changeScene(
                         std::make_unique<SettingsScene>());
                 }
-                break;
+                return;
 
             case 3:
-                // EXIT
-                {
-                    SDL_Event quitEvent{};
-                    quitEvent.type = SDL_EVENT_QUIT;
-                    SDL_PushEvent(&quitEvent);
-                }
-                break;
+            {
+                SDL_Event quitEvent{};
+                quitEvent.type = SDL_EVENT_QUIT;
+                SDL_PushEvent(&quitEvent);
+                return;
+            }
             }
         }
-
         break;
     }
 }

@@ -5,6 +5,7 @@
 #include "Entities/Player.h"
 #include "Entities/Enemy.h"
 #include "Entities/Bullet.h"
+#include <SDL3/SDL.h>
 
 namespace SpaceInvaders
 {
@@ -42,6 +43,8 @@ namespace SpaceInvaders
         bool inWaveTransition_{false};
         float waveTransitionTimer_{0.0f};
         int endMenuIndex_{};
+        SDL_FRect replayButtonRect_{};
+        SDL_FRect menuButtonRect_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
 

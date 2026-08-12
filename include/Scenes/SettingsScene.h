@@ -52,6 +52,10 @@ private:
 
     SettingsState state_ = SettingsState::Normal;
     int resolutionPopupIndex_ = 0;
+
+    void updateVolumeSlider(int index, float mouseX, float mouseY);
+    bool isMouseOverVolumeSlider(int index, float mouseX, float mouseY) const;
+    int draggingSlider_ = -1;
 };
 
 }

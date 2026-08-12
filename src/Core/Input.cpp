@@ -71,7 +71,7 @@ bool Input::isMousePressed(Uint32 button) const
            (previousMouseButtons_ & mask) == 0U;
 }
 
-bool Input::isMouseReleaed(Uint32 button) const
+bool Input::isMouseReleased(Uint32 button) const
 {
     const Uint32 mask = SDL_BUTTON_MASK(button);
 

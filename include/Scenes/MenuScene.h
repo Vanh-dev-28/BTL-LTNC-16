@@ -3,6 +3,7 @@
 #include "Scenes/Scene.h"
 #include <vector>
 #include <string>
+#include <SDL3/SDL.h>
 
 namespace SpaceInvaders
 {
@@ -20,6 +21,8 @@ public:
     void render(Renderer& renderer) override;
 
 private:
+    SDL_FRect getMenuItemRect(int index) const;
+
     std::vector<std::string> menuItems_
     {
         "Start Game",

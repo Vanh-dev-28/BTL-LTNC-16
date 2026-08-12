@@ -37,6 +37,86 @@ void SettingsScene::update(float)
     }
 }
 
+bool SettingsScene::isMouseOverVolumeSlider(
+    int index,
+    float mouseX,
+    float mouseY) const
+{
+    if (index != 1 && index != 2)
+        return false;
+
+    const float barX = 500.0f;
+    const float barWidth = 350.0f;
+    const float barHeight = 24.0f;
+
+    const int menuStartY = 180;
+    const int menuSpacing = 65;
+
+    const float barY =
+        static_cast<float>(
+            menuStartY + index * menuSpacing + 8);
+
+    const float hitPadding = 12.0f;
+
+    return mouseX >= barX &&
+           mouseX <= barX + barWidth &&
+           mouseY >= barY - hitPadding &&
+           mouseY <= barY + barHeight + hitPadding;
+}
+
+void SettingsScene::updateVolumeSlider(
+    int index,
+    float mouseX,
+    float mouseY)
+{
+    if (index != 1 && index != 2)
+        return;
+
+    const float barX = 500.0f;
+    const float barWidth = 350.0f;
+
+    const int menuStartY = 180;
+    const int menuSpacing = 65;
+
+    const float barY =
+        static_cast<float>(
+            menuStartY + index * menuSpacing + 8);
+
+    const float barHeight = 24.0f;
+
+    const float hitPadding = 12.0f;
+
+    if (mouseX < barX ||
+        mouseX > barX + barWidth ||
+        mouseY < barY - hitPadding ||
+        mouseY > barY + barHeight + hitPadding)
+    {
+        return;
+    }
+
+    float relativeX = mouseX - barX;
+
+    float percentage =
+        relativeX / barWidth;
+
+    percentage =
+        std::clamp(percentage, 0.0f, 1.0f);
+
+    int volume =
+        static_cast<int>(percentage * 100.0f + 0.5f);
+
+    if (index == 1)
+    {
+        SettingsManager::instance()
+            .setMusicVolume(volume);
+    }
+    else
+    {
+        SettingsManager::instance()
+            .setSFXVolume(volume);
+    }
+}
+
 void SettingsScene::updateNormal()
 {
     const float mouseX = input().getMouseX();
@@ -66,6 +146,25 @@ void SettingsScene::updateNormal()
         }
     }
 
+    if (isMouseOverVolumeSlider(1, mouseX, mouseY))
+    {
+        selectedIndex_ = 1;
+
+        if (input().isMouseDown(SDL_BUTTON_LEFT))
+        {
+            updateVolumeSlider(1, mouseX, mouseY);
+        }
+    }
+
+    if (isMouseOverVolumeSlider(2, mouseX, mouseY))
+    {
+        selectedIndex_ = 2;
+
+        if (input().isMouseDown(SDL_BUTTON_LEFT))
+        {
+            updateVolumeSlider(2, mouseX, mouseY);
+        }
+    }
 
     if (selectedIndex_ == 0 &&
         input().isMousePressed(SDL_BUTTON_LEFT))
@@ -78,53 +177,6 @@ void SettingsScene::updateNormal()
             state_ = SettingsState::ResolutionPopup;
         }
     }
-
-
-    if (selectedIndex_ == 1 &&
-        input().isMousePressed(SDL_BUTTON_LEFT))
-    {
-        const float barX = 500.0f;
-        const float barWidth = 350.0f;
-
-        if (mouseX >= barX &&
-            mouseX <= barX + barWidth)
-        {
-            float percent =
-                (mouseX - barX) / barWidth;
-
-            percent = std::clamp(percent, 0.0f, 1.0f);
-
-            int volume =
-                static_cast<int>(percent * 100.0f);
-
-            SettingsManager::instance()
-                .setMusicVolume(volume);
-        }
-    }
-
-
-    if (selectedIndex_ == 2 &&
-        input().isMousePressed(SDL_BUTTON_LEFT))
-    {
-        const float barX = 500.0f;
-        const float barWidth = 350.0f;
-
-        if (mouseX >= barX &&
-            mouseX <= barX + barWidth)
-        {
-            float percent =
-                (mouseX - barX) / barWidth;
-
-            percent = std::clamp(percent, 0.0f, 1.0f);
-
-            int volume =
-                static_cast<int>(percent * 100.0f);
-
-            SettingsManager::instance()
-                .setSFXVolume(volume);
-        }
-    }
-
 
     if (selectedIndex_ == 3 &&
         input().isMousePressed(SDL_BUTTON_LEFT))
@@ -144,7 +196,6 @@ void SettingsScene::updateNormal()
             }
         }
     }
-
 
     if (selectedIndex_ == 4 &&
         input().isMousePressed(SDL_BUTTON_LEFT))
