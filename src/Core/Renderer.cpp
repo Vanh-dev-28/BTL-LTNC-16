@@ -7,6 +7,7 @@
 namespace SpaceInvaders
 {
     float Renderer::s_scale = 1.0f;
+
     float Renderer::s_offsetX = 0.0f;
     float Renderer::s_offsetY = 0.0f;
 

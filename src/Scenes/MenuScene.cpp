@@ -27,52 +27,95 @@ void MenuScene::exit()
 
 void MenuScene::update(float)
 {
-    if (input().isKeyPressed(SDL_SCANCODE_UP))
+    const float mouseX = input().getMouseX();
+    const float mouseY = input().getMouseY();
+
+    const int menuStartY = 260;
+    const int menuSpacing = 70;
+
+    const int itemWidth = 400;
+    const int itemHeight = 55;
+
+    const int centerX = Constants::SCREEN_WIDTH / 2;
+
+    // Xác định item đang được hover
+    for (size_t i = 0; i < menuItems_.size(); ++i)
     {
-        selectedIndex_--;
+        const int itemY =
+            menuStartY + static_cast<int>(i) * menuSpacing;
 
-        if (selectedIndex_ < 0)
-            selectedIndex_ = static_cast<int>(menuItems_.size()) - 1;
-    }
+        const int left =
+            centerX - itemWidth / 2;
 
-    if (input().isKeyPressed(SDL_SCANCODE_DOWN))
-    {
-        selectedIndex_++;
+        const int right =
+            centerX + itemWidth / 2;
 
-        if (selectedIndex_ >= static_cast<int>(menuItems_.size()))
-             selectedIndex_ = 0;
-    }
+        const int top =
+            itemY - itemHeight / 2;
 
-    if (input().isKeyPressed(SDL_SCANCODE_RETURN))
-    {
-        
-        switch (selectedIndex_)
+        const int bottom =
+            itemY + itemHeight / 2;
+
+        const bool mouseInside =
+            mouseX >= left &&
+            mouseX <= right &&
+            mouseY >= top &&
+            mouseY <= bottom;
+
+        if (!mouseInside)
         {
-        case 0:
-            SDL_Log("Start Game");
+            continue;
+        }
 
-            if (sceneManager_ != nullptr)
+        // Hover
+        selectedIndex_ = static_cast<int>(i);
+
+        // Click chuột trái
+        if (input().isMousePressed(SDL_BUTTON_LEFT))
         {
-            sceneManager_->changeScene(std::make_unique<GameScene>());
+            switch (selectedIndex_)
+            {
+            case 0:
+                // START GAME
+                SDL_Log("Start Game");
+
+                if (sceneManager_ != nullptr)
+                {
+                    sceneManager_->changeScene(
+                        std::make_unique<GameScene>());
+                }
+                break;
+
+            case 1:
+                // RANKING
+                if (sceneManager_ != nullptr)
+                {
+                    sceneManager_->changeScene(
+                        std::make_unique<RankingScene>());
+                }
+                break;
+
+            case 2:
+                // SETTINGS
+                if (sceneManager_ != nullptr)
+                {
+                    sceneManager_->changeScene(
+                        std::make_unique<SettingsScene>());
+                }
+                break;
+
+            case 3:
+                // EXIT
+                {
+                    SDL_Event quitEvent{};
+                    quitEvent.type = SDL_EVENT_QUIT;
+                    SDL_PushEvent(&quitEvent);
+                }
+                break;
+            }
         }
-            break;
 
-        case 1:
-            sceneManager_->changeScene(
-        std::make_unique<RankingScene>());
-            break;
-
-        case 2:
-            sceneManager_->changeScene(
-        std::make_unique<SettingsScene>());
-            break;
-
-        case 3:
-            SDL_Event quitEvent;
-            quitEvent.type = SDL_EVENT_QUIT;
-            SDL_PushEvent(&quitEvent);
-            break;
-        }
+        break;
     }
 }
 
