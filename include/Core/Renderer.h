@@ -13,11 +13,10 @@ namespace SpaceInvaders
         static float s_scale;
         static float s_offsetX;
         static float s_offsetY;
-    public:
+
         Renderer() = default;
 
         ~Renderer();
-
         bool create(SDL_Window *window);
         void clear();
 

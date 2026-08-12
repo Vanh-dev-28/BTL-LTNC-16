@@ -4,8 +4,8 @@
 
 namespace SpaceInvaders
 {
-    Bullet::Bullet(float startX, float startY, float spd, BulletOwner owner)
-        : x(startX), y(startY), speed_(spd), active(true), owner(owner) {}
+    Bullet::Bullet(float startX, float startY, float spd, BulletOwner owner, BulletType type)
+        : x(startX), y(startY), speed_(spd), active(true), owner(owner), type(type) {}
 
     void Bullet::update(float deltaTime)
     {
@@ -25,17 +25,27 @@ namespace SpaceInvaders
 
         if (owner == BulletOwner::Player)
         {
-            // Player's bullet is a yellow rectangle
-            renderer.fillRect(x, y, 6.0f, 20.0f, SDL_Color{255, 255, 120, 255});
+            if (type == BulletType::Fireball)
+            {
+                SDL_Texture *fireballTexture = TextureManager::instance().getTexture("fireball_effect");
+                if (fireballTexture)
+                    renderer.drawTexture(fireballTexture, x, y, width, height);
+                else // Fallback
+                    renderer.fillRect(x, y, width, height, SDL_Color{0, 255, 255, 255});
+            }
+            else // Normal player bullet
+            {
+                renderer.fillRect(x, y, width, height, SDL_Color{255, 255, 120, 255});
+            }
         }
-        else // Enemy's bullet
+        else // Enemy's bullet (always normal type for now)
         {
             SDL_Texture *laserTexture = TextureManager::instance().getTexture("enemy_laser");
             if (laserTexture != nullptr)
-                renderer.drawTexture(laserTexture, x, y, 16.0f, 30.0f);
+                renderer.drawTexture(laserTexture, x, y, width, height);
             else
                 // Fallback to a red rectangle if texture fails to load
-                renderer.fillRect(x, y, 4.0f, 16.0f, SDL_Color{255, 40, 40, 255});
+                renderer.fillRect(x, y, width, height, SDL_Color{255, 40, 40, 255});
         }
     }
 }
