@@ -13,6 +13,7 @@
 #include "Scenes/MenuScene.h"
 #include <cstdlib> // For rand() and srand()
 #include <ctime>   // For time()
+#include <memory>
 #include <filesystem>
 
 namespace SpaceInvaders

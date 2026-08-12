@@ -21,7 +21,7 @@ namespace SpaceInvaders
 
         [[nodiscard]] bool isMousePressed(Uint32 button) const;
 
-        [[nodiscard]] bool isMouseReleaed(Uint32 button) const;
+        [[nodiscard]] bool isMouseReleased(Uint32 button) const;
 
         [[nodiscard]] float getMouseX() const;
         [[nodiscard]] float getMouseY() const;
