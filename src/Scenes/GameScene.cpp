@@ -3,6 +3,7 @@
 #include "Core/Renderer.h"
 #include "Utils/Vector2.h"
 #include "Managers/TextureManager.h"
+#include "Core/Input.h"
 #include "Managers/FontManager.h"
 #include "Managers/AudioManager.h"
 #include "Managers/SceneManager.h"
@@ -33,6 +34,14 @@ namespace SpaceInvaders
 
         bullets_.clear();
         enemies_.clear();
+
+        // --- UI Setup ---
+        const float buttonWidth = 64.0f;  // Adjusted for smaller top-left icons
+        const float buttonHeight = 64.0f; // Adjusted for smaller top-left icons
+        const float topMargin = 20.0f;
+        const float buttonSpacing = 20.0f;
+        fireballButtonRect_ = {20.0f, topMargin, buttonWidth, buttonHeight};                             // Top-left position
+        shieldButtonRect_ = {20.0f + buttonWidth + buttonSpacing, topMargin, buttonWidth, buttonHeight}; // Next to Fireball
     }
 
     void GameScene::exit()
@@ -65,6 +74,17 @@ namespace SpaceInvaders
             return; // But not enemies
         }
 
+        // --- Handle Ability Input ---
+        if (input().isKeyPressed(SDL_SCANCODE_F))
+        {
+            player_.activateFireball(bullets_);
+        }
+        if (input().isKeyPressed(SDL_SCANCODE_S))
+        {
+            player_.activateShield();
+        }
+        // --- End Handle Ability Input ---
+
         player_.update(deltaTime, bullets_);
 
         updateBullets(deltaTime);
@@ -91,7 +111,7 @@ namespace SpaceInvaders
         if (!player_.isAlive())
         {
             gameOver_ = true;
-            playerWon_ = true;
+            playerWon_ = false;
         }
     }
 
@@ -185,6 +205,62 @@ namespace SpaceInvaders
                 Constants::SCREEN_WIDTH / 2,
                 Constants::SCREEN_HEIGHT / 2);
             renderEndGame(renderer);
+        }
+
+        // --- Render Ability Buttons ---
+        if (!gameOver_)
+        {
+            SDL_Color white{255, 255, 255, 200};
+            SDL_Texture *fireballIcon = TextureManager::instance().getTexture("fireball_icon");
+            SDL_Texture *shieldIcon = TextureManager::instance().getTexture("shield_icon");
+
+            // Fireball Button
+            if (fireballIcon)
+            {
+                renderer.drawTexture(fireballIcon, fireballButtonRect_.x, fireballButtonRect_.y, fireballButtonRect_.w, fireballButtonRect_.h);
+            }
+            else // Fallback
+            {
+                renderer.fillRect(fireballButtonRect_.x, fireballButtonRect_.y, fireballButtonRect_.w, fireballButtonRect_.h, {100, 50, 0, 255});
+                renderer.drawTextCentered("F", hudFont, {255, 255, 255, 255}, fireballButtonRect_.x + fireballButtonRect_.w / 2, fireballButtonRect_.y + fireballButtonRect_.h / 2 - 10);
+            }
+            // Cooldown overlay
+            float fireballCD = player_.getFireballCooldownRatio();
+            if (fireballCD > 0.0f)
+            {
+                renderer.fillRect(fireballButtonRect_.x, fireballButtonRect_.y, fireballButtonRect_.w, fireballButtonRect_.h * fireballCD, {0, 0, 0, 180});
+            }
+            renderer.drawTextCentered(
+                "Press F",
+                hudFont,
+                white,
+                fireballButtonRect_.x + fireballButtonRect_.w / 2, fireballButtonRect_.y + fireballButtonRect_.h + 10); // Adjusted Y for text
+
+            // Shield Button
+            if (shieldIcon)
+            {
+                renderer.drawTexture(shieldIcon, shieldButtonRect_.x, shieldButtonRect_.y, shieldButtonRect_.w, shieldButtonRect_.h);
+            }
+            else // Fallback
+            {
+                renderer.fillRect(shieldButtonRect_.x, shieldButtonRect_.y, shieldButtonRect_.w, shieldButtonRect_.h, {100, 100, 0, 255});
+                renderer.drawTextCentered("S", hudFont, {255, 255, 255, 255}, shieldButtonRect_.x + shieldButtonRect_.w / 2, shieldButtonRect_.y + shieldButtonRect_.h / 2 - 10);
+            }
+            // Cooldown/Active overlay
+            if (player_.isShieldActive())
+            {
+                renderer.drawRect(shieldButtonRect_.x, shieldButtonRect_.y, shieldButtonRect_.w, shieldButtonRect_.h, {0, 255, 0, 255});
+                renderer.fillRect(shieldButtonRect_.x, shieldButtonRect_.y + shieldButtonRect_.h * (1.0f - player_.getShieldTimeRatio()), shieldButtonRect_.w, shieldButtonRect_.h * player_.getShieldTimeRatio(), {0, 255, 0, 100});
+            }
+            else if (player_.getShieldCooldownRatio() > 0.0f)
+            {
+                renderer.fillRect(shieldButtonRect_.x, shieldButtonRect_.y, shieldButtonRect_.w, shieldButtonRect_.h * player_.getShieldCooldownRatio(), {0, 0, 0, 180});
+            }
+            renderer.drawTextCentered(
+                "Press S",
+                hudFont,
+                white,
+                shieldButtonRect_.x + shieldButtonRect_.w / 2, shieldButtonRect_.y + shieldButtonRect_.h + 10); // Adjusted Y for text
         }
     }
 
@@ -331,7 +407,15 @@ namespace SpaceInvaders
                 int shooterIndex = livingEnemyIndices[rand() % livingEnemyIndices.size()];
                 const auto &shooter = enemies_[shooterIndex];
                 // Spawn bullet from the center of the enemy
-                bullets_.emplace_back(shooter.x + shooter.width / 2.0f - 2.0f, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
+                bullets_.emplace_back(shooter.x, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
+
+                // Lấy tham chiếu đến viên đạn vừa tạo và tùy chỉnh kích thước
+                Bullet &newBullet = bullets_.back();
+                newBullet.width = 24.0f;  // Kích thước chiều rộng mới
+                newBullet.height = 48.0f; // Kích thước chiều dài mới
+
+                // Căn chỉnh lại vị trí để đạn bắn ra từ giữa tàu địch
+                newBullet.x = shooter.x + (shooter.width / 2.0f) - (newBullet.width / 2.0f);
             }
 
             // Fire rate increases with waves
@@ -391,14 +475,22 @@ namespace SpaceInvaders
                         continue;
                     }
 
-                    const bool hit = bullet.x >= enemy.x && bullet.x <= enemy.x + enemy.width &&
-                                     bullet.y >= enemy.y && bullet.y <= enemy.y + enemy.height;
+                    // AABB collision check (rectangle-rectangle)
+                    const bool hit = bullet.x < enemy.x + enemy.width &&
+                                     bullet.x + bullet.width > enemy.x &&
+                                     bullet.y < enemy.y + enemy.height &&
+                                     bullet.y + bullet.height > enemy.y;
                     if (hit)
                     {
                         enemy.alive = false;
-                        bullet.active = false;
                         score_ += 10;
-                        break; // Một viên đạn chỉ trúng 1 kẻ địch
+
+                        // Normal bullets are destroyed on impact, Fireball is not.
+                        if (bullet.type != BulletType::Fireball)
+                        {
+                            bullet.active = false;
+                            break; // A normal bullet only hits one enemy
+                        }
                     }
                 }
             }
@@ -407,10 +499,29 @@ namespace SpaceInvaders
                 // Check collision with player
                 if (player_.isAlive())
                 {
+                    // Check collision with shield first
+                    if (player_.isShieldActive())
+                    {
+                        const float shieldSize = 80.0f;
+                        const float shieldX = player_.x + (48.0f - shieldSize) / 2.0f;
+                        const float shieldY = player_.y + (48.0f - shieldSize) / 2.0f;
+                        const bool shieldHit = bullet.x < shieldX + shieldSize &&
+                                               bullet.x + bullet.width > shieldX &&
+                                               bullet.y < shieldY + shieldSize &&
+                                               bullet.y + bullet.height > shieldY;
+                        if (shieldHit)
+                        {
+                            bullet.active = false;
+                            continue; // Bullet destroyed, go to next bullet
+                        }
+                    }
                     const float playerWidth = 48.0f;
                     const float playerHeight = 48.0f;
-                    const bool hit = bullet.x >= player_.x && bullet.x <= player_.x + playerWidth &&
-                                     bullet.y >= player_.y && bullet.y <= player_.y + playerHeight;
+                    // AABB collision check (rectangle-rectangle)
+                    const bool hit = bullet.x < player_.x + playerWidth &&
+                                     bullet.x + bullet.width > player_.x &&
+                                     bullet.y < player_.y + playerHeight &&
+                                     bullet.y + bullet.height > player_.y;
                     if (hit)
                     {
                         player_.takeDamage(Constants::ENEMY_LASER_DAMAGE);

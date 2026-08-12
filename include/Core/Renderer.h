@@ -12,6 +12,7 @@ namespace SpaceInvaders
     public:
         static float s_scale;
         static float s_offsetX;
+        static float s_offsetY;
 
     public:
         Renderer() = default;

@@ -44,6 +44,11 @@ namespace SpaceInvaders
         int endMenuIndex_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
+
+        // UI and Abilities
+        SDL_FRect fireballButtonRect_{};
+        SDL_FRect shieldButtonRect_{};
+        bool mouseWasPressed_{false};
     };
 
 }

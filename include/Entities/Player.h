@@ -23,15 +23,28 @@ namespace SpaceInvaders
         void render(Renderer &renderer) const;
         void takeDamage(float damage);
 
+        void activateFireball(std::vector<Bullet> &bullets);
+        void activateShield();
+
         [[nodiscard]] bool isAlive() const;
         [[nodiscard]] float getHealth() const;
         [[nodiscard]] float getMaxHealth() const;
+        [[nodiscard]] bool isShieldActive() const;
+        [[nodiscard]] float getFireballCooldownRatio() const;
+        [[nodiscard]] float getShieldCooldownRatio() const;
+        [[nodiscard]] float getShieldTimeRatio() const;
 
     private:
         float speed_;
         float fireCooldown_;
         float health_;
         float maxHealth_;
+
+        // Abilities
+        bool shieldActive_{false};
+        float shieldTimer_{0.0f};
+        float shieldCooldown_{0.0f};
+        float fireballCooldown_{0.0f};
 
         void shoot(std::vector<Bullet> &bullets);
     };
