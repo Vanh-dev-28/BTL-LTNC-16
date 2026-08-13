@@ -3,7 +3,6 @@
 
 namespace SpaceInvaders
 {
-
 void Input::update()
 {
     for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
@@ -38,6 +37,31 @@ void Input::update()
     {
         mouseX_ = windowMouseX;
         mouseY_ = windowMouseY;
+    }
+}
+void Input::handleEvent(const SDL_Event& event)
+{
+    if (event.type == SDL_EVENT_TEXT_INPUT)
+    {
+        if (textInput_.length() < 16)
+        {
+            textInput_ += event.text.text;
+
+            if (textInput_.length() > 16)
+            {
+                textInput_.resize(16);
+            }
+        }
+    }
+    if (event.type == SDL_EVENT_KEY_DOWN)
+    {
+        if (event.key.scancode == SDL_SCANCODE_BACKSPACE)
+        {
+            if (!textInput_.empty())
+            {
+                textInput_.pop_back();
+            }
+        }
     }
 }
 
@@ -77,6 +101,26 @@ bool Input::isMouseReleased(Uint32 button) const
 
     return (mouseButtons_ & mask) == 0U &&
            (previousMouseButtons_ & mask) != 0U;
+}
+void Input::startTextInput()
+{
+    textInput_.clear();
+    SDL_StartTextInput(SDL_GetKeyboardFocus());
+}
+
+void Input::stopTextInput()
+{
+    SDL_StopTextInput(SDL_GetKeyboardFocus());
+}
+
+const std::string& Input::getTextInput() const
+{
+    return textInput_;
+}
+
+void Input::clearTextInput()
+{
+    textInput_.clear();
 }
 
 float Input::getMouseX() const

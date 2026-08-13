@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-
+#include <string>
 namespace SpaceInvaders
 {
 
@@ -25,6 +25,13 @@ namespace SpaceInvaders
 
         [[nodiscard]] float getMouseX() const;
         [[nodiscard]] float getMouseY() const;
+        void startTextInput();
+        void stopTextInput();
+
+        void handleEvent(const SDL_Event& event);
+
+        const std::string& getTextInput() const;
+        void clearTextInput();
     private:
         const bool *keyboardState_{nullptr};
         Uint32 mouseButtons_{0U};
@@ -35,6 +42,7 @@ namespace SpaceInvaders
 
         bool currentKeys_[SDL_SCANCODE_COUNT]{};
         bool previousKeys_[SDL_SCANCODE_COUNT]{};
+        std::string textInput_{};
     };
 
 } // namespace SpaceInvaders

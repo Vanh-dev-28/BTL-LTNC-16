@@ -78,7 +78,7 @@ void MenuScene::update(float)
                 if (sceneManager_ != nullptr)
                 {
                     sceneManager_->changeScene(
-                        std::make_unique<GameScene>());
+                        std::make_unique<GameScene>(""));
                 }
                 return;
 
