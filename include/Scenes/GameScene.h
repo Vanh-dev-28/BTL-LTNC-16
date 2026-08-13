@@ -2,6 +2,7 @@
 
 #include "Scenes/Scene.h"
 #include <vector>
+#include <string>
 #include "Entities/Player.h"
 #include "Entities/Enemy.h"
 #include "Entities/Bullet.h"
@@ -14,6 +15,7 @@ namespace SpaceInvaders
     {
     public:
         GameScene() = default;
+        GameScene(const std::string& playerName);
         ~GameScene() override = default;
 
         void enter() override;
@@ -23,13 +25,22 @@ namespace SpaceInvaders
         void render(Renderer &renderer) override;
 
     private:
+        enum class GameState
+        {
+            EnterName,
+            Playing,
+            EndGame
+        };
         void updateBullets(float deltaTime);
         void updateEnemies(float deltaTime);
         void checkCollisions();
         bool allEnemiesDefeated() const;
 
         void resetWave();
+        void updateEnterName();
         void updateEndGame();
+
+        void renderEnterName(Renderer &renderer);
         void renderEndGame(Renderer &renderer);
 
         Player player_{};
@@ -38,11 +49,16 @@ namespace SpaceInvaders
         float enemyFireCooldown_{};
         int currentWave_{0};
         int score_{};
+        GameState gameState_{GameState::EnterName};
         bool gameOver_{};
         bool playerWon_{};
         bool inWaveTransition_{false};
         float waveTransitionTimer_{0.0f};
         int endMenuIndex_{};
+        //input: getplayername.
+        bool enteringPlayerName_{false};
+        std::string playerName_{};
+
         SDL_FRect replayButtonRect_{};
         SDL_FRect menuButtonRect_{};
         std::vector<Bullet> bullets_{};

@@ -284,7 +284,9 @@ namespace SpaceInvaders
             {
                 running_ = false;
             }
+            input_.handleEvent(event);
         }
+        
         input_.update();
     }
 

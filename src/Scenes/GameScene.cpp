@@ -16,9 +16,19 @@
 
 namespace SpaceInvaders
 {
+    GameScene::GameScene(const std::string& playerName)
+    : playerName_(playerName),
+      enteringPlayerName_(true)
+{
+}
+
     void GameScene::enter()
     {
         AudioManager::instance().playMusic("../assets/audio/music/gameplay_music.mp3");
+        enteringPlayerName_ = true;
+        input().startTextInput();
+
+        playerName_.clear();
         player_.init();
         enemyDirection_ = 1.0f;
         currentWave_ = 1;
@@ -44,6 +54,7 @@ namespace SpaceInvaders
 
     void GameScene::exit()
     {
+        input().stopTextInput();
         bullets_.clear();
         enemies_.clear();
         AudioManager::instance().playMusic("../assets/audio/music/background_music.mp3");
@@ -51,6 +62,22 @@ namespace SpaceInvaders
 
     void GameScene::update(float deltaTime)
     {
+        if (enteringPlayerName_)
+        {   
+            playerName_ = input().getTextInput();
+
+            if (input().isKeyPressed(SDL_SCANCODE_RETURN))
+            {
+                if (!playerName_.empty())
+                {
+                    enteringPlayerName_ = false;
+                    input().clearTextInput();
+                    input().stopTextInput();
+                }
+            }
+
+            return;
+        }
         if (gameOver_)
         {
             updateEndGame();
@@ -115,6 +142,49 @@ namespace SpaceInvaders
 
     void GameScene::render(Renderer &renderer)
     {
+        TTF_Font *font =
+        FontManager::instance().getFont("menu");
+
+    if (enteringPlayerName_)
+    {
+        SDL_SetRenderDrawColor(
+            renderer.getSDLRenderer(),
+            10, 20, 40, 255);
+
+        SDL_RenderClear(renderer.getSDLRenderer());
+
+        if (font != nullptr)
+        {
+            renderer.drawTextCentered(
+                "ENTER YOUR NAME",
+                font,
+                {255, 255, 0, 255},
+                Constants::SCREEN_WIDTH / 2,
+                Constants::SCREEN_HEIGHT / 2 - 80
+            );
+
+            renderer.drawTextCentered(
+                playerName_.empty()
+                    ? "_"
+                    : playerName_,
+                font,
+                {255, 255, 255, 255},
+                Constants::SCREEN_WIDTH / 2,
+                Constants::SCREEN_HEIGHT / 2
+            );
+
+            renderer.drawTextCentered(
+                "PRESS ENTER TO START",
+                font,
+                {200, 200, 200, 255},
+                Constants::SCREEN_WIDTH / 2,
+                Constants::SCREEN_HEIGHT / 2 + 80
+            );
+        }
+
+        return;
+    }
+
         SDL_Texture *background = TextureManager::instance().getTexture("gameplay_background");
         if (background != nullptr)
         {
@@ -678,12 +748,18 @@ namespace SpaceInvaders
 
 
     renderer.drawTextCentered(
-        "SCORE : " + std::to_string(score_),
-        font,
-        white,
-        static_cast<int>(popupX + 350.0f * sx),
-        popupY + 128.0f * sy
-    );
+    "PLAYER : " + playerName_,
+    font,
+    white,
+    Constants::SCREEN_WIDTH / 2,
+    popupY + 105.0f * sy);
+
+    renderer.drawTextCentered(
+    "SCORE : " + std::to_string(score_),
+    font,
+    white,
+    Constants::SCREEN_WIDTH / 2,
+    popupY + 150.0f * sy);
 
 
     SDL_Color replayColor =
