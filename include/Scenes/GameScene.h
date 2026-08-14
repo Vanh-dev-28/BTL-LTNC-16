@@ -70,8 +70,16 @@ namespace SpaceInvaders
         SDL_FRect shieldButtonRect_{};
         bool mouseWasPressed_{false};
 
-        //co luu trang thai luu diem
+        //ScoreSaved state
         bool scoreSaved_{false};
+
+        //pause game 
+        bool paused_{false};
+        SDL_FRect pauseButtonRect_{};
+        SDL_FRect resumeButtonRect_{};
+        SDL_FRect exitPauseButtonRect_{};
+        void updatePauseMenu();
+        void renderPauseMenu(Renderer& renderer);
     };
 
 }
