@@ -1,21 +1,25 @@
-#include "Scenes/RankingScene.h"
-
 #include "Core/Renderer.h"
+#include "Core/Input.h"
 #include "Managers/FontManager.h"
 #include "Managers/SceneManager.h"
-#include "Scenes/MenuScene.h"
 #include "Managers/RankingManager.h"
+#include "Managers/TextureManager.h"
+
+#include "Scenes/RankingScene.h"
+#include "Scenes/MenuScene.h"
+#include "Utils/Constants.h"
 
 #include <SDL3/SDL.h>
 #include <memory>
-#include <fstream>
+#include <algorithm>
 
 namespace SpaceInvaders
 {
 
 void RankingScene::enter()
 {
-    RankingManager::instance().load("assets/data/ranking.txt");
+    RankingManager::instance().load(
+        "../assets/data/ranking.txt");
 }
 
 void RankingScene::exit()
@@ -24,55 +28,132 @@ void RankingScene::exit()
 
 void RankingScene::update(float)
 {
-    const bool* keyboard = SDL_GetKeyboardState(nullptr);
-
-    static bool escPressed = false;
-
-    if (keyboard[SDL_SCANCODE_ESCAPE])
+    if (input().isKeyPressed(SDL_SCANCODE_ESCAPE))
     {
-        if (!escPressed)
+        if (sceneManager_ != nullptr)
         {
-            sceneManager_->changeScene(std::make_unique<MenuScene>());
+            sceneManager_->changeScene(
+                std::make_unique<MenuScene>());
         }
-
-        escPressed = true;
-    }
-    else
-    {
-        escPressed = false;
     }
 }
 
 void RankingScene::render(Renderer& renderer)
 {
-    TTF_Font* font = FontManager::instance().getFont("menu");
+    SDL_Texture* background =
+        TextureManager::instance().getTexture("ranking_background");
 
-    if (font == nullptr)
+    if (background != nullptr)
+    {
+        renderer.drawTexture(
+            background,
+            0.0f,
+            0.0f,
+            static_cast<float>(Constants::SCREEN_WIDTH),
+            static_cast<float>(Constants::SCREEN_HEIGHT)
+        );
+    }
+    else
+    {
+        // Nếu không load được background
+        SDL_SetRenderDrawColor(
+            renderer.getSDLRenderer(),
+            10, 20, 40, 255
+        );
+
+        SDL_RenderClear(renderer.getSDLRenderer());
+    }
+    
+    TTF_Font* titleFont =
+        FontManager::instance().getFont("menu_title");
+
+    TTF_Font* font =
+        FontManager::instance().getFont("menu");
+
+    if (titleFont == nullptr || font == nullptr)
         return;
 
-    SDL_Color white{255,255,255,255};
+    SDL_Color white{255, 255, 255, 255};
+    SDL_Color yellow{255, 255, 0, 255};
 
-    renderer.drawText("RANKING", font, white, 220, 60);
 
-    const auto& scores = RankingManager::instance().getScores();
-
-    int startY = 170;
-
-    for (size_t i = 0; i < scores.size(); ++i) {
-    std::string text =
-        std::to_string(i + 1) + ". " +
-        scores[i].name + "    " +
-        std::to_string(scores[i].score);
+    renderer.drawTextCentered(
+        "TOP 10 BEST PLAYERS",
+        titleFont,
+        yellow,
+        Constants::SCREEN_WIDTH / 2,
+        80
+    );
 
     renderer.drawText(
-        text,
+        "STT",
         font,
         white,
-        180,
-        startY + static_cast<int>(i) * 60);
-     }
+        250,
+        180
+    );
 
-    renderer.drawText("ESC : Back", font, white, 15, 15);
+    renderer.drawText(
+        "NAME",
+        font,
+        white,
+        400,
+        180
+    );
+
+    renderer.drawText(
+        "SCORE",
+        font,
+        white,
+        800,
+        180
+    );
+
+    const auto& scores =
+        RankingManager::instance().getScores();
+
+    const size_t maxPlayers =
+        std::min<size_t>(10, scores.size());
+
+    const int startY = 230;
+    const int spacing = 50;
+
+    for (size_t i = 0; i < maxPlayers; ++i)
+    {
+        const auto& entry = scores[i];
+
+        const int y =
+            startY + static_cast<int>(i) * spacing;
+        renderer.drawText(
+            std::to_string(i + 1),
+            font,
+            white,
+            250,
+            y
+        );
+        renderer.drawText(
+            entry.name,
+            font,
+            white,
+            400,
+            y
+        );
+        renderer.drawText(
+            std::to_string(entry.score),
+            font,
+            white,
+            800,
+            y
+        );
+    }
+
+    renderer.drawTextCentered(
+        "ESC : BACK",
+        font,
+        white,
+        Constants::SCREEN_WIDTH / 2,
+        Constants::SCREEN_HEIGHT - 50
+    );
 }
 
 }
