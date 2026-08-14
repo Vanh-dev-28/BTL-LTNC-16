@@ -281,6 +281,15 @@ namespace SpaceInvaders
             clean();
             return false;
         }
+        
+        //upload pause_icon
+        if (!TextureManager::instance().loadTexture(
+                "pause_icon",
+                (assetRoot / "image" / "menu" / "pause_icon.png").string(),
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Warning: Failed to load pause_icon\n";
+        }
 
         initialized_ = true;
         running_ = true;

@@ -44,7 +44,6 @@ namespace SpaceInvaders
         endMenuIndex_ = 0;
         bullets_.clear();
         enemies_.clear();
-
         // --- UI Setup ---
         const float buttonWidth = 64.0f;  // Adjusted for smaller top-left icons
         const float buttonHeight = 64.0f; // Adjusted for smaller top-left icons
@@ -52,11 +51,20 @@ namespace SpaceInvaders
         const float buttonSpacing = 20.0f;
         fireballButtonRect_ = {20.0f, topMargin, buttonWidth, buttonHeight};                             // Top-left position
         shieldButtonRect_ = {20.0f + buttonWidth + buttonSpacing, topMargin, buttonWidth, buttonHeight}; // Next to Fireball
+
+        //Icon Pausegame
+        const float pauseButtonSize = 64.0f;
+
+        pauseButtonRect_ = {(Constants::SCREEN_WIDTH - pauseButtonSize) / 2.0f,
+                            20.0f,
+                            pauseButtonSize,
+                            pauseButtonSize};
     }
 
     void GameScene::exit()
     {
         input().stopTextInput();
+        paused_ = false;
         bullets_.clear();
         enemies_.clear();
         AudioManager::instance().playMusic("../assets/audio/music/background_music.mp3");
@@ -64,6 +72,27 @@ namespace SpaceInvaders
 
     void GameScene::update(float deltaTime)
     {
+        if (paused_)
+        {
+            updatePauseMenu();
+            return;
+        }
+
+        float mouseX = input().getMouseX();
+        float mouseY = input().getMouseY();
+
+        if (mouseX >= pauseButtonRect_.x &&
+            mouseX <= pauseButtonRect_.x + pauseButtonRect_.w &&
+            mouseY >= pauseButtonRect_.y &&
+            mouseY <= pauseButtonRect_.y + pauseButtonRect_.h)
+        {
+            if (input().isMousePressed(SDL_BUTTON_LEFT))
+            {
+                paused_ = true;
+                return;
+            }
+        }
+
         if (enteringPlayerName_)
         {   
             playerName_ = input().getTextInput();
@@ -150,8 +179,8 @@ namespace SpaceInvaders
         TTF_Font *font =
         FontManager::instance().getFont("menu");
 
-    if (enteringPlayerName_)
-    {
+        if (enteringPlayerName_)
+        {
         SDL_Texture* background = TextureManager::instance().getTexture("entername_background");
         if (background != nullptr)
         {
@@ -203,7 +232,7 @@ namespace SpaceInvaders
         }
 
         return;
-    }
+        }
 
         SDL_Texture *background = TextureManager::instance().getTexture("gameplay_background");
         if (background != nullptr)
@@ -294,6 +323,19 @@ namespace SpaceInvaders
             SDL_Color white{255, 255, 255, 200};
             SDL_Texture *fireballIcon = TextureManager::instance().getTexture("fireball_icon");
             SDL_Texture *shieldIcon = TextureManager::instance().getTexture("shield_icon");
+            SDL_Texture* pauseIcon = TextureManager::instance().getTexture("pause_icon");
+
+            //PauseGame icon
+            if (pauseIcon != nullptr)
+            {
+                renderer.drawTexture(
+                    pauseIcon,
+                    pauseButtonRect_.x,
+                    pauseButtonRect_.y,
+                    pauseButtonRect_.w,
+                    pauseButtonRect_.h
+                );
+            }
 
             // Fireball Button
             if (fireballIcon)
@@ -342,6 +384,11 @@ namespace SpaceInvaders
                 hudFont,
                 white,
                 shieldButtonRect_.x + shieldButtonRect_.w / 2, shieldButtonRect_.y + shieldButtonRect_.h + 10); // Adjusted Y for text
+        }
+
+        if (paused_) 
+        {
+            renderPauseMenu(renderer);
         }
     }
 
@@ -811,19 +858,141 @@ namespace SpaceInvaders
     );
     }
 
+    //Save Score
     void GameScene::saveScore()
-{
-    if (scoreSaved_)
-        return;
-
-    RankingManager::instance().addScore(playerName_, score_);
-
-    if (!RankingManager::instance().save("../assets/data/ranking.txt"))
     {
-        SDL_Log("Failed to save ranking!");
+        if (scoreSaved_)
+            return;
+
+        RankingManager::instance().addScore(playerName_, score_);
+
+        if (!RankingManager::instance().save("../assets/data/ranking.txt"))
+        {
+            SDL_Log("Failed to save ranking!");
+        }
+
+        scoreSaved_ = true;
+    }
+    
+    void GameScene::updatePauseMenu()
+    {
+        float mouseX = input().getMouseX();
+        float mouseY = input().getMouseY();
+
+        bool hoverResume =
+            mouseX >= resumeButtonRect_.x &&
+            mouseX <= resumeButtonRect_.x + resumeButtonRect_.w &&
+            mouseY >= resumeButtonRect_.y &&
+            mouseY <= resumeButtonRect_.y + resumeButtonRect_.h;
+
+        bool hoverExit =
+            mouseX >= exitPauseButtonRect_.x &&
+            mouseX <= exitPauseButtonRect_.x + exitPauseButtonRect_.w &&
+            mouseY >= exitPauseButtonRect_.y &&
+            mouseY <= exitPauseButtonRect_.y + exitPauseButtonRect_.h;
+
+        if (input().isMousePressed(SDL_BUTTON_LEFT))
+        {
+            if (hoverResume)
+            {
+                paused_ = false;
+            }
+            else if (hoverExit)
+            {
+                paused_ = false;
+
+                if (sceneManager_ != nullptr)
+                {
+                    sceneManager_->changeScene(
+                        std::make_unique<MenuScene>()
+                    );
+                }
+            }
+        }
     }
 
-    scoreSaved_ = true;
-}
-    
+    void GameScene::renderPauseMenu(Renderer& renderer)
+    {
+        SDL_Texture* popup = TextureManager::instance().getTexture("endgame_popup");
+
+        TTF_Font* font = FontManager::instance().getFont("menu");
+
+        if (popup == nullptr || font == nullptr)
+            return;
+
+        const float popupWidth = 700.0f;
+        const float popupHeight = popupWidth * 320.0f / 700.0f;
+
+        const float popupX = (Constants::SCREEN_WIDTH - popupWidth) / 2.0f;
+
+        const float popupY = (Constants::SCREEN_HEIGHT - popupHeight) / 2.0f;
+
+        renderer.drawTexture(
+            popup,
+            popupX,
+            popupY,
+            popupWidth,
+            popupHeight
+        );
+
+        const float sx = popupWidth / 700.0f;
+        const float sy = popupHeight / 320.0f;
+
+        SDL_Color white{255, 255, 255, 255};
+        SDL_Color yellow{255, 255, 0, 255};
+        SDL_Color orange{255, 165, 0, 255};
+
+
+        renderer.drawTextCentered(
+            "What happened?",
+            font,
+            orange,
+            Constants::SCREEN_WIDTH / 2,
+            popupY + 65.0f * sy
+        );
+
+        constexpr float buttonWidth = 220.0f;
+        constexpr float buttonHeight = 50.0f;
+        constexpr float buttonY = 170.0f;
+
+        resumeButtonRect_ = {
+            popupX + 100.0f * sx,
+            popupY + buttonY * sy,
+            buttonWidth * sx,
+            buttonHeight * sy
+        };
+
+        exitPauseButtonRect_ = {
+            popupX + 380.0f * sx,
+            popupY + buttonY * sy,
+            buttonWidth * sx,
+            buttonHeight * sy
+        };
+        const float mouseX = input().getMouseX();
+        const float mouseY = input().getMouseY();
+        const bool hoverResume = mouseX >= resumeButtonRect_.x && mouseX <= resumeButtonRect_.x + resumeButtonRect_.w &&
+                                mouseY >= resumeButtonRect_.y && mouseY <= resumeButtonRect_.y + resumeButtonRect_.h;
+
+        const bool hoverExit = mouseX >= exitPauseButtonRect_.x && mouseX <= exitPauseButtonRect_.x + exitPauseButtonRect_.w &&
+                                mouseY >= exitPauseButtonRect_.y && mouseY <= exitPauseButtonRect_.y + exitPauseButtonRect_.h;
+        SDL_Color resumeColor = hoverResume ? yellow : white;
+        std::string resumeText = hoverResume ? "> RESUME" : "   RESUME";
+
+        renderer.drawTextCentered(
+            resumeText,
+            font,
+            resumeColor,
+            popupX + 205.0f * sx,
+            popupY + 200.0f * sy
+        );
+        SDL_Color exitColor = hoverExit ? yellow : white;
+        std::string exitText = hoverExit ? "> EXIT" : "  EXIT";
+        renderer.drawTextCentered(
+            exitText,
+            font,
+            exitColor,
+            popupX + 486.0f * sx,
+            popupY + 200.0f * sy
+        );
+    }
 };
