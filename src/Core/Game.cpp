@@ -140,11 +140,35 @@ namespace SpaceInvaders
             return false;
         }
         if (!TextureManager::instance().loadTexture(
+            "entername_background",
+            (assetRoot / "image" / "Background" / "entername_bg.png").string(),
+            renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load enter name background from '"
+                    << (assetRoot / "image" / "Background" / "entername_bg.png")
+                    << "': " << SDL_GetError() << "\n";
+            clean();
+            return false;
+        }
+        if (!TextureManager::instance().loadTexture(
                 "settings_background",
                 "../assets/image/menu/settings_bg.png",
                 renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load settings background\n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
+            "ranking_background",
+            (assetRoot / "image" / "menu" / "ranking_bg.png").string(),
+            renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load ranking background from '"
+                    << (assetRoot / "image" / "menu" / "ranking_bg.png")
+                    << "': " << SDL_GetError() << "\n";
+
             clean();
             return false;
         }

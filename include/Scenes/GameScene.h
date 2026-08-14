@@ -24,6 +24,7 @@ namespace SpaceInvaders
         void update(float deltaTime) override;
         void render(Renderer &renderer) override;
 
+        void saveScore();
     private:
         enum class GameState
         {
@@ -68,6 +69,9 @@ namespace SpaceInvaders
         SDL_FRect fireballButtonRect_{};
         SDL_FRect shieldButtonRect_{};
         bool mouseWasPressed_{false};
+
+        //co luu trang thai luu diem
+        bool scoreSaved_{false};
     };
 
 }

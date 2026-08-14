@@ -1,6 +1,7 @@
 #include "Managers/RankingManager.h"
 
 #include <fstream>
+#include <algorithm>
 
 namespace SpaceInvaders
 {
@@ -22,14 +23,33 @@ bool RankingManager::load(const std::string& path)
         return false;
     }
 
-    ScoreEntry entry;
+    std::string line;
 
-    while (file >> entry.name >> entry.score)
+    while (std::getline(file, line))
     {
+        size_t separator = line.find('|');
+
+        if (separator == std::string::npos)
+            continue;
+
+        ScoreEntry entry;
+
+        entry.name = line.substr(0, separator);
+
+        entry.score = std::stoi(line.substr(separator + 1));
+
         scores_.push_back(entry);
     }
 
     file.close();
+    std::sort(
+        scores_.begin(),
+        scores_.end(),
+        [](const ScoreEntry& a, const ScoreEntry& b)
+        {
+            return a.score > b.score;
+        }
+    );
 
     return true;
 }
@@ -45,7 +65,7 @@ bool RankingManager::save(const std::string& path)
 
     for (const auto& entry : scores_)
     {
-        file << entry.name << " "
+        file << entry.name << "|"
              << entry.score << "\n";
     }
 
@@ -57,6 +77,15 @@ bool RankingManager::save(const std::string& path)
 void RankingManager::addScore(const std::string& name, int score)
 {
     scores_.push_back({name, score});
+
+    std::sort(
+        scores_.begin(),
+        scores_.end(),
+        [](const ScoreEntry& a, const ScoreEntry& b)
+        {
+            return a.score > b.score;
+        }
+    );
 }
 
 const std::vector<ScoreEntry>& RankingManager::getScores() const

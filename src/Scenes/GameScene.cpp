@@ -7,6 +7,7 @@
 #include "Managers/FontManager.h"
 #include "Managers/AudioManager.h"
 #include "Managers/SceneManager.h"
+#include "Managers/RankingManager.h"
 #include "Utils/Constants.h"
 
 #include <memory>
@@ -19,8 +20,8 @@ namespace SpaceInvaders
     GameScene::GameScene(const std::string& playerName)
     : playerName_(playerName),
       enteringPlayerName_(true)
-{
-}
+    {
+    }
 
     void GameScene::enter()
     {
@@ -29,6 +30,7 @@ namespace SpaceInvaders
         input().startTextInput();
 
         playerName_.clear();
+        scoreSaved_ = false;
         player_.init();
         enemyDirection_ = 1.0f;
         currentWave_ = 1;
@@ -123,6 +125,8 @@ namespace SpaceInvaders
             {
                 gameOver_ = true; // Player wins
                 playerWon_ = true;
+
+                saveScore();
                 return;
             }
             else // Prepare for next wave
@@ -137,6 +141,7 @@ namespace SpaceInvaders
         {
             gameOver_ = true;
             playerWon_ = false;
+            saveScore();
         }
     }
 
@@ -147,18 +152,33 @@ namespace SpaceInvaders
 
     if (enteringPlayerName_)
     {
-        SDL_SetRenderDrawColor(
-            renderer.getSDLRenderer(),
-            10, 20, 40, 255);
+        SDL_Texture* background = TextureManager::instance().getTexture("entername_background");
+        if (background != nullptr)
+        {
+            renderer.drawTexture(
+                background,
+                0.0f,
+                0.0f,
+                static_cast<float>(Constants::SCREEN_WIDTH),
+                static_cast<float>(Constants::SCREEN_HEIGHT)
+            );
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(
+                renderer.getSDLRenderer(),
+                10, 20, 40, 255
+            );
 
-        SDL_RenderClear(renderer.getSDLRenderer());
+            SDL_RenderClear(renderer.getSDLRenderer());
+        }
 
         if (font != nullptr)
         {
             renderer.drawTextCentered(
                 "ENTER YOUR NAME",
                 font,
-                {255, 255, 0, 255},
+                {255, 230, 50, 255},
                 Constants::SCREEN_WIDTH / 2,
                 Constants::SCREEN_HEIGHT / 2 - 80
             );
@@ -176,7 +196,7 @@ namespace SpaceInvaders
             renderer.drawTextCentered(
                 "PRESS ENTER TO START",
                 font,
-                {200, 200, 200, 255},
+                {50, 230, 255, 255},
                 Constants::SCREEN_WIDTH / 2,
                 Constants::SCREEN_HEIGHT / 2 + 80
             );
@@ -743,7 +763,7 @@ namespace SpaceInvaders
         font,
         red,
         static_cast<int>(popupX + 350.0f * sx),
-        popupY + 65.0f * sy
+        popupY + 55.0f * sy
     );
 
 
@@ -752,7 +772,7 @@ namespace SpaceInvaders
     font,
     white,
     Constants::SCREEN_WIDTH / 2,
-    popupY + 105.0f * sy);
+    popupY + 100.0f * sy);
 
     renderer.drawTextCentered(
     "SCORE : " + std::to_string(score_),
@@ -790,5 +810,20 @@ namespace SpaceInvaders
         popupY + 215.0f * sy
     );
     }
+
+    void GameScene::saveScore()
+{
+    if (scoreSaved_)
+        return;
+
+    RankingManager::instance().addScore(playerName_, score_);
+
+    if (!RankingManager::instance().save("../assets/data/ranking.txt"))
+    {
+        SDL_Log("Failed to save ranking!");
+    }
+
+    scoreSaved_ = true;
+}
     
 };
