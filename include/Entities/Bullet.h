@@ -26,12 +26,30 @@ namespace SpaceInvaders
         BulletOwner owner;
         BulletType type;
 
-        Bullet(float startX, float startY, float spd, BulletOwner owner, BulletType type = BulletType::Normal);
+        // Đạn bay thẳng theo trục Y
+        Bullet(
+            float startX,
+            float startY,
+            float spd,
+            BulletOwner owner,
+            BulletType type = BulletType::Normal
+        );
+
+        // Đạn bay theo hướng bất kỳ
+        Bullet(
+            float startX,
+            float startY,
+            float velocityX,
+            float velocityY,
+            BulletOwner owner,
+            BulletType type = BulletType::Normal
+        );
 
         void update(float deltaTime);
-        void render(Renderer &renderer) const;
+        void render(Renderer& renderer) const;
 
     private:
-        float speed_;
+        float velocityX_{0.0f};
+        float velocityY_{0.0f};
     };
 }

@@ -6,6 +6,7 @@
 #include "Entities/Player.h"
 #include "Entities/Enemy.h"
 #include "Entities/Bullet.h"
+#include "Entities/PowerUp.h"
 #include <SDL3/SDL.h>
 
 namespace SpaceInvaders
@@ -64,6 +65,15 @@ namespace SpaceInvaders
         SDL_FRect menuButtonRect_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
+        //PowerUp
+        std::vector<PowerUp> powerUps_;
+        bool coneShotActive_{false};
+        float coneShotTimer_{0.0f};
+        static constexpr float CONE_SHOT_DURATION = 8.0f;
+        void updatePowerUps(float deltaTime);
+        void checkPowerUpCollisions();
+        void spawnPowerUp(float x, float y);
+        void activatePowerUp(PowerUpType type);
 
         // UI and Abilities
         SDL_FRect fireballButtonRect_{};

@@ -30,6 +30,7 @@ add_executable(SpaceInvaders
     src/Entities/Player.cpp
     src/Entities/Enemy.cpp
     src/Entities/Bullet.cpp
+    src/Entities/PowerUp.cpp
     src/Managers/AudioManager.cpp
     src/Managers/FontManager.cpp
     src/Managers/SceneManager.cpp
@@ -39,6 +40,10 @@ add_executable(SpaceInvaders
     src/Scenes/Scene.cpp
     src/Scenes/MenuScene.cpp
     src/Scenes/GameScene.cpp
+    src/Scenes/GameSceneUI.cpp
+    src/Scenes/GameScenePowerUp.cpp
+    src/Scenes/GameSceneWave.cpp
+    src/Scenes/GameSceneCombat.cpp
     src/Scenes/RankingScene.cpp
     src/Scenes/SettingsScene.cpp
     src/UI/Widget.cpp
