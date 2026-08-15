@@ -23,7 +23,7 @@ namespace SpaceInvaders
         fireballCooldown_ = 0.0f;
     }
 
-    void Player::update(float deltaTime, std::vector<Bullet> &bullets)
+    void Player::update(float deltaTime, std::vector<Bullet> &bullets, bool coneShotActive)
     {
         // --- Mouse Movement Logic ---
         float mouseScreenX;
@@ -49,7 +49,7 @@ namespace SpaceInvaders
         fireCooldown_ -= deltaTime;
         if (fireCooldown_ <= 0.0f && (keyboardState[SDL_SCANCODE_SPACE] || keyboardState[SDL_SCANCODE_J]))
         {
-            shoot(bullets);
+            shoot(bullets, coneShotActive);
             fireCooldown_ = 0.18f;
         }
 
@@ -97,9 +97,22 @@ namespace SpaceInvaders
         }
     }
 
-    void Player::shoot(std::vector<Bullet> &bullets)
+    void Player::shoot(std::vector<Bullet>& bullets, bool coneShotActive)
     {
-        bullets.emplace_back(x + 22.0f, y - 14.0f, -420.0f, BulletOwner::Player);
+        const float bulletX = x + 22.0f;
+        const float bulletY = y - 14.0f;
+
+        if (!coneShotActive)
+        {
+            bullets.emplace_back(bulletX, bulletY, -420.0f, BulletOwner::Player);
+            return;
+        }
+
+        bullets.emplace_back(bulletX, bulletY, -170.0f, -420.0f,BulletOwner::Player);
+
+        bullets.emplace_back(bulletX, bulletY, 0.0f, -500.0f, BulletOwner::Player);
+
+        bullets.emplace_back(bulletX, bulletY, 170.0f, -420.0f, BulletOwner::Player);
     }
 
     void Player::activateFireball(std::vector<Bullet> &bullets)

@@ -19,7 +19,7 @@ namespace SpaceInvaders
         Player();
 
         void init();
-        void update(float deltaTime, std::vector<Bullet> &bullets);
+        void update(float deltaTime, std::vector<Bullet>& bullets, bool coneShotActive);
         void render(Renderer &renderer) const;
         void takeDamage(float damage);
 
@@ -46,6 +46,6 @@ namespace SpaceInvaders
         float shieldCooldown_{0.0f};
         float fireballCooldown_{0.0f};
 
-        void shoot(std::vector<Bullet> &bullets);
+        void shoot(std::vector<Bullet> &bullets, bool coneShotActive);
     };
 }

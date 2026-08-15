@@ -291,6 +291,17 @@ namespace SpaceInvaders
             std::cerr << "Warning: Failed to load pause_icon\n";
         }
 
+        //upload powerup cone shot
+        if (!TextureManager::instance().loadTexture(
+            "powerup_cone_shot",
+            (assetRoot / "powerups" / "cone_shot.png").string(),
+            renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load cone shot power-up\n";
+            clean();
+            return false;
+        }
+
         initialized_ = true;
         running_ = true;
         sceneManager_.setInput(&input_);
