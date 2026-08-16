@@ -46,7 +46,7 @@ void GameScene::enter()
     bullets_.clear();
     enemies_.clear();
     powerUps_.clear();
-
+    companions_.clear();
     coneShotActive_ = false;
     coneShotTimer_ = 0.0f;
 
@@ -91,6 +91,7 @@ void GameScene::exit()
     bullets_.clear();
     enemies_.clear();
     powerUps_.clear();
+    companions_.clear();
 
     AudioManager::instance().playMusic(
         "../assets/audio/music/background_music.mp3"
@@ -199,6 +200,8 @@ void GameScene::update(float deltaTime)
         updateBullets(deltaTime);
         updatePowerUps(deltaTime);
         checkPowerUpCollisions();
+        updateCompanion(deltaTime);
+        checkCompanionCollision();
 
         return;
     }
@@ -230,17 +233,17 @@ void GameScene::update(float deltaTime)
     // ==========================================
     // 9. GAME SYSTEMS
     // ==========================================
+    updateEnemies(deltaTime);
+
+    updatePowerUps(deltaTime);
+    checkPowerUpCollisions();
+
+    updateCompanion(deltaTime);
 
     updateBullets(deltaTime);
 
-    updateEnemies(deltaTime);
-
     checkCollisions();
-
-    updatePowerUps(deltaTime);
-
-    checkPowerUpCollisions();
-
+    checkCompanionCollision();
     // ==========================================
     // 10. WAVE COMPLETE
     // ==========================================
