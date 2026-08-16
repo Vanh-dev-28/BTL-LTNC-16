@@ -16,7 +16,7 @@ namespace SpaceInvaders
     {
     public:
         GameScene() = default;
-        GameScene(const std::string& playerName);
+        GameScene(const std::string &playerName);
         ~GameScene() override = default;
 
         void enter() override;
@@ -26,6 +26,7 @@ namespace SpaceInvaders
         void render(Renderer &renderer) override;
 
         void saveScore();
+
     private:
         enum class GameState
         {
@@ -42,6 +43,10 @@ namespace SpaceInvaders
         void updateEnterName();
         void updateEndGame();
 
+        // Task F: Preview enemies
+        void createFlyByPreview();
+        void updatePreviewEnemies(float deltaTime);
+
         void renderEnterName(Renderer &renderer);
         void renderEndGame(Renderer &renderer);
 
@@ -57,15 +62,27 @@ namespace SpaceInvaders
         bool inWaveTransition_{false};
         float waveTransitionTimer_{0.0f};
         int endMenuIndex_{};
-        //input: getplayername.
+        // input: getplayername.
         bool enteringPlayerName_{false};
         std::string playerName_{};
+
+        // --- New Gameplay State (Tasks B, C, D, E) ---
+        float m_swarmSharedTime{0.0f};
+        Vector2 m_formationCenter{};
+        // Dive attack
+        float m_diveAttackTimer{5.0f};
+        // Expansion/Contraction
+        float m_formationScale{1.0f};
+        float m_formationScaleDirection{1.0f};
+
+        // --- Wave Transition (Task F) ---
+        std::vector<Enemy> m_previewEnemies;
 
         SDL_FRect replayButtonRect_{};
         SDL_FRect menuButtonRect_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
-        //PowerUp
+        // PowerUp
         std::vector<PowerUp> powerUps_;
         bool coneShotActive_{false};
         float coneShotTimer_{0.0f};
@@ -80,16 +97,16 @@ namespace SpaceInvaders
         SDL_FRect shieldButtonRect_{};
         bool mouseWasPressed_{false};
 
-        //ScoreSaved state
+        // ScoreSaved state
         bool scoreSaved_{false};
 
-        //pause game 
+        // pause game
         bool paused_{false};
         SDL_FRect pauseButtonRect_{};
         SDL_FRect resumeButtonRect_{};
         SDL_FRect exitPauseButtonRect_{};
         void updatePauseMenu();
-        void renderPauseMenu(Renderer& renderer);
+        void renderPauseMenu(Renderer &renderer);
     };
 
 }

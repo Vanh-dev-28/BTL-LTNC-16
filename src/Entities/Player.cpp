@@ -97,7 +97,7 @@ namespace SpaceInvaders
         }
     }
 
-    void Player::shoot(std::vector<Bullet>& bullets, bool coneShotActive)
+    void Player::shoot(std::vector<Bullet> &bullets, bool coneShotActive)
     {
         const float bulletX = x + 22.0f;
         const float bulletY = y - 14.0f;
@@ -108,7 +108,7 @@ namespace SpaceInvaders
             return;
         }
 
-        bullets.emplace_back(bulletX, bulletY, -170.0f, -420.0f,BulletOwner::Player);
+        bullets.emplace_back(bulletX, bulletY, -170.0f, -420.0f, BulletOwner::Player);
 
         bullets.emplace_back(bulletX, bulletY, 0.0f, -500.0f, BulletOwner::Player);
 

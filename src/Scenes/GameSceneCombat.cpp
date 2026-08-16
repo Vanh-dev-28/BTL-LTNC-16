@@ -1,5 +1,6 @@
 #include "Scenes/GameScene.h"
 
+#include <cmath>
 #include "Core/Renderer.h"
 #include "Utils/Constants.h"
 
@@ -25,48 +26,134 @@ namespace SpaceInvaders
 
     void GameScene::updateEnemies(float deltaTime)
     {
-        // --- Enemy Shooting Logic ---
-        enemyFireCooldown_ -= deltaTime;
-        if (enemyFireCooldown_ <= 0.0f && !gameOver_)
+        m_swarmSharedTime += deltaTime;
+
+        // --- Task E: Expansion/Contraction ---
+        const float SCALE_SPEED = 0.2f;
+        const float MIN_SCALE = 0.8f;
+        const float MAX_SCALE = 1.2f;
+        m_formationScale += m_formationScaleDirection * SCALE_SPEED * deltaTime;
+        if (m_formationScale > MAX_SCALE || m_formationScale < MIN_SCALE)
         {
-            std::vector<int> livingEnemyIndices;
-            for (int i = 0; i < enemies_.size(); ++i)
+            m_formationScaleDirection *= -1.0f;
+            m_formationScale = std::clamp(m_formationScale, MIN_SCALE, MAX_SCALE);
+        }
+
+        // --- Task C: Dive-bomb trigger ---
+        m_diveAttackTimer -= deltaTime;
+        if (m_diveAttackTimer <= 0.0f)
+        {
+            if (currentWave_ >= 3) // Dive attacks start from Wave 3
             {
-                if (enemies_[i].alive)
+                std::vector<int> available_enemies;
+                for (int i = 0; i < enemies_.size(); ++i)
                 {
-                    livingEnemyIndices.push_back(i);
+                    if (enemies_[i].alive && enemies_[i].getState() == EnemyState::Active)
+                    {
+                        available_enemies.push_back(i);
+                    }
+                }
+
+                if (!available_enemies.empty())
+                {
+                    int divers = 1;
+                    if (currentWave_ == 4)
+                    {
+                        divers = 2;
+                    }
+                    else if (currentWave_ == 5)
+                    {
+                        divers = 2; // Wave 5 also has 2 divers, but with a much shorter cooldown
+                    }
+
+                    for (int i = 0; i < divers && !available_enemies.empty(); ++i)
+                    {
+                        int rand_idx = rand() % available_enemies.size();
+                        int enemy_idx = available_enemies[rand_idx];
+
+                        // Remove the selected enemy to avoid picking it again
+                        available_enemies.erase(available_enemies.begin() + rand_idx);
+
+                        enemies_[enemy_idx].startDive({player_.x, player_.y}, (rand() % 2 == 0) ? EnemyDivePattern::Straight : EnemyDivePattern::Curved);
+                    }
                 }
             }
-
-            if (!livingEnemyIndices.empty())
+            // Set cooldown based on wave
+            if (currentWave_ == 5)
             {
-                int shooterIndex = livingEnemyIndices[rand() % livingEnemyIndices.size()];
-                const auto &shooter = enemies_[shooterIndex];
-                // Spawn bullet from the center of the enemy
-                bullets_.emplace_back(shooter.x, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
-
-                // Lấy tham chiếu đến viên đạn vừa tạo và tùy chỉnh kích thước
-                Bullet &newBullet = bullets_.back();
-                newBullet.width = 24.0f;  // Kích thước chiều rộng mới
-                newBullet.height = 48.0f; // Kích thước chiều dài mới
-
-                // Căn chỉnh lại vị trí để đạn bắn ra từ giữa tàu địch
-                newBullet.x = shooter.x + (shooter.width / 2.0f) - (newBullet.width / 2.0f);
+                m_diveAttackTimer = 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f; // 0.5-1.0 seconds for Swarm Assault
             }
-
-            // Fire rate increases with waves
-            float baseCooldown = 1.5f - (currentWave_ * 0.25f);                                 // Wave 1: 1.25, Wave 2: 1.0, Wave 3: 0.75
-            enemyFireCooldown_ = baseCooldown + (static_cast<float>(rand()) / RAND_MAX) * 0.5f; // Add some randomness
+            else
+            {
+                m_diveAttackTimer = 3.0f + (static_cast<float>(rand()) / RAND_MAX) * 4.0f; // 3-7 seconds for Wave 3 & 4
+            }
         }
 
         bool hitEdge = false;
+        float minX = Constants::SCREEN_WIDTH, maxX = 0;
+
         for (auto &enemy : enemies_)
         {
-            enemy.update(deltaTime, enemyDirection_);
-            if (enemy.alive && (enemy.x < 20.0f || enemy.x > Constants::SCREEN_WIDTH - (enemy.width + 20.0f)))
+            if (enemy.alive)
             {
-                hitEdge = true;
+                Vector2 swarmVelocity = {0, 0};
+                if (enemy.getState() == EnemyState::Active)
+                {
+                    // Base horizontal movement
+                    swarmVelocity.x = enemyDirection_ * enemy.getSpeed() * 0.5f; // Slower base speed
+
+                    // --- Apply swarm movement patterns ---
+                    if (enemy.getMovementPattern() == EnemyMovementPattern::ZigZag) // Task B
+                    {
+                        swarmVelocity.x += 150.0f * cos(m_swarmSharedTime * 2.0f);
+                    }
+                    else if (enemy.getMovementPattern() == EnemyMovementPattern::Vortex) // Task D
+                    {
+                        const Vector2 &targetPos = enemy.getTargetPosition();
+                        float dx = targetPos.x - m_formationCenter.x;
+                        float dy = targetPos.y - m_formationCenter.y;
+                        float radius = sqrt(dx * dx + dy * dy);
+                        float baseAngle = atan2(dy, dx);
+                        float currentAngle = baseAngle + m_swarmSharedTime * 1.5f;
+
+                        float targetX = m_formationCenter.x + cos(currentAngle) * radius;
+                        float targetY = m_formationCenter.y + sin(currentAngle) * radius;
+
+                        swarmVelocity.x = (targetX - enemy.x) * 2.0f; // Move towards target
+                        swarmVelocity.y = (targetY - enemy.y) * 2.0f;
+                    }
+                    else if (enemy.getMovementPattern() == EnemyMovementPattern::Expansion) // Task E
+                    {
+                        const Vector2 &targetPos = enemy.getTargetPosition();
+                        float targetX = m_formationCenter.x + (targetPos.x - m_formationCenter.x) * m_formationScale;
+                        float targetY = m_formationCenter.y + (targetPos.y - m_formationCenter.y) * m_formationScale;
+
+                        swarmVelocity.x += (targetX - enemy.x) * 1.0f; // Move towards scaled target
+                        swarmVelocity.y += (targetY - enemy.y) * 1.0f;
+                    }
+                }
+
+                enemy.update(deltaTime, swarmVelocity);
+
+                if (enemy.getState() == EnemyState::Active)
+                {
+                    if (enemy.x < minX)
+                        minX = enemy.x;
+                    if (enemy.x > maxX)
+                        maxX = enemy.x;
+                }
+
+                // Task C: Shooting while diving
+                if (enemy.getState() == EnemyState::Diving && (rand() % 150 == 0))
+                {
+                    bullets_.emplace_back(enemy.x + enemy.width / 2, enemy.y + enemy.height, 350.0f, BulletOwner::Enemy);
+                }
             }
+        }
+
+        if (minX < 20.0f || maxX > Constants::SCREEN_WIDTH - 68.0f)
+        {
+            hitEdge = true;
         }
 
         if (hitEdge)
@@ -90,6 +177,30 @@ namespace SpaceInvaders
                 break;
             }
         }
+
+        // --- Enemy Swarm Shooting Logic ---
+        enemyFireCooldown_ -= deltaTime;
+        if (enemyFireCooldown_ <= 0.0f && !gameOver_)
+        {
+            std::vector<int> livingEnemyIndices;
+            for (int i = 0; i < enemies_.size(); ++i)
+            {
+                if (enemies_[i].alive && enemies_[i].getState() == EnemyState::Active)
+                {
+                    livingEnemyIndices.push_back(i);
+                }
+            }
+
+            if (!livingEnemyIndices.empty())
+            {
+                int shooterIndex = livingEnemyIndices[rand() % livingEnemyIndices.size()];
+                const auto &shooter = enemies_[shooterIndex];
+                bullets_.emplace_back(shooter.x + shooter.width / 2.0f, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
+            }
+
+            float baseCooldown = 1.5f - (currentWave_ * 0.15f);
+            enemyFireCooldown_ = std::max(0.25f, baseCooldown) + (static_cast<float>(rand()) / RAND_MAX) * 0.5f;
+        }
     }
 
     void GameScene::checkCollisions()
@@ -106,7 +217,7 @@ namespace SpaceInvaders
                 // Check collision with enemies
                 for (auto &enemy : enemies_)
                 {
-                    if (!enemy.alive)
+                    if (!enemy.alive) // Use direct member access
                     {
                         continue;
                     }
@@ -118,7 +229,7 @@ namespace SpaceInvaders
                                      bullet.y + bullet.height > enemy.y;
                     if (hit)
                     {
-                        enemy.alive = false;
+                        enemy.alive = false; // Use direct member access
                         score_ += 10;
 
                         spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
