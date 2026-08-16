@@ -7,7 +7,8 @@ namespace SpaceInvaders
     enum class BulletOwner
     {
         Player,
-        Enemy
+        Enemy,
+        Companion
     };
 
     enum class BulletType

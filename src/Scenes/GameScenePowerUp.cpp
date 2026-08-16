@@ -1,82 +1,213 @@
 #include "Scenes/GameScene.h"
-
+#include "Core/Renderer.h"
+#include "Core/Input.h"
+#include "Managers/TextureManager.h"
 #include "Entities/PowerUp.h"
-
+#include "Entities/CompanionShip.h"
+#include "Utils/Constants.h"
 #include <algorithm>
-#include <cstdlib>
+#include <cmath>
 
 namespace SpaceInvaders
 {
-
-void GameScene::updatePowerUps(float deltaTime)
-{
-    for (auto& powerUp : powerUps_)
+    void GameScene::updatePowerUps(float deltaTime)
     {
-        powerUp.update(deltaTime);
+        for (auto& powerUp : powerUps_)
+        {
+            powerUp.update(deltaTime);
+        }
+        powerUps_.erase(std::remove_if(powerUps_.begin(), powerUps_.end(), [](const PowerUp& powerUp)
+            {   return !powerUp.isActive();    }),
+        powerUps_.end());
     }
 
-    powerUps_.erase(
-        std::remove_if(
-            powerUps_.begin(),
-            powerUps_.end(),
-            [](const PowerUp& powerUp)
+    void GameScene::checkPowerUpCollisions()
+    {
+        constexpr float playerWidth = 48.0f;
+        constexpr float playerHeight = 48.0f;
+
+        for (auto& powerUp : powerUps_)
+        {
+            if (!powerUp.isActive())
             {
-                return !powerUp.isActive();
+                continue;
             }
-        ),
-        powerUps_.end()
-    );
-}
 
-void GameScene::checkPowerUpCollisions()
-{
-    constexpr float playerWidth = 48.0f;
-    constexpr float playerHeight = 48.0f;
-
-    for (auto& powerUp : powerUps_)
-    {
-        if (!powerUp.isActive())
-        {
-            continue;
-        }
-
-        if (powerUp.isCollectedBy(
-                player_.x,
-                player_.y,
-                playerWidth,
-                playerHeight))
-        {
-            activatePowerUp(powerUp.getType());
-            powerUp.collect();
+            if (powerUp.isCollectedBy(player_.x, player_.y, playerWidth, playerHeight))
+            {
+                if (powerUp.getType() == PowerUpType::Heal)
+                {
+                    if (player_.getHealth() >= player_.getMaxHealth())
+                    {
+                        continue;
+                    }
+                }
+                activatePowerUp(powerUp.getType());
+                powerUp.collect();
+            }
         }
     }
-}
 
-void GameScene::spawnPowerUp(float x, float y)
+    void GameScene::spawnPowerUp(float x, float y)
+    {
+        const int roll = rand() % 150;
+        if (roll < 10)
+        {
+            powerUps_.emplace_back(PowerUpType::ConeShot, x, y);
+            return;
+        }
+        if (roll < 25)
+        {
+            powerUps_.emplace_back(PowerUpType::Heal, x, y);
+            return;
+        }
+        if (roll < 35)
+        {
+            powerUps_.emplace_back(PowerUpType::Companion, x, y);
+        return;
+        } 
+    }
+
+    void GameScene::activatePowerUp(PowerUpType type)
+    {
+        switch (type)
+        {
+        case PowerUpType::ConeShot:
+            coneShotActive_ = true;
+            coneShotTimer_ = CONE_SHOT_DURATION;
+            break;
+        case PowerUpType::Heal: 
+            player_.heal(20.0f);
+            break;
+        case PowerUpType::Companion:
+            spawnCompanions();
+            break;
+        }
+    }
+    void GameScene::spawnCompanions()
+    {
+        companions_.clear();
+
+        constexpr float playerWidth = 48.0f;
+        constexpr float playerHeight = 48.0f;
+
+        const float playerCenterX = player_.x + playerWidth / 2.0f;
+        const float playerCenterY = player_.y + playerHeight / 2.0f;
+        constexpr float companionDistance = 140.0f;
+
+        const float companionXOffset = companionDistance + 24.0f;
+        const float companionY = playerCenterY - 24.0f;
+    companions_.emplace_back(
+        CompanionSide::Left,
+        playerCenterX - companionXOffset,
+        companionY
+    );
+
+    companions_.emplace_back(
+        CompanionSide::Right,
+        playerCenterX + companionDistance,
+        companionY
+    );
+    }
+    void GameScene::updateCompanion(float deltaTime)
 {
-    constexpr int DROP_CHANCE = 25;
-
-    if (rand() % 100 >= DROP_CHANCE)
+    if (companions_.empty())
     {
         return;
     }
 
-    powerUps_.emplace_back(
-        PowerUpType::ConeShot,
-        x,
-        y
+    moveCompanion(deltaTime);
+
+    for (auto& companion : companions_)
+    {
+        if (!companion.isActive())
+        {
+            continue;
+        }
+
+        companion.shoot(bullets_);
+    }
+
+    companions_.erase(
+        std::remove_if(
+            companions_.begin(),
+            companions_.end(),
+            [](const CompanionShip& companion)
+            {
+                return !companion.isActive();
+            }
+        ),
+        companions_.end()
     );
 }
 
-void GameScene::activatePowerUp(PowerUpType type)
+
+void GameScene::moveCompanion(float deltaTime)
 {
-    switch (type)
+    if (companions_.empty())
+        return;
+
+    const float playerX = player_.x;
+    const float playerY = player_.y;
+
+    for (auto& companion : companions_)
     {
-    case PowerUpType::ConeShot:
-        coneShotActive_ = true;
-        coneShotTimer_ = CONE_SHOT_DURATION;
-        break;
+        if (!companion.isActive())
+            continue;
+
+        companion.update(
+            deltaTime,
+            playerX,
+            playerY
+        );
     }
 }
 
+
+void GameScene::checkCompanionCollision()
+{
+    if (companions_.empty())
+        return;
+
+    for (auto& bullet : bullets_)
+    {
+        if (!bullet.active)
+            continue;
+
+        // Chỉ đạn của enemy mới có thể phá Companion
+        if (bullet.owner != BulletOwner::Enemy)
+            continue;
+
+        for (auto& companion : companions_)
+        {
+            if (!companion.isActive())
+                continue;
+
+            const bool hit =
+                bullet.x < companion.getX() + companion.getWidth() &&
+                bullet.x + bullet.width > companion.getX() &&
+                bullet.y < companion.getY() + companion.getHeight() &&
+                bullet.y + bullet.height > companion.getY();
+
+            if (hit)
+            {
+                companion.destroy();
+                bullet.active = false;
+                break;
+            }
+        }
+    }
+}
+
+
+void GameScene::renderCompanion(Renderer& renderer)
+{
+    for (const auto& companion : companions_)
+    {
+        if (!companion.isActive())
+            continue;
+
+        companion.render(renderer);
+    }
+}
 }

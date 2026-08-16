@@ -7,6 +7,7 @@
 #include "Entities/Enemy.h"
 #include "Entities/Bullet.h"
 #include "Entities/PowerUp.h"
+#include "Entities/CompanionShip.h"
 #include <SDL3/SDL.h>
 
 namespace SpaceInvaders
@@ -67,6 +68,7 @@ namespace SpaceInvaders
         std::vector<Enemy> enemies_{};
         //PowerUp
         std::vector<PowerUp> powerUps_;
+        std::vector<CompanionShip> companions_;
         bool coneShotActive_{false};
         float coneShotTimer_{0.0f};
         static constexpr float CONE_SHOT_DURATION = 8.0f;
@@ -90,6 +92,12 @@ namespace SpaceInvaders
         SDL_FRect exitPauseButtonRect_{};
         void updatePauseMenu();
         void renderPauseMenu(Renderer& renderer);
+        //powerUp companion
+        void updateCompanion(float deltaTime);
+        void renderCompanion(Renderer& renderer);
+        void checkCompanionCollision();
+        void moveCompanion(float deltaTime);
+        void spawnCompanions();
     };
 
 }

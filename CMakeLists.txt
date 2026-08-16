@@ -31,6 +31,7 @@ add_executable(SpaceInvaders
     src/Entities/Enemy.cpp
     src/Entities/Bullet.cpp
     src/Entities/PowerUp.cpp
+    src/Entities/CompanionShip.cpp
     src/Managers/AudioManager.cpp
     src/Managers/FontManager.cpp
     src/Managers/SceneManager.cpp

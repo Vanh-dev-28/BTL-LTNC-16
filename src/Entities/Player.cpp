@@ -188,4 +188,14 @@ namespace SpaceInvaders
             return 0.0f;
         return std::max(0.0f, shieldTimer_ / 5.0f);
     }
+
+    void Player::heal(float amount)
+    {
+        health_ += amount;
+
+        if (health_ > maxHealth_)
+        {
+            health_ = maxHealth_;
+        }
+    }
 }

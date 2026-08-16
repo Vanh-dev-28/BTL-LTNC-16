@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 
+
 namespace SpaceInvaders
 {
     void GameScene::updateBullets(float deltaTime)
