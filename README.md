@@ -5,6 +5,11 @@ gameplay entities and scenes are intentionally left for future development.
 
 ## Change Log
 
+### 2024-05-22
+
+- Reworked Wave 1 to use a queued spawning system with 3 sequential groups of 8 Drones each, featuring custom spawn delays between groups.
+- Modified files: `include/Scenes/GameScene.h`, `src/Scenes/GameSceneWave.cpp`, `src/Scenes/GameSceneCombat.cpp`.
+
 ### 2024-05-21
 
 - Finalized 5-wave gameplay, including Wave 5 "Swarm Assault" dive pattern and specific entry/movement patterns for all waves.

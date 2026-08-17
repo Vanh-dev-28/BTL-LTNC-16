@@ -15,49 +15,52 @@ namespace SpaceInvaders
     void GameScene::resetWave()
     {
         enemies_.clear();
+        pendingEnemies_.clear();
         bullets_.clear();
         powerUps_.clear();
 
+        spawnTimer_ = 0.0f;
+
         enemyDirection_ = 1.0f;
-
-        // Helper lambda to spawn a grid of enemies
-        auto spawn_enemies = [&](int rows, int cols, const std::vector<EnemyType> &type_composition, EnemyEntryPattern entry, EnemyMovementPattern move)
-        {
-            const float spacingX = 80.0f;
-            const float spacingY = 60.0f;
-            const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
-            const float startY = 100.0f;
-            const float speed = 60.0f + (currentWave_ * 10.0f);
-            int type_idx = 0;
-
-            for (int row = 0; row < rows; ++row)
-            {
-                for (int col = 0; col < cols; ++col)
-                {
-                    if (type_idx >= type_composition.size())
-                        continue; // Should not happen with correct counts
-
-                    Vector2 targetPos = {startX + col * spacingX, startY + row * spacingY};
-                    Vector2 startPos = {targetPos.x, -50.0f - row * 60.0f};
-
-                    enemies_.emplace_back(
-                        type_composition[type_idx++],
-                        move,
-                        entry,
-                        startPos,
-                        targetPos,
-                        speed);
-                }
-            }
-        };
 
         switch (currentWave_)
         {
         case 1:
         {
-            // 18 total: 18 Drone
-            std::vector<EnemyType> types(18, EnemyType::Drone);
-            spawn_enemies(3, 6, types, EnemyEntryPattern::FromTop, EnemyMovementPattern::Horizontal);
+            // Wave 1: 24 Drones in 3 sequential groups of 8
+            const int cols = 8;
+            const float spacingX = 80.0f;
+            const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
+
+            // Helper to spawn a row
+            auto spawn_row = [&](float targetY, float speed, bool last_group)
+            {
+                for (int col = 0; col < cols; ++col)
+                {
+                    Vector2 targetPos = {startX + col * spacingX, targetY};
+                    Vector2 startPos = {targetPos.x, -50.0f};
+                    float delay = (col == cols - 1 && !last_group) ? 2.0f : 0.15f;
+
+                    pendingEnemies_.push_back({EnemyType::Drone,
+                                               EnemyMovementPattern::Horizontal,
+                                               EnemyEntryPattern::FromTop,
+                                               startPos,
+                                               targetPos,
+                                               speed,
+                                               {0, 0},
+                                               {0, 0}, // No bezier control points
+                                               delay});
+                }
+            };
+
+            // Group 1 (Row 1)
+            spawn_row(100.0f, 60.0f, false);
+
+            // Group 2 (Row 2)
+            spawn_row(160.0f, 60.0f, false);
+
+            // Group 3 (Row 3)
+            spawn_row(220.0f, 70.0f, true);
             break;
         }
 
@@ -88,14 +91,14 @@ namespace SpaceInvaders
                         Vector2 startPos = {-100.0f, 200.0f + row * 40.0f};
                         Vector2 c1 = {startPos.x + 400.0f, startPos.y - 150.0f};
                         Vector2 c2 = {targetPos.x - 100.0f, targetPos.y + 250.0f};
-                        enemies_.emplace_back(types[type_idx++], EnemyMovementPattern::SineWave, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2);
+                        pendingEnemies_.push_back({types[type_idx++], EnemyMovementPattern::SineWave, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2});
                     }
                     else // Right side
                     {
                         Vector2 startPos = {Constants::SCREEN_WIDTH + 100.0f, 200.0f + row * 40.0f};
                         Vector2 c1 = {startPos.x - 400.0f, startPos.y - 150.0f};
                         Vector2 c2 = {targetPos.x + 100.0f, targetPos.y + 250.0f};
-                        enemies_.emplace_back(types[type_idx++], EnemyMovementPattern::SineWave, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2);
+                        pendingEnemies_.push_back({types[type_idx++], EnemyMovementPattern::SineWave, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2});
                     }
                 }
             }
@@ -129,14 +132,14 @@ namespace SpaceInvaders
                 if (row < 2)
                 { // Top group
                     Vector2 startPos = {targetPos.x, -50.0f};
-                    enemies_.emplace_back(types[i], EnemyMovementPattern::SineWave, EnemyEntryPattern::FromTop, startPos, targetPos, speed);
+                    pendingEnemies_.push_back({types[i], EnemyMovementPattern::SineWave, EnemyEntryPattern::FromTop, startPos, targetPos, speed});
                 }
                 else
                 { // Side groups
                     Vector2 startPos = (col < cols / 2) ? Vector2{-100.0f, 300.0f} : Vector2{Constants::SCREEN_WIDTH + 100.0f, 300.0f};
                     Vector2 c1 = {Constants::SCREEN_WIDTH / 2.0f, 100.0f};
                     Vector2 c2 = {targetPos.x, Constants::SCREEN_HEIGHT};
-                    enemies_.emplace_back(types[i], EnemyMovementPattern::SineWave, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2);
+                    pendingEnemies_.push_back({types[i], EnemyMovementPattern::SineWave, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2});
                 }
             }
             break;
@@ -190,7 +193,7 @@ namespace SpaceInvaders
                     c2 = {Constants::SCREEN_WIDTH * 0.3f, 50.0f};
                     break;
                 }
-                enemies_.emplace_back(types[i], EnemyMovementPattern::Expansion, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2);
+                pendingEnemies_.push_back({types[i], EnemyMovementPattern::Expansion, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2});
             }
             break;
         }
@@ -225,7 +228,7 @@ namespace SpaceInvaders
                 c1 = {Constants::SCREEN_WIDTH / 2.0f, Constants::SCREEN_HEIGHT * 1.2f};
                 c2 = {targetPos.x + (col < cols / 2 ? -300.0f : 300.0f), targetPos.y - 300.0f};
 
-                enemies_.emplace_back(types[i], EnemyMovementPattern::ZigZag, EnemyEntryPattern::Galaga, startPos, targetPos, speed * 1.2f, c1, c2);
+                pendingEnemies_.push_back({types[i], EnemyMovementPattern::ZigZag, EnemyEntryPattern::Galaga, startPos, targetPos, speed * 1.2f, c1, c2});
             }
             break;
         }
@@ -234,7 +237,7 @@ namespace SpaceInvaders
 
     bool GameScene::allEnemiesDefeated() const
     {
-        if (inWaveTransition_ || enemies_.empty())
+        if (inWaveTransition_ || !pendingEnemies_.empty())
         {
             return false;
         }

@@ -11,6 +11,24 @@
 
 namespace SpaceInvaders
 {
+    // Data structure for defining an enemy to be spawned.
+    // This allows for more complex wave designs with per-enemy spawn delays.
+    struct EnemySpawnData
+    {
+        EnemyType type;
+        EnemyMovementPattern movePattern;
+        EnemyEntryPattern entryPattern;
+
+        Vector2 startPos;
+        Vector2 targetPos;
+
+        float speed;
+
+        Vector2 c1 = {0, 0};
+        Vector2 c2 = {0, 0};
+
+        float spawnDelay = 0.1f; // Default spawn delay, matches old spawnInterval_
+    };
 
     class GameScene : public Scene
     {
@@ -82,6 +100,11 @@ namespace SpaceInvaders
         SDL_FRect menuButtonRect_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
+
+        // Wave spawning queue
+        std::vector<EnemySpawnData> pendingEnemies_;
+        float spawnTimer_{0.0f};
+
         // PowerUp
         std::vector<PowerUp> powerUps_;
         bool coneShotActive_{false};

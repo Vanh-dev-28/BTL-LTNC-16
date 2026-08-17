@@ -26,6 +26,32 @@ namespace SpaceInvaders
 
     void GameScene::updateEnemies(float deltaTime)
     {
+        // --- Handle Wave Spawning ---
+        if (!pendingEnemies_.empty())
+        {
+            spawnTimer_ -= deltaTime;
+            if (spawnTimer_ <= 0.0f)
+            {
+                const auto &spawnData = pendingEnemies_.front();
+
+                // Create an enemy from the spawn data
+                enemies_.emplace_back(
+                    spawnData.type,
+                    spawnData.movePattern,
+                    spawnData.entryPattern,
+                    spawnData.startPos,
+                    spawnData.targetPos,
+                    spawnData.speed,
+                    spawnData.c1,
+                    spawnData.c2);
+
+                // Set timer for the next spawn using the just-spawned enemy's delay
+                spawnTimer_ = spawnData.spawnDelay;
+
+                pendingEnemies_.erase(pendingEnemies_.begin());
+            }
+        }
+
         m_swarmSharedTime += deltaTime;
 
         // --- Task E: Expansion/Contraction ---
@@ -63,7 +89,7 @@ namespace SpaceInvaders
                     }
                     else if (currentWave_ == 5)
                     {
-                        divers = 2; // Wave 5 also has 2 divers, but with a much shorter cooldown
+                        divers = 2;
                     }
 
                     for (int i = 0; i < divers && !available_enemies.empty(); ++i)
@@ -81,11 +107,11 @@ namespace SpaceInvaders
             // Set cooldown based on wave
             if (currentWave_ == 5)
             {
-                m_diveAttackTimer = 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f; // 0.5-1.0 seconds for Swarm Assault
+                m_diveAttackTimer = 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f;
             }
             else
             {
-                m_diveAttackTimer = 3.0f + (static_cast<float>(rand()) / RAND_MAX) * 4.0f; // 3-7 seconds for Wave 3 & 4
+                m_diveAttackTimer = 3.0f + (static_cast<float>(rand()) / RAND_MAX) * 4.0f;
             }
         }
 
@@ -100,14 +126,14 @@ namespace SpaceInvaders
                 if (enemy.getState() == EnemyState::Active)
                 {
                     // Base horizontal movement
-                    swarmVelocity.x = enemyDirection_ * enemy.getSpeed() * 0.5f; // Slower base speed
+                    swarmVelocity.x = enemyDirection_ * enemy.getSpeed() * 0.5f;
 
                     // --- Apply swarm movement patterns ---
-                    if (enemy.getMovementPattern() == EnemyMovementPattern::ZigZag) // Task B
+                    if (enemy.getMovementPattern() == EnemyMovementPattern::ZigZag)
                     {
                         swarmVelocity.x += 150.0f * cos(m_swarmSharedTime * 2.0f);
                     }
-                    else if (enemy.getMovementPattern() == EnemyMovementPattern::Vortex) // Task D
+                    else if (enemy.getMovementPattern() == EnemyMovementPattern::Vortex)
                     {
                         const Vector2 &targetPos = enemy.getTargetPosition();
                         float dx = targetPos.x - m_formationCenter.x;
@@ -119,16 +145,16 @@ namespace SpaceInvaders
                         float targetX = m_formationCenter.x + cos(currentAngle) * radius;
                         float targetY = m_formationCenter.y + sin(currentAngle) * radius;
 
-                        swarmVelocity.x = (targetX - enemy.x) * 2.0f; // Move towards target
+                        swarmVelocity.x = (targetX - enemy.x) * 2.0f;
                         swarmVelocity.y = (targetY - enemy.y) * 2.0f;
                     }
-                    else if (enemy.getMovementPattern() == EnemyMovementPattern::Expansion) // Task E
+                    else if (enemy.getMovementPattern() == EnemyMovementPattern::Expansion)
                     {
                         const Vector2 &targetPos = enemy.getTargetPosition();
                         float targetX = m_formationCenter.x + (targetPos.x - m_formationCenter.x) * m_formationScale;
                         float targetY = m_formationCenter.y + (targetPos.y - m_formationCenter.y) * m_formationScale;
 
-                        swarmVelocity.x += (targetX - enemy.x) * 1.0f; // Move towards scaled target
+                        swarmVelocity.x += (targetX - enemy.x) * 1.0f;
                         swarmVelocity.y += (targetY - enemy.y) * 1.0f;
                     }
                 }
@@ -146,7 +172,9 @@ namespace SpaceInvaders
                 // Task C: Shooting while diving
                 if (enemy.getState() == EnemyState::Diving && (rand() % 150 == 0))
                 {
-                    bullets_.emplace_back(enemy.x + enemy.width / 2, enemy.y + enemy.height, 350.0f, BulletOwner::Enemy);
+                    const float bulletWidth = 50.0f; // Match enemy bullet width from Bullet.cpp
+                    float bulletX = enemy.x + (enemy.width - bulletWidth) / 2.0f;
+                    bullets_.emplace_back(bulletX, enemy.y + enemy.height, 350.0f, BulletOwner::Enemy);
                 }
             }
         }
@@ -168,9 +196,10 @@ namespace SpaceInvaders
             }
         }
 
+        // Logic kiểm tra Game Over khi quái Active chạm đáy
         for (const auto &enemy : enemies_)
         {
-            if (enemy.alive && enemy.y + enemy.height >= player_.y)
+            if (enemy.alive && enemy.getState() == EnemyState::Active && (enemy.y + enemy.height >= player_.y))
             {
                 gameOver_ = true;
                 playerWon_ = false;
@@ -195,7 +224,9 @@ namespace SpaceInvaders
             {
                 int shooterIndex = livingEnemyIndices[rand() % livingEnemyIndices.size()];
                 const auto &shooter = enemies_[shooterIndex];
-                bullets_.emplace_back(shooter.x + shooter.width / 2.0f, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
+                const float bulletWidth = 50.0f; // Match enemy bullet width from Bullet.cpp
+                float bulletX = shooter.x + (shooter.width - bulletWidth) / 2.0f;
+                bullets_.emplace_back(bulletX, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
             }
 
             float baseCooldown = 1.5f - (currentWave_ * 0.15f);
@@ -217,7 +248,7 @@ namespace SpaceInvaders
                 // Check collision with enemies
                 for (auto &enemy : enemies_)
                 {
-                    if (!enemy.alive) // Use direct member access
+                    if (!enemy.alive)
                     {
                         continue;
                     }
@@ -229,15 +260,15 @@ namespace SpaceInvaders
                                      bullet.y + bullet.height > enemy.y;
                     if (hit)
                     {
-                        enemy.alive = false; // Use direct member access
+                        enemy.alive = false;
                         score_ += 10;
 
                         spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
-                        // Normal bullets are destroyed on impact, Fireball is not.
+
                         if (bullet.type != BulletType::Fireball)
                         {
                             bullet.active = false;
-                            break; // A normal bullet only hits one enemy
+                            break;
                         }
                     }
                 }
@@ -260,16 +291,27 @@ namespace SpaceInvaders
                         if (shieldHit)
                         {
                             bullet.active = false;
-                            continue; // Bullet destroyed, go to next bullet
+                            continue;
                         }
                     }
-                    const float playerWidth = 48.0f;
-                    const float playerHeight = 48.0f;
+
+                    // Make the player's hitbox smaller than the sprite for more forgiving gameplay.
+                    // This ignores the "wings" and makes it feel fairer.
+                    const float playerSpriteWidth = 48.0f;
+                    const float playerSpriteHeight = 48.0f;
+                    const float playerHitboxWidth = 28.0f;  // Smaller hitbox width
+                    const float playerHitboxHeight = 28.0f; // Smaller hitbox height
+                    const float hitboxOffsetX = (playerSpriteWidth - playerHitboxWidth) / 2.0f;
+                    const float hitboxOffsetY = (playerSpriteHeight - playerHitboxHeight) / 2.0f;
+
+                    const float playerHitboxX = player_.x + hitboxOffsetX;
+                    const float playerHitboxY = player_.y + hitboxOffsetY;
+
                     // AABB collision check (rectangle-rectangle)
-                    const bool hit = bullet.x < player_.x + playerWidth &&
-                                     bullet.x + bullet.width > player_.x &&
-                                     bullet.y < player_.y + playerHeight &&
-                                     bullet.y + bullet.height > player_.y;
+                    const bool hit = bullet.x < playerHitboxX + playerHitboxWidth &&
+                                     bullet.x + bullet.width > playerHitboxX &&
+                                     bullet.y < playerHitboxY + playerHitboxHeight &&
+                                     bullet.y + bullet.height > playerHitboxY;
                     if (hit)
                     {
                         player_.takeDamage(Constants::ENEMY_LASER_DAMAGE);

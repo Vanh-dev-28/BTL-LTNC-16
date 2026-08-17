@@ -44,6 +44,7 @@ namespace SpaceInvaders
 
         bullets_.clear();
         enemies_.clear();
+        pendingEnemies_.clear();
         powerUps_.clear();
 
         coneShotActive_ = false;
@@ -86,6 +87,7 @@ namespace SpaceInvaders
 
         bullets_.clear();
         enemies_.clear();
+        pendingEnemies_.clear();
         powerUps_.clear();
 
         AudioManager::instance().playMusic(
@@ -259,6 +261,7 @@ namespace SpaceInvaders
             waveTransitionTimer_ = 3.5f; // Increased for delay and preview
 
             enemies_.clear();
+            // pendingEnemies_ is already empty at this point
         }
 
         // ==========================================
