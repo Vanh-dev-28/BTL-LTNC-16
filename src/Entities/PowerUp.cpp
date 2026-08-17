@@ -25,11 +25,8 @@ void PowerUp::update(float deltaTime)
 {
     if (!active_)
         return;
-
-    // Power-up rơi xuống
     y_ += speed_ * deltaTime;
 
-    // Ra khỏi màn hình
     if (y_ > Constants::SCREEN_HEIGHT + height_)
     {
         active_ = false;
@@ -46,9 +43,13 @@ void PowerUp::render(Renderer& renderer) const
     switch (type_)
     {
     case PowerUpType::ConeShot:
-        texture =
-            TextureManager::instance()
-                .getTexture("powerup_cone_shot");
+        texture = TextureManager::instance().getTexture("powerup_cone_shot");
+        break;
+    case PowerUpType::Heal:
+        texture = TextureManager::instance().getTexture("powerup_heal");
+        break;
+    case PowerUpType::Companion:
+        texture = TextureManager::instance().getTexture("powerup_companion");
         break;
     }
 

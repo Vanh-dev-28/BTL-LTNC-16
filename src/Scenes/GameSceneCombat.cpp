@@ -83,11 +83,7 @@ namespace SpaceInvaders
                 if (!available_enemies.empty())
                 {
                     int divers = 1;
-                    if (currentWave_ == 4)
-                    {
-                        divers = 2;
-                    }
-                    else if (currentWave_ == 5)
+                    if (currentWave_ == 4 || currentWave_ == 5)
                     {
                         divers = 2;
                     }
@@ -97,21 +93,22 @@ namespace SpaceInvaders
                         int rand_idx = rand() % available_enemies.size();
                         int enemy_idx = available_enemies[rand_idx];
 
-                        // Remove the selected enemy to avoid picking it again
                         available_enemies.erase(available_enemies.begin() + rand_idx);
 
-                        enemies_[enemy_idx].startDive({player_.x, player_.y}, (rand() % 2 == 0) ? EnemyDivePattern::Straight : EnemyDivePattern::Curved);
+                        enemies_[enemy_idx].startDive({player_.x, player_.y},
+                                                      (rand() % 2 == 0) ? EnemyDivePattern::Straight : EnemyDivePattern::Curved);
                     }
                 }
             }
-            // Set cooldown based on wave
+
+            // Đặt lại thời gian hồi chiêu hợp lý để người chơi có khoảng trống phản xạ
             if (currentWave_ == 5)
             {
-                m_diveAttackTimer = 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f;
+                m_diveAttackTimer = 2.0f + (static_cast<float>(rand()) / RAND_MAX) * 1.5f; // 2.0s - 3.5s
             }
             else
             {
-                m_diveAttackTimer = 3.0f + (static_cast<float>(rand()) / RAND_MAX) * 4.0f;
+                m_diveAttackTimer = 3.5f + (static_cast<float>(rand()) / RAND_MAX) * 3.0f; // 3.5s - 6.5s
             }
         }
 
@@ -172,7 +169,7 @@ namespace SpaceInvaders
                 // Task C: Shooting while diving
                 if (enemy.getState() == EnemyState::Diving && (rand() % 150 == 0))
                 {
-                    const float bulletWidth = 50.0f; // Match enemy bullet width from Bullet.cpp
+                    const float bulletWidth = 8.0f;
                     float bulletX = enemy.x + (enemy.width - bulletWidth) / 2.0f;
                     bullets_.emplace_back(bulletX, enemy.y + enemy.height, 350.0f, BulletOwner::Enemy);
                 }
@@ -189,17 +186,21 @@ namespace SpaceInvaders
             enemyDirection_ *= -1.0f;
             for (auto &enemy : enemies_)
             {
-                if (enemy.alive)
+                if (enemy.alive && enemy.getState() == EnemyState::Active)
                 {
-                    enemy.y += 18.0f;
+                    // Giảm khoảng cách tụt xuống còn 6px để tránh rơi nhanh
+                    enemy.y += 6.0f;
                 }
             }
         }
 
-        // Logic kiểm tra Game Over khi quái Active chạm đáy
+        // Kiểm tra Game Over với khoảng đệm an toàn
         for (const auto &enemy : enemies_)
         {
-            if (enemy.alive && enemy.getState() == EnemyState::Active && (enemy.y + enemy.height >= player_.y))
+            // CHỈ xử thua khi quái lọt hẳn xuống mép đáy màn hình (ví dụ SCREEN_HEIGHT - 30px)
+            if (enemy.alive &&
+                enemy.getState() == EnemyState::Active &&
+                (enemy.y + enemy.height >= Constants::SCREEN_HEIGHT - 30.0f))
             {
                 gameOver_ = true;
                 playerWon_ = false;
@@ -224,7 +225,7 @@ namespace SpaceInvaders
             {
                 int shooterIndex = livingEnemyIndices[rand() % livingEnemyIndices.size()];
                 const auto &shooter = enemies_[shooterIndex];
-                const float bulletWidth = 50.0f; // Match enemy bullet width from Bullet.cpp
+                const float bulletWidth = 8.0f;
                 float bulletX = shooter.x + (shooter.width - bulletWidth) / 2.0f;
                 bullets_.emplace_back(bulletX, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
             }

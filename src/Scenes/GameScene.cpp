@@ -4,6 +4,7 @@
 #include "Managers/AudioManager.h"
 #include "Managers/SceneManager.h"
 #include "Utils/Constants.h"
+#include <algorithm>
 
 namespace SpaceInvaders
 {
@@ -23,7 +24,6 @@ namespace SpaceInvaders
         input().startTextInput();
 
         playerName_.clear();
-
         scoreSaved_ = false;
 
         player_.init();
@@ -46,12 +46,12 @@ namespace SpaceInvaders
         enemies_.clear();
         pendingEnemies_.clear();
         powerUps_.clear();
+        companions_.clear();
 
         coneShotActive_ = false;
         coneShotTimer_ = 0.0f;
 
         // ===== UI =====
-
         const float buttonWidth = 64.0f;
         const float buttonHeight = 64.0f;
 
@@ -89,6 +89,7 @@ namespace SpaceInvaders
         enemies_.clear();
         pendingEnemies_.clear();
         powerUps_.clear();
+        companions_.clear();
 
         AudioManager::instance().playMusic(
             "../assets/audio/music/background_music.mp3");
@@ -99,7 +100,6 @@ namespace SpaceInvaders
         // ==========================================
         // 1. PAUSE
         // ==========================================
-
         if (paused_)
         {
             updatePauseMenu();
@@ -109,7 +109,6 @@ namespace SpaceInvaders
         // ==========================================
         // 2. PAUSE BUTTON
         // ==========================================
-
         const float mouseX = input().getMouseX();
         const float mouseY = input().getMouseY();
 
@@ -119,8 +118,7 @@ namespace SpaceInvaders
             mouseY >= pauseButtonRect_.y &&
             mouseY <= pauseButtonRect_.y + pauseButtonRect_.h;
 
-        if (mouseOverPause &&
-            input().isMousePressed(SDL_BUTTON_LEFT))
+        if (mouseOverPause && input().isMousePressed(SDL_BUTTON_LEFT))
         {
             paused_ = true;
             return;
@@ -129,7 +127,6 @@ namespace SpaceInvaders
         // ==========================================
         // 3. ENTER PLAYER NAME
         // ==========================================
-
         if (enteringPlayerName_)
         {
             playerName_ = input().getTextInput();
@@ -139,19 +136,16 @@ namespace SpaceInvaders
                 if (!playerName_.empty())
                 {
                     enteringPlayerName_ = false;
-
                     input().clearTextInput();
                     input().stopTextInput();
                 }
             }
-
             return;
         }
 
         // ==========================================
         // 4. POWER-UP TIMER
         // ==========================================
-
         if (coneShotActive_)
         {
             coneShotTimer_ -= deltaTime;
@@ -166,7 +160,6 @@ namespace SpaceInvaders
         // ==========================================
         // 5. GAME OVER
         // ==========================================
-
         if (gameOver_)
         {
             updateEndGame();
@@ -176,7 +169,6 @@ namespace SpaceInvaders
         // ==========================================
         // 6. WAVE TRANSITION
         // ==========================================
-
         if (inWaveTransition_)
         {
             waveTransitionTimer_ -= deltaTime;
@@ -191,11 +183,13 @@ namespace SpaceInvaders
                 deltaTime,
                 bullets_,
                 coneShotActive_);
-            updatePreviewEnemies(deltaTime);
 
+            updatePreviewEnemies(deltaTime);
             updateBullets(deltaTime);
             updatePowerUps(deltaTime);
             checkPowerUpCollisions();
+            updateCompanion(deltaTime);
+            checkCompanionCollision();
 
             return;
         }
@@ -203,7 +197,6 @@ namespace SpaceInvaders
         // ==========================================
         // 7. PLAYER ABILITIES
         // ==========================================
-
         if (input().isKeyPressed(SDL_SCANCODE_F))
         {
             player_.activateFireball(bullets_);
@@ -217,7 +210,6 @@ namespace SpaceInvaders
         // ==========================================
         // 8. PLAYER
         // ==========================================
-
         player_.update(
             deltaTime,
             bullets_,
@@ -226,53 +218,44 @@ namespace SpaceInvaders
         // ==========================================
         // 9. GAME SYSTEMS
         // ==========================================
-
         updateBullets(deltaTime);
-
         updateEnemies(deltaTime);
-
         checkCollisions();
-
         updatePowerUps(deltaTime);
-
         checkPowerUpCollisions();
+        updateCompanion(deltaTime);
+        checkCompanionCollision();
 
         // ==========================================
         // 10. WAVE COMPLETE
         // ==========================================
-
         if (allEnemiesDefeated())
         {
             currentWave_++;
 
-            if (currentWave_ > 5) // Allow up to 5 waves
+            if (currentWave_ >= 5)
             {
                 gameOver_ = true;
                 playerWon_ = true;
-
                 saveScore();
-
                 return;
             }
 
-            // Task F: Start wave transition and fly-by
             createFlyByPreview();
             inWaveTransition_ = true;
-            waveTransitionTimer_ = 3.5f; // Increased for delay and preview
+            waveTransitionTimer_ = 3.5f;
 
             enemies_.clear();
-            // pendingEnemies_ is already empty at this point
+            pendingEnemies_.clear();
         }
 
         // ==========================================
         // 11. PLAYER DEAD
         // ==========================================
-
         if (!player_.isAlive())
         {
             gameOver_ = true;
             playerWon_ = false;
-
             saveScore();
         }
     }
@@ -280,20 +263,22 @@ namespace SpaceInvaders
     void GameScene::createFlyByPreview()
     {
         m_previewEnemies.clear();
-        int numPreview = 5 + (rand() % 6); // 5 to 10 enemies
+        int numPreview = 5 + (rand() % 6);
+        int heightRange = std::max(1, static_cast<int>(Constants::SCREEN_HEIGHT - 200));
+
         for (int i = 0; i < numPreview; ++i)
         {
-            float startY = 100.0f + (rand() % (Constants::SCREEN_HEIGHT - 200));
+            float startY = 100.0f + (rand() % heightRange);
             Vector2 startPos = {-100.0f - (i * 80.0f), startY};
             Vector2 endPos = {Constants::SCREEN_WIDTH + 100.0f, startY};
+
             m_previewEnemies.emplace_back(
                 EnemyType::Drone,
                 EnemyMovementPattern::Horizontal,
-                EnemyEntryPattern::FromTop, // Simple linear movement is fine here
+                EnemyEntryPattern::FromTop,
                 startPos,
                 endPos,
-                800.0f // Fast speed
-            );
+                800.0f);
         }
     }
 
@@ -301,7 +286,7 @@ namespace SpaceInvaders
     {
         for (auto &enemy : m_previewEnemies)
         {
-            enemy.update(deltaTime, {1.0f, 0}); // Move them across the screen
+            enemy.update(deltaTime, {1.0f, 0});
         }
     }
 

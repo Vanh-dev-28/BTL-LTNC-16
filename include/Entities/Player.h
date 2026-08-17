@@ -22,6 +22,7 @@ namespace SpaceInvaders
         void update(float deltaTime, std::vector<Bullet> &bullets, bool coneShotActive);
         void render(Renderer &renderer) const;
         void takeDamage(float damage);
+        void heal(float amount);
 
         void activateFireball(std::vector<Bullet> &bullets);
         void activateShield();

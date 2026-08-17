@@ -232,6 +232,16 @@ namespace SpaceInvaders
         }
 
         if (!TextureManager::instance().loadTexture(
+                "companion_ship",
+                "../assets/image/Ships/companion_ship.png",
+                renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load companion ship \n";
+            clean();
+            return false;
+        }
+
+        if (!TextureManager::instance().loadTexture(
                 "enemy_laser",
                 (assetRoot / "image" / "Bullet" / "laserBullet.png").string(),
                 renderer_.getSDLRenderer()))
@@ -298,6 +308,26 @@ namespace SpaceInvaders
             renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load cone shot power-up\n";
+            clean();
+            return false;
+        }
+        //upload powerup heal
+        if (!TextureManager::instance().loadTexture(
+            "powerup_heal",
+            (assetRoot / "powerups" / "heal.png").string(),
+            renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load heal power-up\n";
+            clean();
+            return false;
+        }
+        //upload companion power-up
+        if (!TextureManager::instance().loadTexture(
+            "powerup_companion",
+            (assetRoot / "powerups" / "companion.png").string(),
+            renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load companion power-up\n";
             clean();
             return false;
         }

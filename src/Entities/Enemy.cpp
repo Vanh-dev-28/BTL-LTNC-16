@@ -120,11 +120,11 @@ namespace SpaceInvaders
         }
         else if (state_ == EnemyState::Diving)
         {
-            diveProgress_ += deltaTime * 0.5f; // Dive speed
+            diveProgress_ += deltaTime * 0.5f; // Tốc độ bổ nhào
 
             if (divePattern_ == EnemyDivePattern::Curved)
             {
-                // A simple quadratic curve towards the player
+                // Đường cong Bezier bậc 2 hướng về người chơi
                 Vector2 control = {
                     (diveStartPosition_.x + diveTargetPosition_.x) / 2.0f,
                     diveStartPosition_.y + 150.0f};
@@ -132,29 +132,34 @@ namespace SpaceInvaders
                 x = pos.x;
                 y = pos.y;
             }
-            else // Straight dive
+            else // Bổ nhào đường thẳng (Straight dive)
             {
                 x = diveStartPosition_.x + (diveTargetPosition_.x - diveStartPosition_.x) * diveProgress_;
                 y = diveStartPosition_.y + (diveTargetPosition_.y - diveStartPosition_.y) * diveProgress_;
             }
 
-            // Transition to returning state when off-screen or past the target
+            // Khi quái bay quá đáy màn hình hoặc hoàn thành bổ nhào
             if (y > Constants::SCREEN_HEIGHT + 50.0f || diveProgress_ >= 1.2f)
             {
                 state_ = EnemyState::Returning;
-                diveStartPosition_ = {x, y}; // Start returning from current position
+
+                // Đưa quái xuất hiện lại ở trên đỉnh màn hình (chuẩn phong cách Galaga)
+                // thay vì bay lùi ngược từ dưới đáy lên
+                diveStartPosition_ = {targetPosition_.x, -50.0f};
+                x = diveStartPosition_.x;
+                y = diveStartPosition_.y;
                 diveProgress_ = 0.0f;
             }
         }
         else if (state_ == EnemyState::Returning)
         {
-            diveProgress_ += deltaTime * 1.0f; // Return speed
+            diveProgress_ += deltaTime * 1.0f; // Tốc độ quay về vị trí đội hình
             if (diveProgress_ > 1.0f)
             {
                 diveProgress_ = 1.0f;
             }
 
-            // Simple linear interpolation back to original formation position
+            // Nội suy mượt mà từ trên đỉnh màn hình đáp xuống vị trí đội hình (targetPosition_)
             x = diveStartPosition_.x + (targetPosition_.x - diveStartPosition_.x) * diveProgress_;
             y = diveStartPosition_.y + (targetPosition_.y - diveStartPosition_.y) * diveProgress_;
 
@@ -163,6 +168,7 @@ namespace SpaceInvaders
                 state_ = EnemyState::Active;
                 x = targetPosition_.x;
                 y = targetPosition_.y;
+                originalY_ = y;
             }
         }
         else // state_ == EnemyState::Active
@@ -177,9 +183,8 @@ namespace SpaceInvaders
                 y = originalY_ + 20.0f * sin(time_ * 2.5f);
                 break;
             default:
-                // For Horizontal, ZigZag, Vortex, Expansion, the base position is
-                // handled by swarmVelocity, so only pattern-specific adjustments are needed here.
-                // The individual SineWave is the only one that needs an adjustment here.
+                // Các kiểu di chuyển khác (Horizontal, ZigZag, Vortex, Expansion)
+                // đã được xử lý qua swarmVelocity
                 break;
             }
         }

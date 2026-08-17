@@ -104,7 +104,8 @@ namespace SpaceInvaders
         {
             powerUp.render(renderer);
         }
-
+        renderCompanion(renderer);
+        
         for (const auto &bullet : bullets_)
         {
             bullet.render(renderer);
