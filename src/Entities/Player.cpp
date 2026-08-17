@@ -26,23 +26,36 @@ namespace SpaceInvaders
     void Player::update(float deltaTime, std::vector<Bullet> &bullets, bool coneShotActive)
     {
         // --- Mouse Movement Logic ---
-        float mouseScreenX;
-        SDL_GetMouseState(&mouseScreenX, nullptr);
+        float mouseScreenX, mouseScreenY;
+        SDL_GetMouseState(&mouseScreenX, &mouseScreenY);
 
         // Convert mouse screen coordinates to game world coordinates
         // The player sprite's center will follow the cursor
         float targetX = (mouseScreenX - Renderer::s_offsetX) / Renderer::s_scale;
-        targetX -= 48.0f / 2.0f; // Player width is 48.0f
+        float targetY = (mouseScreenY - Renderer::s_offsetY) / Renderer::s_scale;
+
+        // Adjust target to center the player sprite on the cursor
+        const float playerSpriteWidth = 48.0f;
+        const float playerSpriteHeight = 48.0f;
+        targetX -= playerSpriteWidth / 2.0f;
+        targetY -= playerSpriteHeight / 2.0f;
 
         // Smoothly move the player towards the target X position
         const float followSpeed = 7.0f;
         x += (targetX - x) * followSpeed * deltaTime;
+        y += (targetY - y) * followSpeed * deltaTime;
 
         // --- Boundary Clamping ---
-        if (x < 20.0f)
-            x = 20.0f;
-        if (x > Constants::SCREEN_WIDTH - 64.0f) // Preserving original boundary logic
-            x = Constants::SCREEN_WIDTH - 64.0f;
+        const float margin = 20.0f; // 20 pixels from all edges
+        if (x < margin)
+            x = margin;
+        if (x > Constants::SCREEN_WIDTH - playerSpriteWidth - margin)
+            x = Constants::SCREEN_WIDTH - playerSpriteWidth - margin;
+
+        if (y < margin)
+            y = margin;
+        if (y > Constants::SCREEN_HEIGHT - playerSpriteHeight - margin)
+            y = Constants::SCREEN_HEIGHT - playerSpriteHeight - margin;
 
         // --- Shooting Logic (Unchanged) ---
         const bool *keyboardState = SDL_GetKeyboardState(nullptr);
@@ -76,6 +89,7 @@ namespace SpaceInvaders
     void Player::render(Renderer &renderer) const
     {
         SDL_Texture *playerTexture = TextureManager::instance().getTexture("ship");
+
         if (playerTexture != nullptr)
         {
             renderer.drawTexture(playerTexture, x, y, 48.0f, 48.0f);
@@ -97,7 +111,7 @@ namespace SpaceInvaders
         }
     }
 
-    void Player::shoot(std::vector<Bullet>& bullets, bool coneShotActive)
+    void Player::shoot(std::vector<Bullet> &bullets, bool coneShotActive)
     {
         const float bulletX = x + 22.0f;
         const float bulletY = y - 14.0f;
@@ -108,7 +122,7 @@ namespace SpaceInvaders
             return;
         }
 
-        bullets.emplace_back(bulletX, bulletY, -170.0f, -420.0f,BulletOwner::Player);
+        bullets.emplace_back(bulletX, bulletY, -170.0f, -420.0f, BulletOwner::Player);
 
         bullets.emplace_back(bulletX, bulletY, 0.0f, -500.0f, BulletOwner::Player);
 

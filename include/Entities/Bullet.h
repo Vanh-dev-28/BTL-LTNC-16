@@ -21,8 +21,8 @@ namespace SpaceInvaders
     {
     public:
         float x, y;
-        float width{4.0f};
-        float height{12.0f};
+        float width{32.0f};
+        float height{32.0f};
         bool active;
         BulletOwner owner;
         BulletType type;
@@ -33,8 +33,7 @@ namespace SpaceInvaders
             float startY,
             float spd,
             BulletOwner owner,
-            BulletType type = BulletType::Normal
-        );
+            BulletType type = BulletType::Normal);
 
         // Đạn bay theo hướng bất kỳ
         Bullet(
@@ -43,14 +42,14 @@ namespace SpaceInvaders
             float velocityX,
             float velocityY,
             BulletOwner owner,
-            BulletType type = BulletType::Normal
-        );
+            BulletType type = BulletType::Normal);
 
         void update(float deltaTime);
-        void render(Renderer& renderer) const;
+        void render(Renderer &renderer) const;
 
     private:
         float velocityX_{0.0f};
         float velocityY_{0.0f};
+        void setSize();
     };
 }

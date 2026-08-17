@@ -12,12 +12,30 @@
 
 namespace SpaceInvaders
 {
+    // Data structure for defining an enemy to be spawned.
+    // This allows for more complex wave designs with per-enemy spawn delays.
+    struct EnemySpawnData
+    {
+        EnemyType type;
+        EnemyMovementPattern movePattern;
+        EnemyEntryPattern entryPattern;
+
+        Vector2 startPos;
+        Vector2 targetPos;
+
+        float speed;
+
+        Vector2 c1 = {0, 0};
+        Vector2 c2 = {0, 0};
+
+        float spawnDelay = 0.1f; // Default spawn delay, matches old spawnInterval_
+    };
 
     class GameScene : public Scene
     {
     public:
         GameScene() = default;
-        GameScene(const std::string& playerName);
+        GameScene(const std::string &playerName);
         ~GameScene() override = default;
 
         void enter() override;
@@ -27,6 +45,7 @@ namespace SpaceInvaders
         void render(Renderer &renderer) override;
 
         void saveScore();
+
     private:
         enum class GameState
         {
@@ -43,6 +62,10 @@ namespace SpaceInvaders
         void updateEnterName();
         void updateEndGame();
 
+        // Task F: Preview enemies
+        void createFlyByPreview();
+        void updatePreviewEnemies(float deltaTime);
+
         void renderEnterName(Renderer &renderer);
         void renderEndGame(Renderer &renderer);
 
@@ -58,15 +81,32 @@ namespace SpaceInvaders
         bool inWaveTransition_{false};
         float waveTransitionTimer_{0.0f};
         int endMenuIndex_{};
-        //input: getplayername.
+        // input: getplayername.
         bool enteringPlayerName_{false};
         std::string playerName_{};
+
+        // --- New Gameplay State (Tasks B, C, D, E) ---
+        float m_swarmSharedTime{0.0f};
+        Vector2 m_formationCenter{};
+        // Dive attack
+        float m_diveAttackTimer{5.0f};
+        // Expansion/Contraction
+        float m_formationScale{1.0f};
+        float m_formationScaleDirection{1.0f};
+
+        // --- Wave Transition (Task F) ---
+        std::vector<Enemy> m_previewEnemies;
 
         SDL_FRect replayButtonRect_{};
         SDL_FRect menuButtonRect_{};
         std::vector<Bullet> bullets_{};
         std::vector<Enemy> enemies_{};
-        //PowerUp
+
+        // Wave spawning queue
+        std::vector<EnemySpawnData> pendingEnemies_;
+        float spawnTimer_{0.0f};
+
+        // PowerUp
         std::vector<PowerUp> powerUps_;
         std::vector<CompanionShip> companions_;
         bool coneShotActive_{false};
@@ -82,19 +122,20 @@ namespace SpaceInvaders
         SDL_FRect shieldButtonRect_{};
         bool mouseWasPressed_{false};
 
-        //ScoreSaved state
+        // ScoreSaved state
         bool scoreSaved_{false};
 
-        //pause game 
+        // pause game
         bool paused_{false};
         SDL_FRect pauseButtonRect_{};
         SDL_FRect resumeButtonRect_{};
         SDL_FRect exitPauseButtonRect_{};
         void updatePauseMenu();
-        void renderPauseMenu(Renderer& renderer);
-        //powerUp companion
+
+        void renderPauseMenu(Renderer &renderer);
+        // powerUp companion
         void updateCompanion(float deltaTime);
-        void renderCompanion(Renderer& renderer);
+        void renderCompanion(Renderer &renderer);
         void checkCompanionCollision();
         void moveCompanion(float deltaTime);
         void spawnCompanions();

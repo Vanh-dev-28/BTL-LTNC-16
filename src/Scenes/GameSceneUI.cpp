@@ -21,61 +21,56 @@ namespace SpaceInvaders
     void GameScene::render(Renderer &renderer)
     {
         TTF_Font *font =
-        FontManager::instance().getFont("menu");
+            FontManager::instance().getFont("menu");
 
         if (enteringPlayerName_)
         {
-        SDL_Texture* background = TextureManager::instance().getTexture("entername_background");
-        if (background != nullptr)
-        {
-            renderer.drawTexture(
-                background,
-                0.0f,
-                0.0f,
-                static_cast<float>(Constants::SCREEN_WIDTH),
-                static_cast<float>(Constants::SCREEN_HEIGHT)
-            );
-        }
-        else
-        {
-            SDL_SetRenderDrawColor(
-                renderer.getSDLRenderer(),
-                10, 20, 40, 255
-            );
+            SDL_Texture *background = TextureManager::instance().getTexture("entername_background");
+            if (background != nullptr)
+            {
+                renderer.drawTexture(
+                    background,
+                    0.0f,
+                    0.0f,
+                    static_cast<float>(Constants::SCREEN_WIDTH),
+                    static_cast<float>(Constants::SCREEN_HEIGHT));
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(
+                    renderer.getSDLRenderer(),
+                    10, 20, 40, 255);
 
-            SDL_RenderClear(renderer.getSDLRenderer());
-        }
+                SDL_RenderClear(renderer.getSDLRenderer());
+            }
 
-        if (font != nullptr)
-        {
-            renderer.drawTextCentered(
-                "ENTER YOUR NAME",
-                font,
-                {255, 230, 50, 255},
-                Constants::SCREEN_WIDTH / 2,
-                Constants::SCREEN_HEIGHT / 2 - 80
-            );
+            if (font != nullptr)
+            {
+                renderer.drawTextCentered(
+                    "ENTER YOUR NAME",
+                    font,
+                    {255, 230, 50, 255},
+                    Constants::SCREEN_WIDTH / 2,
+                    Constants::SCREEN_HEIGHT / 2 - 80);
 
-            renderer.drawTextCentered(
-                playerName_.empty()
-                    ? "_"
-                    : playerName_,
-                font,
-                {255, 255, 255, 255},
-                Constants::SCREEN_WIDTH / 2,
-                Constants::SCREEN_HEIGHT / 2
-            );
+                renderer.drawTextCentered(
+                    playerName_.empty()
+                        ? "_"
+                        : playerName_,
+                    font,
+                    {255, 255, 255, 255},
+                    Constants::SCREEN_WIDTH / 2,
+                    Constants::SCREEN_HEIGHT / 2);
 
-            renderer.drawTextCentered(
-                "PRESS ENTER TO START",
-                font,
-                {50, 230, 255, 255},
-                Constants::SCREEN_WIDTH / 2,
-                Constants::SCREEN_HEIGHT / 2 + 80
-            );
-        }
+                renderer.drawTextCentered(
+                    "PRESS ENTER TO START",
+                    font,
+                    {50, 230, 255, 255},
+                    Constants::SCREEN_WIDTH / 2,
+                    Constants::SCREEN_HEIGHT / 2 + 80);
+            }
 
-        return;
+            return;
         }
 
         SDL_Texture *background = TextureManager::instance().getTexture("gameplay_background");
@@ -92,6 +87,12 @@ namespace SpaceInvaders
         {
             SDL_SetRenderDrawColor(renderer.getSDLRenderer(), 10, 20, 40, 255);
             SDL_RenderClear(renderer.getSDLRenderer());
+        }
+
+        // Task F: Render preview enemies
+        for (const auto &enemy : m_previewEnemies)
+        {
+            enemy.render(renderer);
         }
 
         for (const auto &enemy : enemies_)
@@ -173,9 +174,9 @@ namespace SpaceInvaders
             SDL_Color white{255, 255, 255, 200};
             SDL_Texture *fireballIcon = TextureManager::instance().getTexture("fireball_icon");
             SDL_Texture *shieldIcon = TextureManager::instance().getTexture("shield_icon");
-            SDL_Texture* pauseIcon = TextureManager::instance().getTexture("pause_icon");
+            SDL_Texture *pauseIcon = TextureManager::instance().getTexture("pause_icon");
 
-            //PauseGame icon
+            // PauseGame icon
             if (pauseIcon != nullptr)
             {
                 renderer.drawTexture(
@@ -183,8 +184,7 @@ namespace SpaceInvaders
                     pauseButtonRect_.x,
                     pauseButtonRect_.y,
                     pauseButtonRect_.w,
-                    pauseButtonRect_.h
-                );
+                    pauseButtonRect_.h);
             }
 
             // Fireball Button
@@ -236,7 +236,7 @@ namespace SpaceInvaders
                 shieldButtonRect_.x + shieldButtonRect_.w / 2, shieldButtonRect_.y + shieldButtonRect_.h + 10); // Adjusted Y for text
         }
 
-        if (paused_) 
+        if (paused_)
         {
             renderPauseMenu(renderer);
         }
@@ -260,23 +260,23 @@ namespace SpaceInvaders
         bool leftClick = (mouseState & SDL_BUTTON_LMASK) != 0;
 
         if (mouseX >= replayButtonRect_.x &&
-        mouseX <= replayButtonRect_.x + replayButtonRect_.w &&
-        mouseY >= replayButtonRect_.y &&
-        mouseY <= replayButtonRect_.y + replayButtonRect_.h)
+            mouseX <= replayButtonRect_.x + replayButtonRect_.w &&
+            mouseY >= replayButtonRect_.y &&
+            mouseY <= replayButtonRect_.y + replayButtonRect_.h)
         {
             endMenuIndex_ = 0;
         }
         else if (mouseX >= menuButtonRect_.x &&
-            mouseX <= menuButtonRect_.x + menuButtonRect_.w &&
-            mouseY >= menuButtonRect_.y &&
-            mouseY <= menuButtonRect_.y + menuButtonRect_.h)
+                 mouseX <= menuButtonRect_.x + menuButtonRect_.w &&
+                 mouseY >= menuButtonRect_.y &&
+                 mouseY <= menuButtonRect_.y + menuButtonRect_.h)
         {
             endMenuIndex_ = 1;
         }
 
         if (leftClick && !mousePressed)
         {
-        
+
             if (mouseX >= replayButtonRect_.x &&
                 mouseX <= replayButtonRect_.x + replayButtonRect_.w &&
                 mouseY >= replayButtonRect_.y &&
@@ -285,12 +285,11 @@ namespace SpaceInvaders
                 endMenuIndex_ = 0;
                 enter();
             }
-        
 
             else if (mouseX >= menuButtonRect_.x &&
-                mouseX <= menuButtonRect_.x + menuButtonRect_.w &&
-                mouseY >= menuButtonRect_.y &&
-                mouseY <= menuButtonRect_.y + menuButtonRect_.h)
+                     mouseX <= menuButtonRect_.x + menuButtonRect_.w &&
+                     mouseY >= menuButtonRect_.y &&
+                     mouseY <= menuButtonRect_.y + menuButtonRect_.h)
             {
                 endMenuIndex_ = 1;
 
@@ -307,116 +306,108 @@ namespace SpaceInvaders
     }
 
     void GameScene::renderEndGame(Renderer &renderer)
-{
-    SDL_Texture *popup = TextureManager::instance().getTexture("endgame_popup");
-    if (popup == nullptr)
     {
-        return;
-    }
+        SDL_Texture *popup = TextureManager::instance().getTexture("endgame_popup");
+        if (popup == nullptr)
+        {
+            return;
+        }
 
-    const float popupWidth = 700.0f;
-    const float popupHeight = popupWidth * 320.0f / 700.0f; 
+        const float popupWidth = 700.0f;
+        const float popupHeight = popupWidth * 320.0f / 700.0f;
 
-    const float popupX =
-        (Constants::SCREEN_WIDTH - popupWidth) / 2.0f;
+        const float popupX =
+            (Constants::SCREEN_WIDTH - popupWidth) / 2.0f;
 
-    const float popupY =
-        (Constants::SCREEN_HEIGHT - popupHeight) / 2.0f;
+        const float popupY =
+            (Constants::SCREEN_HEIGHT - popupHeight) / 2.0f;
 
-    if (popup != nullptr)
-    {
-        renderer.drawTexture(
-            popup,
-            popupX,
-            popupY,
-            popupWidth,
-            popupHeight);
-    }
-    const float sx = popupWidth / 700.0f;
-    const float sy = popupHeight / 320.0f;
+        if (popup != nullptr)
+        {
+            renderer.drawTexture(
+                popup,
+                popupX,
+                popupY,
+                popupWidth,
+                popupHeight);
+        }
+        const float sx = popupWidth / 700.0f;
+        const float sy = popupHeight / 320.0f;
 
-    constexpr float buttonWidth = 220.0f;
-    constexpr float buttonHeight = 50.0f;
-    constexpr float buttonY = 195.0f;
+        constexpr float buttonWidth = 220.0f;
+        constexpr float buttonHeight = 50.0f;
+        constexpr float buttonY = 195.0f;
 
-    replayButtonRect_ = {
-        popupX + 100.0f * sx,
-        popupY + buttonY * sy,
-        buttonWidth * sx,
-        buttonHeight * sy
-    };
+        replayButtonRect_ = {
+            popupX + 100.0f * sx,
+            popupY + buttonY * sy,
+            buttonWidth * sx,
+            buttonHeight * sy};
 
-    menuButtonRect_ = {
-        popupX + 380.0f * sx,
-        popupY + buttonY * sy,
-        buttonWidth * sx,
-        buttonHeight * sy
-    };
+        menuButtonRect_ = {
+            popupX + 380.0f * sx,
+            popupY + buttonY * sy,
+            buttonWidth * sx,
+            buttonHeight * sy};
 
-    TTF_Font *font =
-        FontManager::instance().getFont("menu");
+        TTF_Font *font =
+            FontManager::instance().getFont("menu");
 
-    if (font == nullptr)
-    {
-        return;
-    }
+        if (font == nullptr)
+        {
+            return;
+        }
 
-    SDL_Color white{255, 255, 255, 255};
-    SDL_Color yellow{255, 255, 0, 255};
-    SDL_Color red{255, 80, 80, 255};
+        SDL_Color white{255, 255, 255, 255};
+        SDL_Color yellow{255, 255, 0, 255};
+        SDL_Color red{255, 80, 80, 255};
 
+        renderer.drawTextCentered(
+            playerWon_ ? "YOU WIN" : "GAME OVER",
+            font,
+            red,
+            static_cast<int>(popupX + 350.0f * sx),
+            popupY + 55.0f * sy);
 
-    renderer.drawTextCentered(
-        playerWon_ ? "YOU WIN" : "GAME OVER",
-        font,
-        red,
-        static_cast<int>(popupX + 350.0f * sx),
-        popupY + 55.0f * sy
-    );
+        renderer.drawTextCentered(
+            "PLAYER : " + playerName_,
+            font,
+            white,
+            Constants::SCREEN_WIDTH / 2,
+            popupY + 100.0f * sy);
 
+        renderer.drawTextCentered(
+            "SCORE : " + std::to_string(score_),
+            font,
+            white,
+            Constants::SCREEN_WIDTH / 2,
+            popupY + 150.0f * sy);
 
-    renderer.drawTextCentered(
-    "PLAYER : " + playerName_,
-    font,
-    white,
-    Constants::SCREEN_WIDTH / 2,
-    popupY + 100.0f * sy);
+        SDL_Color replayColor =
+            (endMenuIndex_ == 0) ? yellow : white;
 
-    renderer.drawTextCentered(
-    "SCORE : " + std::to_string(score_),
-    font,
-    white,
-    Constants::SCREEN_WIDTH / 2,
-    popupY + 150.0f * sy);
+        std::string replayText =
+            (endMenuIndex_ == 0) ? "> REPLAY" : "REPLAY";
 
+        renderer.drawTextCentered(
+            replayText,
+            font,
+            replayColor,
+            popupX + 210.0f * sx,
+            popupY + 215.0f * sy);
 
-    SDL_Color replayColor =
-        (endMenuIndex_ == 0) ? yellow : white;
+        SDL_Color menuColor =
+            (endMenuIndex_ == 1) ? yellow : white;
 
-    std::string replayText =
-        (endMenuIndex_ == 0) ? "> REPLAY" : "REPLAY";
+        std::string menuText =
+            (endMenuIndex_ == 1) ? "> MENU" : "MENU";
 
-    renderer.drawTextCentered(
-        replayText,
-        font,
-        replayColor,
-        popupX + 210.0f * sx,
-        popupY + 215.0f * sy
-    );
-
-    SDL_Color menuColor =
-        (endMenuIndex_ == 1) ? yellow : white;
-
-    std::string menuText =
-        (endMenuIndex_ == 1) ? "> MENU" : "MENU";
-
-    renderer.drawTextCentered(
-        menuText,
-        font,
-        menuColor,
-        popupX + 490.0f * sx,
-        popupY + 215.0f * sy
-    );
+        renderer.drawTextCentered(
+            menuText,
+            font,
+            menuColor,
+            popupX + 490.0f * sx,
+            popupY + 215.0f * sy);
     }
     void GameScene::saveScore()
     {
@@ -432,7 +423,7 @@ namespace SpaceInvaders
 
         scoreSaved_ = true;
     }
-    
+
     void GameScene::updatePauseMenu()
     {
         float mouseX = input().getMouseX();
@@ -467,11 +458,11 @@ namespace SpaceInvaders
             }
         }
     }
-    void GameScene::renderPauseMenu(Renderer& renderer)
+    void GameScene::renderPauseMenu(Renderer &renderer)
     {
-        SDL_Texture* popup = TextureManager::instance().getTexture("endgame_popup");
+        SDL_Texture *popup = TextureManager::instance().getTexture("endgame_popup");
 
-        TTF_Font* font = FontManager::instance().getFont("menu");
+        TTF_Font *font = FontManager::instance().getFont("menu");
 
         if (popup == nullptr || font == nullptr)
             return;
@@ -488,8 +479,7 @@ namespace SpaceInvaders
             popupX,
             popupY,
             popupWidth,
-            popupHeight
-        );
+            popupHeight);
 
         const float sx = popupWidth / 700.0f;
         const float sy = popupHeight / 320.0f;
@@ -498,14 +488,12 @@ namespace SpaceInvaders
         SDL_Color yellow{255, 255, 0, 255};
         SDL_Color orange{255, 165, 0, 255};
 
-
         renderer.drawTextCentered(
             "What happened?",
             font,
             orange,
             Constants::SCREEN_WIDTH / 2,
-            popupY + 65.0f * sy
-        );
+            popupY + 65.0f * sy);
 
         constexpr float buttonWidth = 220.0f;
         constexpr float buttonHeight = 50.0f;
@@ -515,22 +503,20 @@ namespace SpaceInvaders
             popupX + 100.0f * sx,
             popupY + buttonY * sy,
             buttonWidth * sx,
-            buttonHeight * sy
-        };
+            buttonHeight * sy};
 
         exitPauseButtonRect_ = {
             popupX + 380.0f * sx,
             popupY + buttonY * sy,
             buttonWidth * sx,
-            buttonHeight * sy
-        };
+            buttonHeight * sy};
         const float mouseX = input().getMouseX();
         const float mouseY = input().getMouseY();
         const bool hoverResume = mouseX >= resumeButtonRect_.x && mouseX <= resumeButtonRect_.x + resumeButtonRect_.w &&
-                                mouseY >= resumeButtonRect_.y && mouseY <= resumeButtonRect_.y + resumeButtonRect_.h;
+                                 mouseY >= resumeButtonRect_.y && mouseY <= resumeButtonRect_.y + resumeButtonRect_.h;
 
         const bool hoverExit = mouseX >= exitPauseButtonRect_.x && mouseX <= exitPauseButtonRect_.x + exitPauseButtonRect_.w &&
-                                mouseY >= exitPauseButtonRect_.y && mouseY <= exitPauseButtonRect_.y + exitPauseButtonRect_.h;
+                               mouseY >= exitPauseButtonRect_.y && mouseY <= exitPauseButtonRect_.y + exitPauseButtonRect_.h;
         SDL_Color resumeColor = hoverResume ? yellow : white;
         std::string resumeText = hoverResume ? "> RESUME" : "   RESUME";
 
@@ -539,8 +525,7 @@ namespace SpaceInvaders
             font,
             resumeColor,
             popupX + 205.0f * sx,
-            popupY + 200.0f * sy
-        );
+            popupY + 200.0f * sy);
         SDL_Color exitColor = hoverExit ? yellow : white;
         std::string exitText = hoverExit ? "> EXIT" : "  EXIT";
         renderer.drawTextCentered(
@@ -548,7 +533,6 @@ namespace SpaceInvaders
             font,
             exitColor,
             popupX + 486.0f * sx,
-            popupY + 200.0f * sy
-        );
+            popupY + 200.0f * sy);
     }
-} //namespace SpaceInvaders
+} // namespace SpaceInvaders
