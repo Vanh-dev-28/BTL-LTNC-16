@@ -129,28 +129,34 @@ namespace SpaceInvaders
         bullets.emplace_back(bulletX, bulletY, 170.0f, -420.0f, BulletOwner::Player);
     }
 
-    void Player::activateFireball(std::vector<Bullet> &bullets)
+    bool Player::activateFireball(std::vector<Bullet> &bullets)
     {
-        if (fireballCooldown_ <= 0.0f)
+        if (fireballCooldown_ > 0.0f)
         {
-            Bullet &fireball = bullets.emplace_back(0.0f, 0.0f, -800.0f, BulletOwner::Player, BulletType::Fireball);
-            fireball.width = 40.0f;
-            fireball.height = 40.0f;
-            fireball.x = x + (48.0f / 2.0f) - (fireball.width / 2.0f);
-            fireball.y = y; // Start at player's y
-
-            fireballCooldown_ = 8.0f; // 8 second cooldown
+            return false;
         }
+        Bullet &fireball = bullets.emplace_back(0.0f, 0.0f, -800.0f, BulletOwner::Player, BulletType::Fireball);
+        fireball.width = 40.0f;
+        fireball.height = 40.0f;
+        fireball.x = x + (48.0f / 2.0f) - (fireball.width / 2.0f);
+        fireball.y = y; // Start at player's y
+        fireballCooldown_ = 4.0f; // 4 second cooldown
+        return true;
     }
 
-    void Player::activateShield()
+    bool Player::activateShield()
     {
+        if (shieldCooldown_ > 0.0f || shieldActive_)
+        {
+            return false;
+        }
         if (shieldCooldown_ <= 0.0f)
         {
             shieldActive_ = true;
             shieldTimer_ = 5.0f;     // 5 second duration
-            shieldCooldown_ = 15.0f; // 15 second cooldown
+            shieldCooldown_ = 10.0f; // 10 second cooldown
         }
+        return true;
     }
 
     void Player::takeDamage(float damage)

@@ -76,12 +76,12 @@ namespace SpaceInvaders
         SDL_Texture *background = TextureManager::instance().getTexture("gameplay_background");
         if (background != nullptr)
         {
-            renderer.drawTexture(
-                background,
-                0.0f,
-                0.0f,
-                static_cast<float>(Constants::SCREEN_WIDTH),
-                static_cast<float>(Constants::SCREEN_HEIGHT));
+            const float screenWidth = static_cast<float>(Constants::SCREEN_WIDTH);
+            const float screenHeight = static_cast<float>(Constants::SCREEN_HEIGHT);
+            // Background 1
+            renderer.drawTexture(background, 0.0f, backgroundY1_, screenWidth, screenHeight);
+            // Background 2
+            renderer.drawTexture(background, 0.0f, backgroundY2_, screenWidth, screenHeight);
         }
         else
         {

@@ -261,11 +261,20 @@ namespace SpaceInvaders
                                      bullet.y + bullet.height > enemy.y;
                     if (hit)
                     {
-                        enemy.alive = false;
-                        score_ += 10;
+    // Đạn thường gây 1 damage
+    // Fireball gây 2 damage
+                        const float damage = (bullet.type == BulletType::Fireball) ? 2.0f : 1.0f;
+                        enemy.takeDamage(damage);
 
-                        spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
+    // Enemy chỉ chết khi HP <= 0
+                        if (!enemy.alive)
+                        {
+                            score_ += 10;
+                            spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
+                        }
 
+    // Đạn thường biến mất sau khi trúng 1 enemy
+    // Fireball tiếp tục bay xuyên qua enemy
                         if (bullet.type != BulletType::Fireball)
                         {
                             bullet.active = false;

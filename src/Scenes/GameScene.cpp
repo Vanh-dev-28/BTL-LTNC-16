@@ -3,8 +3,10 @@
 #include "Core/Input.h"
 #include "Managers/AudioManager.h"
 #include "Managers/SceneManager.h"
+#include "Managers/TextureManager.h"
 #include "Utils/Constants.h"
 #include <algorithm>
+#include <filesystem>
 
 namespace SpaceInvaders
 {
@@ -27,6 +29,9 @@ namespace SpaceInvaders
         scoreSaved_ = false;
 
         player_.init();
+        gameplayBackground_ = TextureManager::instance().getTexture("gameplay_background");
+        backgroundY1_ = 0.0f;
+        backgroundY2_ = -static_cast<float>(Constants::SCREEN_HEIGHT);
 
         enemyDirection_ = 1.0f;
         currentWave_ = 1;
@@ -97,6 +102,20 @@ namespace SpaceInvaders
 
     void GameScene::update(float deltaTime)
     {
+        // ==========================================
+        // BACKGROUND SCROLLING
+        // ==========================================
+        backgroundY1_ += backgroundSpeed_ * deltaTime;
+        backgroundY2_ += backgroundSpeed_ * deltaTime;
+        const float screenHeight = static_cast<float>(Constants::SCREEN_HEIGHT);
+        if (backgroundY1_ >= screenHeight)
+        {
+            backgroundY1_ = backgroundY2_ - screenHeight;
+        }
+        if (backgroundY2_ >= screenHeight)
+        {
+            backgroundY2_ = backgroundY1_ - screenHeight;
+        }
         // ==========================================
         // 1. PAUSE
         // ==========================================
@@ -197,14 +216,21 @@ namespace SpaceInvaders
         // ==========================================
         // 7. PLAYER ABILITIES
         // ==========================================
+        const std::filesystem::path assetRoot = (std::filesystem::current_path() / ".." / "assets").lexically_normal();
         if (input().isKeyPressed(SDL_SCANCODE_F))
         {
-            player_.activateFireball(bullets_);
+            if (player_.activateFireball(bullets_))
+            {
+                AudioManager::instance().playSFX((assetRoot / "audio" / "powerup_sf" / "one_shot.mp3").string());
+            }
         }
 
         if (input().isKeyPressed(SDL_SCANCODE_S))
         {
-            player_.activateShield();
+            if (player_.activateShield())
+            {
+                AudioManager::instance().playSFX((assetRoot / "audio" / "powerup_sf" / "shield.mp3").string());
+            }
         }
 
         // ==========================================
@@ -233,7 +259,7 @@ namespace SpaceInvaders
         {
             currentWave_++;
 
-            if (currentWave_ >= 5)
+            if (currentWave_ > 5)
             {
                 gameOver_ = true;
                 playerWon_ = true;
