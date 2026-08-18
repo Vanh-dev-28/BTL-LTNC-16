@@ -53,12 +53,12 @@ namespace SpaceInvaders
     void GameScene::spawnPowerUp(float x, float y)
     {
         const int roll = rand() % 150;
-        if (roll < 10)
+        if (roll < 13)
         {
             powerUps_.emplace_back(PowerUpType::ConeShot, x, y);
             return;
         }
-        if (roll < 25)
+        if (roll < 23)
         {
             powerUps_.emplace_back(PowerUpType::Heal, x, y);
             return;
@@ -67,7 +67,7 @@ namespace SpaceInvaders
         {
             powerUps_.emplace_back(PowerUpType::Companion, x, y);
         return;
-        } 
+        }
     }
 
     void GameScene::activatePowerUp(PowerUpType type)

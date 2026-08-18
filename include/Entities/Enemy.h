@@ -70,6 +70,12 @@ namespace SpaceInvaders
         [[nodiscard]] SDL_FRect getRect() const { return {x, y, width, height}; }
         void kill() { alive = false; }
 
+        //HP
+        void takeDamage(float damage);
+        [[nodiscard]] float getHealth() const { return health_; }
+        [[nodiscard]] float getMaxHealth() const { return maxHealth_; }
+        [[nodiscard]] EnemyType getType() const { return type_; }
+
     private:
         float speed_;
         EnemyType type_;
@@ -93,6 +99,9 @@ namespace SpaceInvaders
         Vector2 diveStartPosition_{};
         Vector2 diveTargetPosition_{};
         float diveProgress_{0.0f};
+        //HP
+        float health_;
+        float maxHealth_;
     };
 
 }

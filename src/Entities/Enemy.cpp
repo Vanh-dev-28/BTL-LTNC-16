@@ -6,6 +6,7 @@
 #include <cmath>
 #include "Utils/Vector2.h"
 
+
 namespace SpaceInvaders
 {
     Enemy::Enemy(EnemyType type, EnemyMovementPattern movePattern, EnemyEntryPattern entryPattern, Vector2 startPos, Vector2 targetPos, float speed)
@@ -13,8 +14,22 @@ namespace SpaceInvaders
           speed_(speed), type_(type), pattern_(movePattern),
           state_(EnemyState::Entering), entryPattern_(entryPattern),
           startPosition_(startPos), targetPosition_(targetPos), entryProgress_(0.0f),
-          time_(0.0f), originalY_(targetPos.y)
+          time_(0.0f), originalY_(targetPos.y), health_(1.0f), maxHealth_(1.0f)
     {
+        switch (type_)
+        {
+            case EnemyType::Bomber:
+                maxHealth_ = 4.0f;
+                break;
+            case EnemyType::Drone:
+                maxHealth_ = 2.0f;
+                break;
+            case EnemyType::HealthSpaceship:
+                maxHealth_ = 6.0f;
+                break;
+        }
+
+        health_ = maxHealth_;
         time_ = (static_cast<float>(rand()) / RAND_MAX) * 10.0f;
     }
 
@@ -24,9 +39,37 @@ namespace SpaceInvaders
           speed_(speed), type_(type), pattern_(movePattern),
           state_(EnemyState::Entering), entryPattern_(entryPattern),
           startPosition_(startPos), targetPosition_(targetPos), controlPoint1_(control1), controlPoint2_(control2), entryProgress_(0.0f),
-          time_(0.0f), originalY_(targetPos.y)
+          time_(0.0f), originalY_(targetPos.y), health_(1.0f), maxHealth_(1.0f)
     {
+        switch (type_)
+        {
+            case EnemyType::Bomber:
+                maxHealth_ = 4.0f;
+                break;
+            case EnemyType::Drone:
+                maxHealth_ = 2.0f;
+                break;
+            case EnemyType::HealthSpaceship:
+                maxHealth_ = 6.0f;
+                break;
+        }
+
+        health_ = maxHealth_;
         time_ = (static_cast<float>(rand()) / RAND_MAX) * 10.0f;
+    }
+
+    void Enemy::takeDamage(float damage)
+    {
+        if (!alive)
+            return;
+
+        health_ -= damage;
+
+        if (health_ <= 0.0f)
+        {
+            health_ = 0.0f;
+            alive = false;
+        }
     }
 
     // Helper for Quadratic Bezier curve calculation

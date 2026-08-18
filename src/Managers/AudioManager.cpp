@@ -44,7 +44,18 @@ namespace SpaceInvaders
             mixerLibraryInitialized_ = false;
             return false;
         }
+        sfxTrack_ = MIX_CreateTrack(mixer_);
 
+        if (sfxTrack_ == nullptr)
+        {
+            MIX_DestroyTrack(musicTrack_);
+            musicTrack_ = nullptr;
+            MIX_DestroyMixer(mixer_);
+            mixer_ = nullptr;
+            MIX_Quit();
+            mixerLibraryInitialized_ = false;
+            return false;
+        }
         return true;
     }
 
@@ -130,7 +141,25 @@ namespace SpaceInvaders
     {
         sound = found->second;
     }
-    const bool result = MIX_PlayAudio(mixer_, sound);
+
+    // SFX = 50% music volume
+    float sfxGain =
+        (static_cast<float>(musicVolume_) / 100.0f) * 0.5f;
+
+    MIX_SetTrackGain(sfxTrack_, sfxGain);
+
+    // Gán âm thanh vào SFX track
+    if (!MIX_SetTrackAudio(sfxTrack_, sound))
+    {
+        SDL_Log(
+            "Failed to set SFX audio: %s",
+            path.c_str()
+        );
+        return false;
+    }
+
+    // Phát SFX
+    bool result = MIX_PlayTrack(sfxTrack_, 0);
 
     if (!result)
     {
@@ -140,7 +169,7 @@ namespace SpaceInvaders
         );
     }
 
-    return MIX_PlayAudio(mixer_, sound);
+    return result;
 }
 void AudioManager::stopMusic()
 {
@@ -162,6 +191,14 @@ void AudioManager::stopMusic()
     void AudioManager::clear()
 {
     stopMusic();
+
+    if (sfxTrack_ != nullptr)
+    {
+        MIX_StopTrack(sfxTrack_, 0);
+        MIX_SetTrackAudio(sfxTrack_, nullptr);
+        MIX_DestroyTrack(sfxTrack_);
+        sfxTrack_ = nullptr;
+    }
 
     for (const auto& [path, sound] : soundEffects_)
     {
@@ -198,10 +235,14 @@ void AudioManager::stopMusic()
 
     if (mixer_ != nullptr)
     {
-        const float gain =
+        const float musicGain =
             static_cast<float>(musicVolume_) / 100.0f;
 
-        MIX_SetMixerGain(mixer_, gain);
+        MIX_SetTrackGain(musicTrack_, musicGain);
+
+        const float sfxGain = musicGain * 0.5f;
+
+        MIX_SetTrackGain(sfxTrack_, sfxGain);
     }
 }
 

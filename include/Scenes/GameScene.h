@@ -53,6 +53,11 @@ namespace SpaceInvaders
             Playing,
             EndGame
         };
+        //Background loops
+        SDL_Texture* gameplayBackground_{nullptr};
+        float backgroundY1_{0.0f};
+        float backgroundY2_{0.0f};
+        float backgroundSpeed_{80.0f};
         void updateBullets(float deltaTime);
         void updateEnemies(float deltaTime);
         void checkCollisions();

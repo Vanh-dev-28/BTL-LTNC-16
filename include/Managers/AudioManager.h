@@ -30,11 +30,14 @@ namespace SpaceInvaders
 
         MIX_Mixer *mixer_{nullptr};
         MIX_Track *musicTrack_{nullptr};
+        MIX_Track *sfxTrack_{nullptr};
         bool mixerLibraryInitialized_{false};
         MIX_Audio *currentMusic_{nullptr};
         std::string currentMusicPath_;
         int musicVolume_ = 100;
+        int sfxVolume_ = 50;
         std::unordered_map<std::string, MIX_Audio*> soundEffects_;
+
     };
 
 } // namespace SpaceInvaders
