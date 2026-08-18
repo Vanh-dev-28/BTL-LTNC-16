@@ -24,8 +24,8 @@ namespace SpaceInvaders
         void takeDamage(float damage);
         void heal(float amount);
 
-        void activateFireball(std::vector<Bullet> &bullets);
-        void activateShield();
+        bool activateFireball(std::vector<Bullet> &bullets);
+        bool activateShield();
 
         [[nodiscard]] bool isAlive() const;
         [[nodiscard]] float getHealth() const;
@@ -40,6 +40,7 @@ namespace SpaceInvaders
         float fireCooldown_;
         float health_;
         float maxHealth_;
+
 
         // Abilities
         bool shieldActive_{false};

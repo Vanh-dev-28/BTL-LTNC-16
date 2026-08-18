@@ -1,9 +1,8 @@
 #pragma once
 
 #include <SDL3_mixer/SDL_mixer.h>
-#include <string>
 #include <unordered_map>
-#include <vector>
+#include <string>
 
 namespace SpaceInvaders
 {
@@ -17,7 +16,7 @@ namespace SpaceInvaders
         /** Initializes SDL_mixer and opens the default playback device. */
         bool initialize();
         bool playMusic(const std::string &path, int loops = -1);
-        bool playSFX(const std::string &path, int loops = 0);
+        bool playSFX(const std::string& path);
         void setMusicVolume(int volume);
         void stopMusic();
         void clear();
@@ -35,8 +34,7 @@ namespace SpaceInvaders
         MIX_Audio *currentMusic_{nullptr};
         std::string currentMusicPath_;
         int musicVolume_ = 100;
-        std::unordered_map<std::string, MIX_Audio *> soundEffects_;
-        std::vector<MIX_Track *> loopingSfxTracks_;
+        std::unordered_map<std::string, MIX_Audio*> soundEffects_;
     };
 
 } // namespace SpaceInvaders

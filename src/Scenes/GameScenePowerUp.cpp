@@ -2,11 +2,13 @@
 #include "Core/Renderer.h"
 #include "Core/Input.h"
 #include "Managers/TextureManager.h"
+#include "Managers/AudioManager.h"
 #include "Entities/PowerUp.h"
 #include "Entities/CompanionShip.h"
 #include "Utils/Constants.h"
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 
 namespace SpaceInvaders
 {
@@ -69,21 +71,38 @@ namespace SpaceInvaders
     }
 
     void GameScene::activatePowerUp(PowerUpType type)
+{
+    const std::filesystem::path assetRoot =
+        (std::filesystem::current_path() / ".." / "assets").lexically_normal();
+
+    switch (type)
     {
-        switch (type)
-        {
-        case PowerUpType::ConeShot:
-            coneShotActive_ = true;
-            coneShotTimer_ = CONE_SHOT_DURATION;
-            break;
-        case PowerUpType::Heal: 
-            player_.heal(20.0f);
-            break;
-        case PowerUpType::Companion:
-            spawnCompanions();
-            break;
-        }
+    case PowerUpType::ConeShot:
+        coneShotActive_ = true;
+        coneShotTimer_ = CONE_SHOT_DURATION;
+
+        AudioManager::instance().playSFX(
+            (assetRoot / "audio" / "powerup_sf" / "cone-shot.mp3").string()
+        );
+        break;
+
+    case PowerUpType::Heal:
+        player_.heal(20.0f);
+
+        AudioManager::instance().playSFX(
+            (assetRoot / "audio" / "powerup_sf" / "heal.mp3").string()
+        );
+        break;
+
+    case PowerUpType::Companion:
+        spawnCompanions();
+
+        AudioManager::instance().playSFX(
+            (assetRoot / "audio" / "powerup_sf" / "companion.mp3").string()
+        );
+        break;
     }
+}
     void GameScene::spawnCompanions()
     {
         companions_.clear();
