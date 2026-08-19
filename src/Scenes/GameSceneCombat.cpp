@@ -246,35 +246,24 @@ namespace SpaceInvaders
 
             if (bullet.owner == BulletOwner::Player)
             {
-                // Check collision with enemies
                 for (auto &enemy : enemies_)
                 {
                     if (!enemy.alive)
                     {
                         continue;
                     }
-
-                    // AABB collision check (rectangle-rectangle)
-                    const bool hit = bullet.x < enemy.x + enemy.width &&
-                                     bullet.x + bullet.width > enemy.x &&
-                                     bullet.y < enemy.y + enemy.height &&
-                                     bullet.y + bullet.height > enemy.y;
+                    const bool hit = bullet.x < enemy.x + enemy.width && bullet.x + bullet.width > enemy.x &&
+                                     bullet.y < enemy.y + enemy.height && bullet.y + bullet.height > enemy.y;
                     if (hit)
                     {
-    // Đạn thường gây 1 damage
-    // Fireball gây 2 damage
                         const float damage = (bullet.type == BulletType::Fireball) ? 2.0f : 1.0f;
                         enemy.takeDamage(damage);
-
-    // Enemy chỉ chết khi HP <= 0
                         if (!enemy.alive)
                         {
                             score_ += 10;
                             spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
                         }
 
-    // Đạn thường biến mất sau khi trúng 1 enemy
-    // Fireball tiếp tục bay xuyên qua enemy
                         if (bullet.type != BulletType::Fireball)
                         {
                             bullet.active = false;
@@ -283,21 +272,17 @@ namespace SpaceInvaders
                     }
                 }
             }
-            else // bullet.owner == BulletOwner::Enemy
+            else
             {
-                // Check collision with player
                 if (player_.isAlive())
                 {
-                    // Check collision with shield first
                     if (player_.isShieldActive())
                     {
                         const float shieldSize = 80.0f;
                         const float shieldX = player_.x + (48.0f - shieldSize) / 2.0f;
                         const float shieldY = player_.y + (48.0f - shieldSize) / 2.0f;
-                        const bool shieldHit = bullet.x < shieldX + shieldSize &&
-                                               bullet.x + bullet.width > shieldX &&
-                                               bullet.y < shieldY + shieldSize &&
-                                               bullet.y + bullet.height > shieldY;
+                        const bool shieldHit = bullet.x < shieldX + shieldSize && bullet.x + bullet.width > shieldX &&
+                                               bullet.y < shieldY + shieldSize && bullet.y + bullet.height > shieldY;
                         if (shieldHit)
                         {
                             bullet.active = false;

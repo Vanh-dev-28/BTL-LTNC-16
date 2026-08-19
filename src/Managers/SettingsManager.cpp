@@ -8,12 +8,10 @@ namespace SpaceInvaders
         return manager;
     }
 
-
     int SettingsManager::getMusicVolume() const
     {
         return pendingMusicVolume_;
     }
-
     void SettingsManager::setMusicVolume(int volume)
     {
         pendingMusicVolume_ = volume;
@@ -23,7 +21,6 @@ namespace SpaceInvaders
     {
         return pendingResolution_;
     }
-
     void SettingsManager::setResolution(const std::string& resolution)
     {
         pendingResolution_ = resolution;
@@ -41,6 +38,7 @@ namespace SpaceInvaders
         pendingResolution_ = currentResolution_;
         pendingMusicVolume_ = currentMusicVolume_;
     }
+    
     bool SettingsManager::consumeApplyRequest()
     {
         if (!applyRequested_)

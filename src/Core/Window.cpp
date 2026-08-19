@@ -8,7 +8,11 @@ namespace SpaceInvaders
     {
         destroy();
     }
-
+    SDL_Window *Window::getSDLWindow() const
+    {
+        return window_;
+    }
+    
     bool Window::create(const std::string &title, int width, int height)
     {
         destroy();
@@ -35,38 +39,21 @@ namespace SpaceInvaders
         center();
     }
     void Window::center()
-{
-    if (window_ == nullptr)
     {
-        return;
+        if (window_ == nullptr)
+        {
+            return;
+        }
+        SDL_DisplayID display = SDL_GetDisplayForWindow(window_);
+        const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(display);
+        if (mode == nullptr)
+        {
+            return;
+        }
+
+        int windowWidth;
+        int windowHeight;
+        SDL_GetWindowSize(window_, &windowWidth, &windowHeight);
+        SDL_SetWindowPosition(window_, (mode->w - windowWidth) / 2, (mode->h - windowHeight) / 2);
     }
-
-    SDL_DisplayID display = SDL_GetDisplayForWindow(window_);
-
-    const SDL_DisplayMode* mode =
-        SDL_GetCurrentDisplayMode(display);
-
-    if (mode == nullptr)
-    {
-        return;
-    }
-
-    int windowWidth;
-    int windowHeight;
-
-    SDL_GetWindowSize(window_,
-                      &windowWidth,
-                      &windowHeight);
-
-    SDL_SetWindowPosition(
-        window_,
-        (mode->w - windowWidth) / 2,
-        (mode->h - windowHeight) / 2);
-}
-
-    SDL_Window *Window::getSDLWindow() const
-    {
-        return window_;
-    }
-
 } // namespace SpaceInvaders

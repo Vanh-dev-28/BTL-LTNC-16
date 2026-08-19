@@ -121,11 +121,8 @@ namespace SpaceInvaders
             bullets.emplace_back(bulletX, bulletY, -420.0f, BulletOwner::Player);
             return;
         }
-
         bullets.emplace_back(bulletX, bulletY, -170.0f, -420.0f, BulletOwner::Player);
-
         bullets.emplace_back(bulletX, bulletY, 0.0f, -500.0f, BulletOwner::Player);
-
         bullets.emplace_back(bulletX, bulletY, 170.0f, -420.0f, BulletOwner::Player);
     }
 
