@@ -8,11 +8,10 @@ namespace SpaceInvaders
 
     enum class PowerUpType
     {
-        ConeShot,
+        ConeShot, 
         Heal,
         Companion
     };
-
     class PowerUp
     {
     public:
@@ -25,18 +24,13 @@ namespace SpaceInvaders
         PowerUpType getType() const;
         float getX() const;
         float getY() const;
-
     private:
         PowerUpType type_;
-
         float x_;
         float y_;
-
         float width_;
         float height_;
-
         float speed_;
-
         bool active_;
     };
 }

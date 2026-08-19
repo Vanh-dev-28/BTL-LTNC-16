@@ -11,20 +11,15 @@
 namespace SpaceInvaders
 {
 
-    GameScene::GameScene(const std::string &playerName)
-        : playerName_(playerName),
-          enteringPlayerName_(true)
+    GameScene::GameScene(const std::string &playerName) : playerName_(playerName), enteringPlayerName_(true)
     {
     }
 
     void GameScene::enter()
     {
-        AudioManager::instance().playMusic(
-            "../assets/audio/music/gameplay_music.mp3");
-
+        AudioManager::instance().playMusic("../assets/audio/music/gameplay_music.mp3");
         enteringPlayerName_ = true;
         input().startTextInput();
-
         playerName_.clear();
         scoreSaved_ = false;
 
@@ -36,15 +31,12 @@ namespace SpaceInvaders
         enemyDirection_ = 1.0f;
         currentWave_ = 1;
         enemyFireCooldown_ = 3.0f;
-
         score_ = 0;
 
         gameOver_ = false;
         playerWon_ = false;
-
         inWaveTransition_ = true;
         waveTransitionTimer_ = 2.0f;
-
         endMenuIndex_ = 0;
 
         bullets_.clear();
@@ -56,55 +48,60 @@ namespace SpaceInvaders
         coneShotActive_ = false;
         coneShotTimer_ = 0.0f;
 
-        // ===== UI =====
         const float buttonWidth = 64.0f;
         const float buttonHeight = 64.0f;
-
         const float topMargin = 20.0f;
         const float buttonSpacing = 20.0f;
 
-        fireballButtonRect_ = {
-            20.0f,
-            topMargin,
-            buttonWidth,
-            buttonHeight};
-
-        shieldButtonRect_ = {
-            20.0f + buttonWidth + buttonSpacing,
-            topMargin,
-            buttonWidth,
-            buttonHeight};
-
+        fireballButtonRect_ = { 20.0f, topMargin, buttonWidth, buttonHeight};
+        shieldButtonRect_ = { 20.0f + buttonWidth + buttonSpacing, topMargin, buttonWidth, buttonHeight};
         const float pauseButtonSize = 64.0f;
-
-        pauseButtonRect_ = {
-            (Constants::SCREEN_WIDTH - pauseButtonSize) / 2.0f,
-            20.0f,
-            pauseButtonSize,
-            pauseButtonSize};
+        pauseButtonRect_ = { (Constants::SCREEN_WIDTH - pauseButtonSize) / 2.0f, 20.0f, pauseButtonSize, pauseButtonSize};
     }
 
     void GameScene::exit()
     {
         input().stopTextInput();
-
         paused_ = false;
-
         bullets_.clear();
         enemies_.clear();
         pendingEnemies_.clear();
         powerUps_.clear();
         companions_.clear();
-
-        AudioManager::instance().playMusic(
-            "../assets/audio/music/background_music.mp3");
+        AudioManager::instance().playMusic("../assets/audio/music/background_music.mp3");
     }
 
     void GameScene::update(float deltaTime)
     {
-        // ==========================================
-        // BACKGROUND SCROLLING
-        // ==========================================
+        // --------------------------PAUSE------------------------------------------------
+        if (paused_)
+        {
+            updatePauseMenu();
+            return;
+        }
+        const float mouseX = input().getMouseX();
+        const float mouseY = input().getMouseY();
+        const bool mouseOverPause = mouseX >= pauseButtonRect_.x && mouseX <= pauseButtonRect_.x + pauseButtonRect_.w &&
+                                    mouseY >= pauseButtonRect_.y && mouseY <= pauseButtonRect_.y + pauseButtonRect_.h;
+        if (mouseOverPause && input().isMousePressed(SDL_BUTTON_LEFT))
+        {
+            paused_ = true;
+            return;
+        }
+        // -------------------------ENDGAME---------------------------------------------------
+        if (gameOver_)
+        {
+            updateEndGame();
+            return;
+        }
+        if (!player_.isAlive())
+        {
+            gameOver_ = true;
+            playerWon_ = false;
+            saveScore();
+        }
+
+        // ---------------------Background loops------------------------------------------
         backgroundY1_ += backgroundSpeed_ * deltaTime;
         backgroundY2_ += backgroundSpeed_ * deltaTime;
         const float screenHeight = static_cast<float>(Constants::SCREEN_HEIGHT);
@@ -116,36 +113,8 @@ namespace SpaceInvaders
         {
             backgroundY2_ = backgroundY1_ - screenHeight;
         }
-        // ==========================================
-        // 1. PAUSE
-        // ==========================================
-        if (paused_)
-        {
-            updatePauseMenu();
-            return;
-        }
 
-        // ==========================================
-        // 2. PAUSE BUTTON
-        // ==========================================
-        const float mouseX = input().getMouseX();
-        const float mouseY = input().getMouseY();
-
-        const bool mouseOverPause =
-            mouseX >= pauseButtonRect_.x &&
-            mouseX <= pauseButtonRect_.x + pauseButtonRect_.w &&
-            mouseY >= pauseButtonRect_.y &&
-            mouseY <= pauseButtonRect_.y + pauseButtonRect_.h;
-
-        if (mouseOverPause && input().isMousePressed(SDL_BUTTON_LEFT))
-        {
-            paused_ = true;
-            return;
-        }
-
-        // ==========================================
-        // 3. ENTER PLAYER NAME
-        // ==========================================
+        // -------------------------Enter Name--------------------------------------------
         if (enteringPlayerName_)
         {
             playerName_ = input().getTextInput();
@@ -162,9 +131,7 @@ namespace SpaceInvaders
             return;
         }
 
-        // ==========================================
-        // 4. POWER-UP TIMER
-        // ==========================================
+        // -------------------------ConeShot Timer--------------------------------------------
         if (coneShotActive_)
         {
             coneShotTimer_ -= deltaTime;
@@ -176,46 +143,27 @@ namespace SpaceInvaders
             }
         }
 
-        // ==========================================
-        // 5. GAME OVER
-        // ==========================================
-        if (gameOver_)
-        {
-            updateEndGame();
-            return;
-        }
-
-        // ==========================================
-        // 6. WAVE TRANSITION
-        // ==========================================
+        // ---------------------Wave Transition-----------------------------------------------
         if (inWaveTransition_)
         {
             waveTransitionTimer_ -= deltaTime;
-
             if (waveTransitionTimer_ <= 0.0f)
             {
                 inWaveTransition_ = false;
                 resetWave();
             }
 
-            player_.update(
-                deltaTime,
-                bullets_,
-                coneShotActive_);
-
+            player_.update(deltaTime, bullets_, coneShotActive_);
             updatePreviewEnemies(deltaTime);
             updateBullets(deltaTime);
             updatePowerUps(deltaTime);
             checkPowerUpCollisions();
             updateCompanion(deltaTime);
             checkCompanionCollision();
-
             return;
         }
 
-        // ==========================================
-        // 7. PLAYER ABILITIES
-        // ==========================================
+        // --------------------Player Skills--------------------------------------------------
         const std::filesystem::path assetRoot = (std::filesystem::current_path() / ".." / "assets").lexically_normal();
         if (input().isKeyPressed(SDL_SCANCODE_F))
         {
@@ -232,18 +180,8 @@ namespace SpaceInvaders
                 AudioManager::instance().playSFX((assetRoot / "audio" / "powerup_sf" / "shield.mp3").string());
             }
         }
-
-        // ==========================================
-        // 8. PLAYER
-        // ==========================================
-        player_.update(
-            deltaTime,
-            bullets_,
-            coneShotActive_);
-
-        // ==========================================
-        // 9. GAME SYSTEMS
-        // ==========================================
+        player_.update(deltaTime, bullets_, coneShotActive_);
+        // ------------------------GameLoop Logic--------------------------------------------
         updateBullets(deltaTime);
         updateEnemies(deltaTime);
         checkCollisions();
@@ -252,9 +190,7 @@ namespace SpaceInvaders
         updateCompanion(deltaTime);
         checkCompanionCollision();
 
-        // ==========================================
-        // 10. WAVE COMPLETE
-        // ==========================================
+        // -------------------------Clear wave-----------------------------------------------
         if (allEnemiesDefeated())
         {
             currentWave_++;
@@ -266,23 +202,11 @@ namespace SpaceInvaders
                 saveScore();
                 return;
             }
-
             createFlyByPreview();
             inWaveTransition_ = true;
             waveTransitionTimer_ = 3.5f;
-
             enemies_.clear();
             pendingEnemies_.clear();
-        }
-
-        // ==========================================
-        // 11. PLAYER DEAD
-        // ==========================================
-        if (!player_.isAlive())
-        {
-            gameOver_ = true;
-            playerWon_ = false;
-            saveScore();
         }
     }
 

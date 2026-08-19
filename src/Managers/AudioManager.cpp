@@ -3,17 +3,16 @@
 
 namespace SpaceInvaders
 {
-
     AudioManager &AudioManager::instance()
     {
         static AudioManager manager;
         return manager;
     }
-
     AudioManager::~AudioManager()
     {
         clear();
     }
+
     bool AudioManager::initialize()
     {
         if (mixer_ != nullptr)
@@ -25,8 +24,8 @@ namespace SpaceInvaders
         {
             return false;
         }
-        mixerLibraryInitialized_ = true;
 
+        mixerLibraryInitialized_ = true;
         mixer_ = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
         if (mixer_ == nullptr)
         {
@@ -44,8 +43,8 @@ namespace SpaceInvaders
             mixerLibraryInitialized_ = false;
             return false;
         }
+        
         sfxTrack_ = MIX_CreateTrack(mixer_);
-
         if (sfxTrack_ == nullptr)
         {
             MIX_DestroyTrack(musicTrack_);
@@ -66,14 +65,12 @@ namespace SpaceInvaders
             return false;
         }
         MIX_SetTrackGain(musicTrack_, static_cast<float>(musicVolume_) / 100.0f);
-
-        if (currentMusic_ != nullptr &&
-        currentMusicPath_ == path)
+        if (currentMusic_ != nullptr && currentMusicPath_ == path)
         {
             return true;
         }
-
         stopMusic();
+
         currentMusic_ = MIX_LoadAudio(mixer_, path.c_str(), false);
         if (currentMusic_ == nullptr || !MIX_SetTrackAudio(musicTrack_, currentMusic_))
         {
@@ -90,51 +87,36 @@ namespace SpaceInvaders
             currentMusic_ = nullptr;
             return false;
         }
-
         const bool configured = SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, loops);
-        
         const bool playing = configured && MIX_PlayTrack(musicTrack_, options);
         SDL_DestroyProperties(options);
         if (!playing)
-    {
-        MIX_SetTrackAudio(musicTrack_, nullptr);
+        {
+            MIX_SetTrackAudio(musicTrack_, nullptr);
             MIX_DestroyAudio(currentMusic_);
-    currentMusic_ = nullptr;
-    currentMusicPath_.clear();
-    return false;
-    }
-
+            currentMusic_ = nullptr;
+            currentMusicPath_.clear();
+            return false;
+        }
         currentMusicPath_ = path;
         return true;
     }
     
     bool AudioManager::playSFX(const std::string& path)
-{
-    if (!initialize())
     {
-        return false;
-    }
-
-    MIX_Audio* sound = nullptr;
-
-    auto found = soundEffects_.find(path);
-
-    if (found == soundEffects_.end())
-    {
-        sound = MIX_LoadAudio(
-            mixer_,
-            path.c_str(),
-            true);
-
-        if (sound == nullptr)
+        if (!initialize())
         {
-            SDL_Log(
-                "Failed to load SFX: %s",
-                path.c_str()
-            );
             return false;
         }
-
+    MIX_Audio* sound = nullptr;
+    auto found = soundEffects_.find(path);
+    if (found == soundEffects_.end())
+    {
+        sound = MIX_LoadAudio(mixer_, path.c_str(), true);
+        if (sound == nullptr)
+        {
+            return false;
+        }
         soundEffects_.emplace(path, sound);
     }
     else
@@ -142,108 +124,80 @@ namespace SpaceInvaders
         sound = found->second;
     }
 
-    // SFX = 50% music volume
-    float sfxGain =
-        (static_cast<float>(musicVolume_) / 100.0f) * 0.5f;
-
+    float sfxGain = (static_cast<float>(musicVolume_) / 100.0f) * 0.5f;
     MIX_SetTrackGain(sfxTrack_, sfxGain);
-
-    // Gán âm thanh vào SFX track
     if (!MIX_SetTrackAudio(sfxTrack_, sound))
     {
-        SDL_Log(
-            "Failed to set SFX audio: %s",
-            path.c_str()
-        );
         return false;
     }
 
-    // Phát SFX
     bool result = MIX_PlayTrack(sfxTrack_, 0);
-
-    if (!result)
-    {
-        SDL_Log(
-            "Failed to play SFX: %s",
-            path.c_str()
-        );
-    }
-
     return result;
-}
-void AudioManager::stopMusic()
-{
-    if (musicTrack_ != nullptr)
-    {
-        MIX_StopTrack(musicTrack_, 0);
-        MIX_SetTrackAudio(musicTrack_, nullptr);
     }
 
-    if (currentMusic_ != nullptr)
+    void AudioManager::stopMusic()
     {
-        MIX_DestroyAudio(currentMusic_);
-        currentMusic_ = nullptr;
-    }
+        if (musicTrack_ != nullptr)
+        {
+            MIX_StopTrack(musicTrack_, 0);
+            MIX_SetTrackAudio(musicTrack_, nullptr);
+        }
 
-    currentMusicPath_.clear();
-}
+        if (currentMusic_ != nullptr)
+        {
+            MIX_DestroyAudio(currentMusic_);
+            currentMusic_ = nullptr;
+        }
+        currentMusicPath_.clear();
+    }
 
     void AudioManager::clear()
-{
-    stopMusic();
-
-    if (sfxTrack_ != nullptr)
     {
-        MIX_StopTrack(sfxTrack_, 0);
-        MIX_SetTrackAudio(sfxTrack_, nullptr);
-        MIX_DestroyTrack(sfxTrack_);
-        sfxTrack_ = nullptr;
-    }
+        stopMusic();
 
-    for (const auto& [path, sound] : soundEffects_)
-    {
-        (void)path;
-        MIX_DestroyAudio(sound);
-    }
+        if (sfxTrack_ != nullptr)
+        {
+            MIX_StopTrack(sfxTrack_, 0);
+            MIX_SetTrackAudio(sfxTrack_, nullptr);
+            MIX_DestroyTrack(sfxTrack_);
+            sfxTrack_ = nullptr;
+        }
+        for (const auto& [path, sound] : soundEffects_)
+        {
+            (void)path;
+            MIX_DestroyAudio(sound);
+        }
+        soundEffects_.clear();
 
-    soundEffects_.clear();
+        if (musicTrack_ != nullptr)
+        {
+            MIX_DestroyTrack(musicTrack_);
+            musicTrack_ = nullptr;
+        }
 
-    if (musicTrack_ != nullptr)
-    {
-        MIX_DestroyTrack(musicTrack_);
-        musicTrack_ = nullptr;
+        if (mixer_ != nullptr)
+        {
+            MIX_DestroyMixer(mixer_);
+            mixer_ = nullptr;
+        }
+        
+        if (mixerLibraryInitialized_)
+        {
+            MIX_Quit();
+            mixerLibraryInitialized_ = false;
+        }
     }
-
-    if (mixer_ != nullptr)
-    {
-        MIX_DestroyMixer(mixer_);
-        mixer_ = nullptr;
-    }
-
-    if (mixerLibraryInitialized_)
-    {
-        MIX_Quit();
-        mixerLibraryInitialized_ = false;
-    }
-}
 
     void AudioManager::setMusicVolume(int volume)
-{
-    volume = std::clamp(volume, 0, 100);
-
-    musicVolume_ = volume;
-
-    if (mixer_ != nullptr)
     {
-        const float musicGain =
-            static_cast<float>(musicVolume_) / 100.0f;
-
-        MIX_SetTrackGain(musicTrack_, musicGain);
-
-        const float sfxGain = musicGain * 0.5f;
-
-        MIX_SetTrackGain(sfxTrack_, sfxGain);
+        volume = std::clamp(volume, 0, 100);
+        musicVolume_ = volume;
+        if (mixer_ != nullptr)
+        {
+            const float musicGain = static_cast<float>(musicVolume_) / 100.0f;
+            MIX_SetTrackGain(musicTrack_, musicGain);
+            const float sfxGain = musicGain * 0.5f;
+            MIX_SetTrackGain(sfxTrack_, sfxGain);
+        }
     }
-}
-
 } // namespace SpaceInvaders

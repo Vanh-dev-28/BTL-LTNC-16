@@ -43,55 +43,77 @@ namespace SpaceInvaders
             return;
         }
         shootTimer_ -= deltaTime;
-
         if (shootTimer_ < 0.0f)
         {
             shootTimer_ = 0.0f;
         }
-        float targetX = playerX;
-
+        constexpr float screenWidth = Constants::SCREEN_WIDTH;
+        constexpr float screenHeight = Constants::SCREEN_HEIGHT;
+        float targetX;
+        float targetY = playerY;
         if (side_ == CompanionSide::Left)
-        {   
-            targetX -= distanceFromPlayer_;
+        {
+            targetX = playerX - distanceFromPlayer_;
         }
         else
         {
-            targetX += distanceFromPlayer_;
+            targetX = playerX + distanceFromPlayer_;
         }
-        float targetY = playerY;
-        float dx = targetX - x_;
-        float dy = targetY - y_;
-        float distance = SDL_sqrtf(dx * dx + dy * dy);
-        if (distance > 0.0f)
+        if (targetX < 0.0f)
         {
-            float moveDistance = speed_ * deltaTime;
-            if (moveDistance >= distance)
-            {
-                x_ = targetX;
-                y_ = targetY;
-            }
-            else
-            {
-                x_ += dx / distance * moveDistance;
-                y_ += dy / distance * moveDistance;
-            }
+            const float correction = -targetX;
+            targetX = 0.0f;
+            targetY -= correction;
+        }
+
+        if (targetX + width_ > screenWidth)
+        {
+            const float correction = targetX + width_ - screenWidth;
+            targetX = screenWidth - width_;
+            targetY -= correction;
+        }
+
+        if (targetY < 0.0f)
+        {
+            targetY = 0.0f;
+        }
+        if (targetY + height_ > screenHeight)
+        {
+            targetY = screenHeight - height_;
+        }
+        const float dx = targetX - x_;
+        const float dy = targetY - y_;
+        const float distance = SDL_sqrtf(dx * dx + dy * dy);
+        if (distance <= 0.0f)
+        {
+            return;
+        }
+        const float moveDistance = speed_ * deltaTime;
+        if (moveDistance >= distance)
+        {
+            x_ = targetX;
+            y_ = targetY;
+        }
+        else
+        {
+            x_ += dx / distance * moveDistance;
+            y_ += dy / distance * moveDistance;
         }
     }
+    
     void CompanionShip::render(Renderer& renderer) const
     {
         if (!active_)
         {
             return;
         }
-
         SDL_Texture* texture = TextureManager::instance().getTexture("companion_ship");
-
         if (texture == nullptr)
         {
             return;
         }
 
-    renderer.drawTexture(texture, x_, y_, width_, height_);
+        renderer.drawTexture(texture, x_, y_, width_, height_);
     }
     bool CompanionShip::isActive() const
     {
@@ -104,38 +126,23 @@ namespace SpaceInvaders
     }
     void CompanionShip::shoot(std::vector<Bullet>& bullets)
     {
-    if (!active_)
-    {
-        return;
-    }
+        if (!active_)
+        {
+            return;
+        }
 
-    if (shootTimer_ > 0.0f)
-    {
-        return;
-    }
-
-    const float bulletWidth = 8.0f;
-    const float bulletHeight = 20.0f;
-
-    const float bulletX =
-        x_ + width_ / 2.0f - bulletWidth / 2.0f;
-
-    const float bulletY =
-        y_ - bulletHeight;
-
-    bullets.emplace_back(
-        bulletX,
-        bulletY,
-        0.0f,       // velocity X
-        -500.0f,    // velocity Y → bay LÊN
-        BulletOwner::Player
-    );
-
-    Bullet& bullet = bullets.back();
-
-    bullet.width = bulletWidth;
-    bullet.height = bulletHeight;
-
-    shootTimer_ = shootCooldown_;
+        if (shootTimer_ > 0.0f)
+        {
+            return;
+        }
+        const float bulletWidth = 8.0f;
+        const float bulletHeight = 20.0f;
+        const float bulletX = x_ + width_ / 2.0f - bulletWidth / 2.0f;
+        const float bulletY = y_ - bulletHeight;
+        bullets.emplace_back(bulletX, bulletY, 0.0f, -500.0f, BulletOwner::Player);
+        Bullet& bullet = bullets.back();
+        bullet.width = bulletWidth;
+        bullet.height = bulletHeight;
+        shootTimer_ = shootCooldown_;
     }
 }

@@ -52,21 +52,21 @@ namespace SpaceInvaders
 
     void GameScene::spawnPowerUp(float x, float y)
     {
-        const int roll = rand() % 150;
-        if (roll < 13)
+        const int roll = rand() % 140;
+        if (roll < 10)
         {
             powerUps_.emplace_back(PowerUpType::ConeShot, x, y);
             return;
         }
-        if (roll < 23)
+        if (roll < 20)
         {
             powerUps_.emplace_back(PowerUpType::Heal, x, y);
             return;
         }
-        if (roll < 35)
+        if (roll < 30)
         {
             powerUps_.emplace_back(PowerUpType::Companion, x, y);
-        return;
+            return;
         }
     }
 
@@ -164,15 +164,25 @@ namespace SpaceInvaders
 void GameScene::moveCompanion(float deltaTime)
 {
     if (companions_.empty())
+    {
         return;
+    }
 
-    const float playerX = player_.x;
-    const float playerY = player_.y;
+    constexpr float playerWidth = 48.0f;
+    constexpr float playerHeight = 48.0f;
+
+    const float playerX =
+        player_.x + playerWidth / 2.0f;
+
+    const float playerY =
+        player_.y + playerHeight / 2.0f;
 
     for (auto& companion : companions_)
     {
         if (!companion.isActive())
+        {
             continue;
+        }
 
         companion.update(
             deltaTime,

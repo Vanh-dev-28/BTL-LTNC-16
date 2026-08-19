@@ -37,113 +37,94 @@ namespace SpaceInvaders
         GameScene() = default;
         GameScene(const std::string &playerName);
         ~GameScene() override = default;
-
         void enter() override;
         void exit() override;
-
         void update(float deltaTime) override;
-        void render(Renderer &renderer) override;
-
-        void saveScore();
-
     private:
+        // ----------------------------- GameState Core ---------------------------------------
         enum class GameState
         {
             EnterName,
             Playing,
             EndGame
         };
-        //Background loops
-        SDL_Texture* gameplayBackground_{nullptr};
-        float backgroundY1_{0.0f};
-        float backgroundY2_{0.0f};
-        float backgroundSpeed_{80.0f};
-        void updateBullets(float deltaTime);
-        void updateEnemies(float deltaTime);
-        void checkCollisions();
-        bool allEnemiesDefeated() const;
-
-        void resetWave();
-        void updateEnterName();
-        void updateEndGame();
-
-        // Task F: Preview enemies
-        void createFlyByPreview();
-        void updatePreviewEnemies(float deltaTime);
-
-        void renderEnterName(Renderer &renderer);
-        void renderEndGame(Renderer &renderer);
-
         Player player_{};
-
-        float enemyDirection_{};
-        float enemyFireCooldown_{};
-        int currentWave_{0};
-        int score_{};
         GameState gameState_{GameState::EnterName};
         bool gameOver_{};
         bool playerWon_{};
-        bool inWaveTransition_{false};
-        float waveTransitionTimer_{0.0f};
-        int endMenuIndex_{};
-        // input: getplayername.
-        bool enteringPlayerName_{false};
-        std::string playerName_{};
+        int currentWave_{0};
+        int score_{};
 
-        // --- New Gameplay State (Tasks B, C, D, E) ---
-        float m_swarmSharedTime{0.0f};
+        std::string playerName_{};
+        bool scoreSaved_{false};
+        bool paused_{false};
+        void createFlyByPreview();
+        void updatePreviewEnemies(float deltaTime);
+
+        // ----------------------------- Enemies Wave -------------------------------------------
+        void resetWave();
+        bool allEnemiesDefeated() const;
+
+        std::vector<Enemy> enemies_{};
+        std::vector<EnemySpawnData> pendingEnemies_;
+        std::vector<Enemy> m_previewEnemies;
         Vector2 m_formationCenter{};
-        // Dive attack
+        float spawnTimer_{0.0f};
+        float enemyDirection_{};
+        float m_swarmSharedTime{0.0f};
         float m_diveAttackTimer{5.0f};
-        // Expansion/Contraction
         float m_formationScale{1.0f};
         float m_formationScaleDirection{1.0f};
+        bool inWaveTransition_{false};
+        float waveTransitionTimer_{0.0f};
 
-        // --- Wave Transition (Task F) ---
-        std::vector<Enemy> m_previewEnemies;
-
-        SDL_FRect replayButtonRect_{};
-        SDL_FRect menuButtonRect_{};
+        //------------------------------------ Combat--------------------------------------------
         std::vector<Bullet> bullets_{};
-        std::vector<Enemy> enemies_{};
+        float enemyFireCooldown_{};
+        void updateBullets(float deltaTime);
+        void updateEnemies(float deltaTime);
+        void checkCollisions();
 
-        // Wave spawning queue
-        std::vector<EnemySpawnData> pendingEnemies_;
-        float spawnTimer_{0.0f};
 
-        // PowerUp
+
+        //------------------------------------ Power Up--------------------------------------------
+        void updatePowerUps(float deltaTime);
+        void checkPowerUpCollisions();
+        void spawnPowerUp(float x, float y);
+        void activatePowerUp(PowerUpType type);
+        void spawnCompanions();
+        void updateCompanion(float deltaTime);
+        void moveCompanion(float deltaTime);
+        void checkCompanionCollision();
+        void renderCompanion(Renderer &renderer);
         std::vector<PowerUp> powerUps_;
         std::vector<CompanionShip> companions_;
         bool coneShotActive_{false};
         float coneShotTimer_{0.0f};
         static constexpr float CONE_SHOT_DURATION = 8.0f;
-        void updatePowerUps(float deltaTime);
-        void checkPowerUpCollisions();
-        void spawnPowerUp(float x, float y);
-        void activatePowerUp(PowerUpType type);
 
-        // UI and Abilities
+        //-------------------------------------UI--------------------------------------------------
+        void render(Renderer &renderer) override;
+        void updatePauseMenu();
+        void renderPauseMenu(Renderer &renderer);
+        void updateEndGame();
+        void saveScore();
+        void renderEndGame(Renderer &renderer);
+        // Background loops
+        SDL_Texture* gameplayBackground_{nullptr};
+        float backgroundY1_{0.0f};
+        float backgroundY2_{0.0f};
+        float backgroundSpeed_{80.0f};
+        int endMenuIndex_{};
+        bool enteringPlayerName_{false};
+        SDL_FRect replayButtonRect_{};
+        SDL_FRect menuButtonRect_{};
         SDL_FRect fireballButtonRect_{};
         SDL_FRect shieldButtonRect_{};
         bool mouseWasPressed_{false};
-
-        // ScoreSaved state
-        bool scoreSaved_{false};
-
-        // pause game
-        bool paused_{false};
         SDL_FRect pauseButtonRect_{};
         SDL_FRect resumeButtonRect_{};
         SDL_FRect exitPauseButtonRect_{};
-        void updatePauseMenu();
-
-        void renderPauseMenu(Renderer &renderer);
-        // powerUp companion
-        void updateCompanion(float deltaTime);
-        void renderCompanion(Renderer &renderer);
-        void checkCompanionCollision();
-        void moveCompanion(float deltaTime);
-        void spawnCompanions();
     };
 
 }

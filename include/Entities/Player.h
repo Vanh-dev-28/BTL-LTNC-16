@@ -48,6 +48,7 @@ namespace SpaceInvaders
         float shieldCooldown_{0.0f};
         float fireballCooldown_{0.0f};
 
+        //Check cone_shot ability
         void shoot(std::vector<Bullet> &bullets, bool coneShotActive);
     };
 }
