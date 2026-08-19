@@ -261,20 +261,20 @@ namespace SpaceInvaders
                                      bullet.y + bullet.height > enemy.y;
                     if (hit)
                     {
-    // Đạn thường gây 1 damage
-    // Fireball gây 2 damage
+                        // Đạn thường gây 1 damage
+                        // Fireball gây 2 damage
                         const float damage = (bullet.type == BulletType::Fireball) ? 2.0f : 1.0f;
                         enemy.takeDamage(damage);
 
-    // Enemy chỉ chết khi HP <= 0
+                        // Enemy chỉ chết khi HP <= 0
                         if (!enemy.alive)
                         {
                             score_ += 10;
                             spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
                         }
 
-    // Đạn thường biến mất sau khi trúng 1 enemy
-    // Fireball tiếp tục bay xuyên qua enemy
+                        // Đạn thường biến mất sau khi trúng 1 enemy
+                        // Fireball tiếp tục bay xuyên qua enemy
                         if (bullet.type != BulletType::Fireball)
                         {
                             bullet.active = false;
@@ -307,21 +307,32 @@ namespace SpaceInvaders
 
                     // Make the player's hitbox smaller than the sprite for more forgiving gameplay.
                     // This ignores the "wings" and makes it feel fairer.
+                    // 1. Hitbox Player (Căn giữa)
                     const float playerSpriteWidth = 48.0f;
                     const float playerSpriteHeight = 48.0f;
-                    const float playerHitboxWidth = 28.0f;  // Smaller hitbox width
-                    const float playerHitboxHeight = 28.0f; // Smaller hitbox height
-                    const float hitboxOffsetX = (playerSpriteWidth - playerHitboxWidth) / 2.0f;
-                    const float hitboxOffsetY = (playerSpriteHeight - playerHitboxHeight) / 2.0f;
+                    const float playerHitboxWidth = 40.0f;
+                    const float playerHitboxHeight = 40.0f;
 
-                    const float playerHitboxX = player_.x + hitboxOffsetX;
-                    const float playerHitboxY = player_.y + hitboxOffsetY;
+                    const float playerHitboxX = player_.x + (playerSpriteWidth - playerHitboxWidth) / 2.0f;
+                    const float playerHitboxY = player_.y + (playerSpriteHeight - playerHitboxHeight) / 2.0f;
 
-                    // AABB collision check (rectangle-rectangle)
-                    const bool hit = bullet.x < playerHitboxX + playerHitboxWidth &&
-                                     bullet.x + bullet.width > playerHitboxX &&
-                                     bullet.y < playerHitboxY + playerHitboxHeight &&
-                                     bullet.y + bullet.height > playerHitboxY;
+                    // 2. Hitbox Bullet (Thu ngắn chiều cao và căn chuẩn tâm sáng)
+                    const float scaleX = bullet.width / 64.0f;
+                    const float scaleY = bullet.height / 64.0f;
+
+                    const float bulletHitboxWidth = 8.0f * scaleX;
+                    const float bulletHitboxHeight = 10.0f * scaleY; // Giảm từ 14.0f xuống 10.0f để vừa khít tia sáng
+
+                    const float bulletHitboxX = bullet.x + (11.0f * scaleX);
+                    const float bulletHitboxY = bullet.y + (16.0f * scaleY); // Giữ hoặc đẩy nhẹ lên 16.0f/17.0f
+
+                    // 3. Kiểm tra va chạm AABB
+                    const bool hit = bullet.active &&
+                                     (bulletHitboxX < playerHitboxX + playerHitboxWidth) &&
+                                     (bulletHitboxX + bulletHitboxWidth > playerHitboxX) &&
+                                     (bulletHitboxY < playerHitboxY + playerHitboxHeight) &&
+                                     (bulletHitboxY + bulletHitboxHeight > playerHitboxY);
+
                     if (hit)
                     {
                         player_.takeDamage(Constants::ENEMY_LASER_DAMAGE);
