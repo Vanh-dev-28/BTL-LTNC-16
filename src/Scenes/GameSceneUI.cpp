@@ -25,7 +25,7 @@ namespace SpaceInvaders
             SDL_Texture *background = TextureManager::instance().getTexture("entername_background");
             if (background != nullptr)
             {
-                renderer.drawTexture(background, 0.0f, 0.0f, static_cast<float> (Constants::SCREEN_WIDTH), static_cast<float>(Constants::SCREEN_HEIGHT));
+                renderer.drawTexture(background, 0.0f, 0.0f, static_cast<float>(Constants::SCREEN_WIDTH), static_cast<float>(Constants::SCREEN_HEIGHT));
             }
             else
             {
@@ -69,6 +69,7 @@ namespace SpaceInvaders
             powerUp.render(renderer);
         }
         renderCompanion(renderer);
+
         for (const auto &bullet : bullets_)
         {
             bullet.render(renderer);
@@ -148,13 +149,13 @@ namespace SpaceInvaders
             {
                 renderer.fillRect(fireballButtonRect_.x, fireballButtonRect_.y, fireballButtonRect_.w, fireballButtonRect_.h * fireballCD, {0, 0, 0, 180});
             }
-            renderer.drawTextCentered("Press F", hudFont, white, fireballButtonRect_.x + fireballButtonRect_.w / 2, fireballButtonRect_.y + fireballButtonRect_.h + 10); 
+            renderer.drawTextCentered("Press F", hudFont, white, fireballButtonRect_.x + fireballButtonRect_.w / 2, fireballButtonRect_.y + fireballButtonRect_.h + 10);
 
             if (shieldIcon)
             {
                 renderer.drawTexture(shieldIcon, shieldButtonRect_.x, shieldButtonRect_.y, shieldButtonRect_.w, shieldButtonRect_.h);
             }
-            else 
+            else
             {
                 renderer.fillRect(shieldButtonRect_.x, shieldButtonRect_.y, shieldButtonRect_.w, shieldButtonRect_.h, {100, 100, 0, 255});
                 renderer.drawTextCentered("S", hudFont, {255, 255, 255, 255}, shieldButtonRect_.x + shieldButtonRect_.w / 2, shieldButtonRect_.y + shieldButtonRect_.h / 2 - 10);
@@ -169,7 +170,7 @@ namespace SpaceInvaders
             {
                 renderer.fillRect(shieldButtonRect_.x, shieldButtonRect_.y, shieldButtonRect_.w, shieldButtonRect_.h * player_.getShieldCooldownRatio(), {0, 0, 0, 180});
             }
-            renderer.drawTextCentered("Press S", hudFont, white, shieldButtonRect_.x + shieldButtonRect_.w / 2, shieldButtonRect_.y + shieldButtonRect_.h + 10); 
+            renderer.drawTextCentered("Press S", hudFont, white, shieldButtonRect_.x + shieldButtonRect_.w / 2, shieldButtonRect_.y + shieldButtonRect_.h + 10);
         }
 
         if (paused_)
@@ -228,8 +229,8 @@ namespace SpaceInvaders
         constexpr float buttonHeight = 50.0f;
         constexpr float buttonY = 170.0f;
 
-        resumeButtonRect_ = { popupX + 100.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy };
-        exitPauseButtonRect_ = { popupX + 380.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy};
+        resumeButtonRect_ = {popupX + 100.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy};
+        exitPauseButtonRect_ = {popupX + 380.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy};
         const float mouseX = input().getMouseX();
         const float mouseY = input().getMouseY();
 
@@ -243,7 +244,7 @@ namespace SpaceInvaders
         renderer.drawTextCentered(resumeText, font, resumeColor, popupX + 205.0f * sx, popupY + 200.0f * sy);
         SDL_Color exitColor = hoverExit ? yellow : white;
         std::string exitText = hoverExit ? "> EXIT" : "  EXIT";
-        renderer.drawTextCentered( exitText, font, exitColor, popupX + 486.0f * sx, popupY + 200.0f * sy);
+        renderer.drawTextCentered(exitText, font, exitColor, popupX + 486.0f * sx, popupY + 200.0f * sy);
     }
 
     void GameScene::updateEndGame()
@@ -318,8 +319,8 @@ namespace SpaceInvaders
         constexpr float buttonHeight = 50.0f;
         constexpr float buttonY = 195.0f;
 
-        replayButtonRect_ = { popupX + 100.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy};
-        menuButtonRect_ = { popupX + 380.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy};
+        replayButtonRect_ = {popupX + 100.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy};
+        menuButtonRect_ = {popupX + 380.0f * sx, popupY + buttonY * sy, buttonWidth * sx, buttonHeight * sy};
 
         TTF_Font *font = FontManager::instance().getFont("menu");
         if (font == nullptr)
@@ -351,5 +352,50 @@ namespace SpaceInvaders
             SDL_Log("Failed to save ranking!");
         }
         scoreSaved_ = true;
+    }
+
+    SDL_FRect GameScene::getPlayerHitbox() const
+    {
+        const float playerSpriteWidth = 48.0f;
+        const float playerSpriteHeight = 48.0f;
+        const float playerHitboxWidth = 40.0f;
+        const float playerHitboxHeight = 40.0f;
+
+        const float playerHitboxX = player_.x + (playerSpriteWidth - playerHitboxWidth) / 2.0f;
+        const float playerHitboxY = player_.y + (playerSpriteHeight - playerHitboxHeight) / 2.0f;
+
+        return {playerHitboxX, playerHitboxY, playerHitboxWidth, playerHitboxHeight};
+    }
+
+    SDL_FRect GameScene::getPlayerShieldHitbox() const
+    {
+        const float shieldSize = 80.0f;
+        const float playerSize = 48.0f; // Kích thước sprite của player
+        const float shieldX = player_.x + (playerSize - shieldSize) / 2.0f;
+        const float shieldY = player_.y + (playerSize - shieldSize) / 2.0f;
+        return {shieldX, shieldY, shieldSize, shieldSize};
+    }
+
+    SDL_FRect GameScene::getEnemyLaserHitbox(const Bullet &bullet) const
+    {
+        // Các tính toán này dựa trên texture 'enemy_laser'.
+        // Texture gốc có kích thước 64x64, nhưng thực thể đạn có thể được co giãn.
+        const float baseTextureWidth = 64.0f;
+        const float baseTextureHeight = 64.0f;
+        const float scaleX = bullet.width / baseTextureWidth;
+        const float scaleY = bullet.height / baseTextureHeight;
+
+        // Phần tia sáng thực tế bên trong texture
+        const float hitboxOriginX = 11.0f;    // Tọa độ pixel trong texture
+        const float hitboxOriginY = 16.0f;    // Tọa độ pixel trong texture
+        const float hitboxBaseWidth = 8.0f;   // Kích thước pixel trong texture
+        const float hitboxBaseHeight = 10.0f; // Kích thước pixel trong texture
+
+        const float finalHitboxX = bullet.x + (hitboxOriginX * scaleX);
+        const float finalHitboxY = bullet.y + (hitboxOriginY * scaleY);
+        const float finalHitboxWidth = hitboxBaseWidth * scaleX;
+        const float finalHitboxHeight = hitboxBaseHeight * scaleY;
+
+        return {finalHitboxX, finalHitboxY, finalHitboxWidth, finalHitboxHeight};
     }
 } // namespace SpaceInvaders

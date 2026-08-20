@@ -40,6 +40,7 @@ namespace SpaceInvaders
         void enter() override;
         void exit() override;
         void update(float deltaTime) override;
+
     private:
         // ----------------------------- GameState Core ---------------------------------------
         enum class GameState
@@ -48,6 +49,7 @@ namespace SpaceInvaders
             Playing,
             EndGame
         };
+
         Player player_{};
         GameState gameState_{GameState::EnterName};
         bool gameOver_{};
@@ -58,12 +60,12 @@ namespace SpaceInvaders
         std::string playerName_{};
         bool scoreSaved_{false};
         bool paused_{false};
-        void createFlyByPreview();
-        void updatePreviewEnemies(float deltaTime);
 
         // ----------------------------- Enemies Wave -------------------------------------------
         void resetWave();
         bool allEnemiesDefeated() const;
+        void createFlyByPreview();
+        void updatePreviewEnemies(float deltaTime);
 
         std::vector<Enemy> enemies_{};
         std::vector<EnemySpawnData> pendingEnemies_;
@@ -85,8 +87,6 @@ namespace SpaceInvaders
         void updateEnemies(float deltaTime);
         void checkCollisions();
 
-
-
         //------------------------------------ Power Up--------------------------------------------
         void updatePowerUps(float deltaTime);
         void checkPowerUpCollisions();
@@ -97,6 +97,7 @@ namespace SpaceInvaders
         void moveCompanion(float deltaTime);
         void checkCompanionCollision();
         void renderCompanion(Renderer &renderer);
+
         std::vector<PowerUp> powerUps_;
         std::vector<CompanionShip> companions_;
         bool coneShotActive_{false};
@@ -105,16 +106,20 @@ namespace SpaceInvaders
 
         //-------------------------------------UI--------------------------------------------------
         void render(Renderer &renderer) override;
+        void updateEnterName();
+        void renderEnterName(Renderer &renderer);
         void updatePauseMenu();
         void renderPauseMenu(Renderer &renderer);
         void updateEndGame();
-        void saveScore();
         void renderEndGame(Renderer &renderer);
+        void saveScore();
+
         // Background loops
-        SDL_Texture* gameplayBackground_{nullptr};
+        SDL_Texture *gameplayBackground_{nullptr};
         float backgroundY1_{0.0f};
         float backgroundY2_{0.0f};
         float backgroundSpeed_{80.0f};
+
         int endMenuIndex_{};
         bool enteringPlayerName_{false};
         SDL_FRect replayButtonRect_{};
@@ -125,6 +130,11 @@ namespace SpaceInvaders
         SDL_FRect pauseButtonRect_{};
         SDL_FRect resumeButtonRect_{};
         SDL_FRect exitPauseButtonRect_{};
+
+        // Helpers
+        SDL_FRect getPlayerHitbox() const;
+        SDL_FRect getPlayerShieldHitbox() const;
+        SDL_FRect getEnemyLaserHitbox(const Bullet &bullet) const;
     };
 
-}
+} // namespace SpaceInvaders

@@ -4,9 +4,15 @@
 #include "Managers/TextureManager.h"
 #include "Utils/Constants.h"
 #include <SDL3/SDL.h>
+#include <cmath>
 
 namespace SpaceInvaders
 {
+    // Định nghĩa hằng số cho các kỹ năng để dễ dàng quản lý và thay đổi
+    static constexpr float FIREBALL_COOLDOWN = 4.0f;
+    static constexpr float SHIELD_DURATION = 5.0f;
+    static constexpr float SHIELD_COOLDOWN = 10.0f;
+
     Player::Player() : x(0), y(0), speed_(0), fireCooldown_(0.18f), health_(Constants::PLAYER_MAX_HEALTH), maxHealth_(Constants::PLAYER_MAX_HEALTH) {}
 
     void Player::init()
@@ -88,26 +94,44 @@ namespace SpaceInvaders
 
     void Player::render(Renderer &renderer) const
     {
-        SDL_Texture *playerTexture = TextureManager::instance().getTexture("ship");
-
-        if (playerTexture != nullptr)
+        if (!isAlive())
         {
-            renderer.drawTexture(playerTexture, x, y, 48.0f, 48.0f);
-        }
-        else
-        {
-            renderer.fillRect(x, y, 52.0f, 24.0f, SDL_Color{255, 255, 255, 255});
-            renderer.fillRect(x + 16.0f, y - 12.0f, 20.0f, 16.0f, SDL_Color{255, 255, 255, 255});
+            return;
         }
 
-        if (shieldActive_)
+        // 1. Vẽ hiệu ứng khiên (shield) TRƯỚC
+        if (isShieldActive())
         {
             SDL_Texture *shieldTexture = TextureManager::instance().getTexture("shield_effect");
             if (shieldTexture)
             {
                 const float shieldSize = 80.0f;
-                renderer.drawTexture(shieldTexture, x + (48.0f - shieldSize) / 2.0f, y + (48.0f - shieldSize) / 2.0f, shieldSize, shieldSize);
+                const float playerSize = 48.0f;
+                const float shieldX = x + (playerSize - shieldSize) / 2.0f;
+                const float shieldY = y + (playerSize - shieldSize) / 2.0f;
+
+                // Thêm hiệu ứng nhấp nháy cho khiên thêm sinh động
+                // Alpha sẽ thay đổi từ (150-105) đến (150+105) -> 45 đến 255
+                float alpha = 150.0f + 105.0f * sin(SDL_GetTicks() / 200.0f);
+                SDL_SetTextureAlphaMod(shieldTexture, static_cast<Uint8>(alpha));
+
+                renderer.drawTexture(shieldTexture, shieldX, shieldY, shieldSize, shieldSize);
+
+                // Reset alpha để không ảnh hưởng đến các đối tượng khác
+                SDL_SetTextureAlphaMod(shieldTexture, 255);
             }
+        }
+
+        // 2. Vẽ tàu của người chơi SAU (đè lên trên khiên)
+        SDL_Texture *shipTexture = TextureManager::instance().getTexture("ship");
+        if (shipTexture)
+        {
+            renderer.drawTexture(shipTexture, x, y, 48.0f, 48.0f);
+        }
+        else
+        {
+            renderer.fillRect(x, y, 52.0f, 24.0f, SDL_Color{255, 255, 255, 255});
+            renderer.fillRect(x + 16.0f, y - 12.0f, 20.0f, 16.0f, SDL_Color{255, 255, 255, 255});
         }
     }
 
@@ -121,8 +145,11 @@ namespace SpaceInvaders
             bullets.emplace_back(bulletX, bulletY, -420.0f, BulletOwner::Player);
             return;
         }
+
         bullets.emplace_back(bulletX, bulletY, -170.0f, -420.0f, BulletOwner::Player);
+
         bullets.emplace_back(bulletX, bulletY, 0.0f, -500.0f, BulletOwner::Player);
+
         bullets.emplace_back(bulletX, bulletY, 170.0f, -420.0f, BulletOwner::Player);
     }
 
@@ -137,7 +164,7 @@ namespace SpaceInvaders
         fireball.height = 40.0f;
         fireball.x = x + (48.0f / 2.0f) - (fireball.width / 2.0f);
         fireball.y = y; // Start at player's y
-        fireballCooldown_ = 4.0f; // 4 second cooldown
+        fireballCooldown_ = FIREBALL_COOLDOWN;
         return true;
     }
 
@@ -150,8 +177,8 @@ namespace SpaceInvaders
         if (shieldCooldown_ <= 0.0f)
         {
             shieldActive_ = true;
-            shieldTimer_ = 5.0f;     // 5 second duration
-            shieldCooldown_ = 10.0f; // 10 second cooldown
+            shieldTimer_ = SHIELD_DURATION;
+            shieldCooldown_ = SHIELD_COOLDOWN;
         }
         return true;
     }
@@ -187,23 +214,23 @@ namespace SpaceInvaders
 
     float Player::getFireballCooldownRatio() const
     {
-        if (8.0f <= 0)
+        if (FIREBALL_COOLDOWN <= 0)
             return 0.0f;
-        return std::max(0.0f, fireballCooldown_ / 8.0f);
+        return std::max(0.0f, fireballCooldown_ / FIREBALL_COOLDOWN);
     }
 
     float Player::getShieldCooldownRatio() const
     {
-        if (15.0f <= 0)
+        if (SHIELD_COOLDOWN <= 0)
             return 0.0f;
-        return std::max(0.0f, shieldCooldown_ / 15.0f);
+        return std::max(0.0f, shieldCooldown_ / SHIELD_COOLDOWN);
     }
 
     float Player::getShieldTimeRatio() const
     {
-        if (!shieldActive_ || 5.0f <= 0)
+        if (!shieldActive_ || SHIELD_DURATION <= 0)
             return 0.0f;
-        return std::max(0.0f, shieldTimer_ / 5.0f);
+        return std::max(0.0f, shieldTimer_ / SHIELD_DURATION);
     }
 
     void Player::heal(float amount)
