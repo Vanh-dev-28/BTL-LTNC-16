@@ -27,7 +27,6 @@ namespace SpaceInvaders
         BulletOwner owner;
         BulletType type;
 
-        // Đạn bay thẳng theo trục Y
         Bullet(
             float startX,
             float startY,
@@ -35,7 +34,6 @@ namespace SpaceInvaders
             BulletOwner owner,
             BulletType type = BulletType::Normal);
 
-        // Đạn bay theo hướng bất kỳ
         Bullet(
             float startX,
             float startY,

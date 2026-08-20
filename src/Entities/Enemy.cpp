@@ -6,7 +6,6 @@
 #include <cmath>
 #include "Utils/Vector2.h"
 
-
 namespace SpaceInvaders
 {
     Enemy::Enemy(EnemyType type, EnemyMovementPattern movePattern, EnemyEntryPattern entryPattern, Vector2 startPos, Vector2 targetPos, float speed)
@@ -18,22 +17,21 @@ namespace SpaceInvaders
     {
         switch (type_)
         {
-            case EnemyType::Bomber:
-                maxHealth_ = 4.0f;
-                break;
-            case EnemyType::Drone:
-                maxHealth_ = 2.0f;
-                break;
-            case EnemyType::HealthSpaceship:
-                maxHealth_ = 6.0f;
-                break;
+        case EnemyType::Bomber:
+            maxHealth_ = 4.0f;
+            break;
+        case EnemyType::Drone:
+            maxHealth_ = 2.0f;
+            break;
+        case EnemyType::HealthSpaceship:
+            maxHealth_ = 6.0f;
+            break;
         }
 
         health_ = maxHealth_;
         time_ = (static_cast<float>(rand()) / RAND_MAX) * 10.0f;
     }
 
-    // Constructor for cubic Bezier (Galaga-style)
     Enemy::Enemy(EnemyType type, EnemyMovementPattern movePattern, EnemyEntryPattern entryPattern, Vector2 startPos, Vector2 targetPos, float speed, Vector2 control1, Vector2 control2)
         : x(startPos.x), y(startPos.y), width(48.0f), height(48.0f), alive(true),
           speed_(speed), type_(type), pattern_(movePattern),
@@ -43,15 +41,15 @@ namespace SpaceInvaders
     {
         switch (type_)
         {
-            case EnemyType::Bomber:
-                maxHealth_ = 4.0f;
-                break;
-            case EnemyType::Drone:
-                maxHealth_ = 2.0f;
-                break;
-            case EnemyType::HealthSpaceship:
-                maxHealth_ = 6.0f;
-                break;
+        case EnemyType::Bomber:
+            maxHealth_ = 4.0f;
+            break;
+        case EnemyType::Drone:
+            maxHealth_ = 2.0f;
+            break;
+        case EnemyType::HealthSpaceship:
+            maxHealth_ = 6.0f;
+            break;
         }
 
         health_ = maxHealth_;
@@ -72,7 +70,6 @@ namespace SpaceInvaders
         }
     }
 
-    // Helper for Quadratic Bezier curve calculation
     Vector2 GetPointOnBezier(Vector2 p0, Vector2 p1, Vector2 p2, float t)
     {
         float u = 1.0f - t;
@@ -85,7 +82,6 @@ namespace SpaceInvaders
         return p;
     }
 
-    // Helper for Cubic Bezier curve calculation
     Vector2 GetPointOnCubicBezier(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)
     {
         float u = 1.0f - t;
@@ -163,11 +159,10 @@ namespace SpaceInvaders
         }
         else if (state_ == EnemyState::Diving)
         {
-            diveProgress_ += deltaTime * 0.5f; // Tốc độ bổ nhào
+            diveProgress_ += deltaTime * 0.5f;
 
             if (divePattern_ == EnemyDivePattern::Curved)
             {
-                // Đường cong Bezier bậc 2 hướng về người chơi
                 Vector2 control = {
                     (diveStartPosition_.x + diveTargetPosition_.x) / 2.0f,
                     diveStartPosition_.y + 150.0f};
@@ -175,19 +170,16 @@ namespace SpaceInvaders
                 x = pos.x;
                 y = pos.y;
             }
-            else // Bổ nhào đường thẳng (Straight dive)
+            else
             {
                 x = diveStartPosition_.x + (diveTargetPosition_.x - diveStartPosition_.x) * diveProgress_;
                 y = diveStartPosition_.y + (diveTargetPosition_.y - diveStartPosition_.y) * diveProgress_;
             }
 
-            // Khi quái bay quá đáy màn hình hoặc hoàn thành bổ nhào
             if (y > Constants::SCREEN_HEIGHT + 50.0f || diveProgress_ >= 1.2f)
             {
                 state_ = EnemyState::Returning;
 
-                // Đưa quái xuất hiện lại ở trên đỉnh màn hình (chuẩn phong cách Galaga)
-                // thay vì bay lùi ngược từ dưới đáy lên
                 diveStartPosition_ = {targetPosition_.x, -50.0f};
                 x = diveStartPosition_.x;
                 y = diveStartPosition_.y;
@@ -196,13 +188,12 @@ namespace SpaceInvaders
         }
         else if (state_ == EnemyState::Returning)
         {
-            diveProgress_ += deltaTime * 1.0f; // Tốc độ quay về vị trí đội hình
+            diveProgress_ += deltaTime * 1.0f;
             if (diveProgress_ > 1.0f)
             {
                 diveProgress_ = 1.0f;
             }
 
-            // Nội suy mượt mà từ trên đỉnh màn hình đáp xuống vị trí đội hình (targetPosition_)
             x = diveStartPosition_.x + (targetPosition_.x - diveStartPosition_.x) * diveProgress_;
             y = diveStartPosition_.y + (targetPosition_.y - diveStartPosition_.y) * diveProgress_;
 
@@ -214,7 +205,7 @@ namespace SpaceInvaders
                 originalY_ = y;
             }
         }
-        else // state_ == EnemyState::Active
+        else
         {
             time_ += deltaTime;
             x += swarmVelocity.x * deltaTime;
@@ -226,8 +217,6 @@ namespace SpaceInvaders
                 y = originalY_ + 20.0f * sin(time_ * 2.5f);
                 break;
             default:
-                // Các kiểu di chuyển khác (Horizontal, ZigZag, Vortex, Expansion)
-                // đã được xử lý qua swarmVelocity
                 break;
             }
         }

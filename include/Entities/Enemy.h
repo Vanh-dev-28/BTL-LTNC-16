@@ -17,9 +17,9 @@ namespace SpaceInvaders
     {
         Horizontal,
         SineWave,
-        ZigZag,   // Task B: Zig-zag swarm movement
-        Vortex,   // Task D: Vortex swarm movement
-        Expansion // Task E: Expansion/Contraction swarm movement
+        ZigZag,
+        Vortex,
+        Expansion
     };
 
     enum class EnemyEntryPattern
@@ -34,8 +34,8 @@ namespace SpaceInvaders
     {
         Entering,
         Active,
-        Diving,   // Task C: For dive-bombing
-        Returning // Task C: For returning to formation
+        Diving,
+        Returning
     };
 
     enum class EnemyDivePattern
@@ -57,20 +57,16 @@ namespace SpaceInvaders
         void update(float deltaTime, Vector2 swarmVelocity);
         void render(Renderer &renderer) const;
 
-        // --- Getters for GameScene ---
         [[nodiscard]] EnemyState getState() const { return state_; }
         [[nodiscard]] EnemyMovementPattern getMovementPattern() const { return pattern_; }
         [[nodiscard]] const Vector2 &getTargetPosition() const { return targetPosition_; }
         [[nodiscard]] float getSpeed() const { return speed_; }
 
-        // --- Public methods for state changes ---
         void startDive(Vector2 playerPos, EnemyDivePattern pattern);
 
-        // --- Public accessors and mutators ---
         [[nodiscard]] SDL_FRect getRect() const { return {x, y, width, height}; }
         void kill() { alive = false; }
 
-        //HP
         void takeDamage(float damage);
         [[nodiscard]] float getHealth() const { return health_; }
         [[nodiscard]] float getMaxHealth() const { return maxHealth_; }
@@ -81,7 +77,6 @@ namespace SpaceInvaders
         EnemyType type_;
         EnemyMovementPattern pattern_;
 
-        // Entry state
         EnemyState state_;
         EnemyEntryPattern entryPattern_;
         Vector2 startPosition_;
@@ -90,16 +85,14 @@ namespace SpaceInvaders
         Vector2 controlPoint2_{};
         float entryProgress_; // 0.0 to 1.0
 
-        // Active state
         float time_;
         float originalY_;
 
-        // --- Dive State Members (Task C) ---
         EnemyDivePattern divePattern_;
         Vector2 diveStartPosition_{};
         Vector2 diveTargetPosition_{};
         float diveProgress_{0.0f};
-        //HP
+
         float health_;
         float maxHealth_;
     };

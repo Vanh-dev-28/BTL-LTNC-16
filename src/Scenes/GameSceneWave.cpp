@@ -28,10 +28,9 @@ namespace SpaceInvaders
         {
             // Wave 1: 24 Drones in 3 sequential groups of 8
             const int cols = 8;
-            const float spacingX = 60.0f; // Cân chỉnh lại 60px để đội hình gọn gàng, không bị chạm biên sớm
+            const float spacingX = 60.0f;
             const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
 
-            // Helper to spawn a row
             auto spawn_row = [&](float targetY, float speed, bool last_group)
             {
                 for (int col = 0; col < cols; ++col)
@@ -87,7 +86,7 @@ namespace SpaceInvaders
                         Vector2 c2 = {targetPos.x - 100.0f, targetPos.y + 250.0f};
                         pendingEnemies_.push_back({types[type_idx++], EnemyMovementPattern::SineWave, EnemyEntryPattern::Galaga, startPos, targetPos, speed, c1, c2});
                     }
-                    else // Right side
+                    else
                     {
                         Vector2 startPos = {Constants::SCREEN_WIDTH + 100.0f, 200.0f + row * 40.0f};
                         Vector2 c1 = {startPos.x - 400.0f, startPos.y - 150.0f};
@@ -124,12 +123,12 @@ namespace SpaceInvaders
                 Vector2 targetPos = {startX + col * spacingX, startY + row * spacingY};
 
                 if (row < 2)
-                { // Top group
+                {
                     Vector2 startPos = {targetPos.x, -50.0f};
                     pendingEnemies_.push_back({types[i], EnemyMovementPattern::SineWave, EnemyEntryPattern::FromTop, startPos, targetPos, speed});
                 }
                 else
-                { // Side groups
+                {
                     Vector2 startPos = (col < cols / 2) ? Vector2{-100.0f, 300.0f} : Vector2{Constants::SCREEN_WIDTH + 100.0f, 300.0f};
                     Vector2 c1 = {Constants::SCREEN_WIDTH / 2.0f, 100.0f};
                     Vector2 c2 = {targetPos.x, Constants::SCREEN_HEIGHT};
@@ -142,7 +141,7 @@ namespace SpaceInvaders
         case 4:
         {
             // 28 total: 11 Drone, 11 Bomber, 6 HealthSpaceship
-            // Entry: Four corners with crossing curved paths
+
             std::vector<EnemyType> types;
             types.insert(types.end(), 11, EnemyType::Drone);
             types.insert(types.end(), 11, EnemyType::Bomber);
@@ -166,22 +165,22 @@ namespace SpaceInvaders
 
                 switch (i % 4)
                 {
-                case 0: // Top-left
+                case 0:
                     startPos = {-100.0f, -100.0f};
                     c1 = {Constants::SCREEN_WIDTH * 0.8f, 50.0f};
                     c2 = {Constants::SCREEN_WIDTH * 0.2f, Constants::SCREEN_HEIGHT * 0.7f};
                     break;
-                case 1: // Top-right
+                case 1:
                     startPos = {Constants::SCREEN_WIDTH + 100.0f, -100.0f};
                     c1 = {Constants::SCREEN_WIDTH * 0.2f, 50.0f};
                     c2 = {Constants::SCREEN_WIDTH * 0.8f, Constants::SCREEN_HEIGHT * 0.7f};
                     break;
-                case 2: // Bottom-left
+                case 2:
                     startPos = {-100.0f, Constants::SCREEN_HEIGHT + 100.0f};
                     c1 = {Constants::SCREEN_WIDTH * 0.3f, Constants::SCREEN_HEIGHT * 0.8f};
                     c2 = {Constants::SCREEN_WIDTH * 0.7f, 50.0f};
                     break;
-                case 3: // Bottom-right
+                case 3:
                     startPos = {Constants::SCREEN_WIDTH + 100.0f, Constants::SCREEN_HEIGHT + 100.0f};
                     c1 = {Constants::SCREEN_WIDTH * 0.7f, Constants::SCREEN_HEIGHT * 0.8f};
                     c2 = {Constants::SCREEN_WIDTH * 0.3f, 50.0f};
@@ -195,7 +194,7 @@ namespace SpaceInvaders
         case 5:
         {
             // 32 total: 6 Drone, 13 Bomber, 13 HealthSpaceship
-            // Entry: Four continuous spiral groups
+
             std::vector<EnemyType> types;
             types.insert(types.end(), 6, EnemyType::Drone);
             types.insert(types.end(), 13, EnemyType::Bomber);
@@ -217,7 +216,6 @@ namespace SpaceInvaders
                 Vector2 targetPos = {startX + col * spacingX, startY + row * spacingY};
                 Vector2 startPos, c1, c2;
 
-                // Four spiral groups
                 float angle = (i % 4) * (M_PI / 2.0f) + (i / 4) * 0.3f;
                 startPos = {Constants::SCREEN_WIDTH / 2.0f + static_cast<float>(cos(angle)) * 800.0f, -200.0f};
                 c1 = {Constants::SCREEN_WIDTH / 2.0f, Constants::SCREEN_HEIGHT * 1.2f};

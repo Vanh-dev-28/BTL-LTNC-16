@@ -41,14 +41,11 @@ namespace SpaceInvaders
         float health_;
         float maxHealth_;
 
-
-        // Abilities
         bool shieldActive_{false};
         float shieldTimer_{0.0f};
         float shieldCooldown_{0.0f};
         float fireballCooldown_{0.0f};
 
-        //Check cone_shot ability
         void shoot(std::vector<Bullet> &bullets, bool coneShotActive);
     };
 }
