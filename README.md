@@ -268,6 +268,6 @@ Game sẽ khởi động và hiển thị **Main Menu**.
 - Hệ thống âm thanh: nhạc nền và hiệu ứng âm thanh.
 - Đồ họa và giao diện: background scrolling, font, popups ...
 
-## 6. Báo cáo PDF về dự án: https://drive.google.com/file/d/1IsqvshpkZ1v2nm8SPQXTVXwMZK81_rlR/view?usp=sharing
+## 6. Báo cáo PDF về dự án: https://drive.google.com/file/d/1L0Ty05rmDmXpbqHjjQUvxJENT3MMFf6N/view?usp=drive_link
 
-## 7. Video DEMO sản phẩm trò chơi: 
+## 7. Video DEMO sản phẩm trò chơi: https://drive.google.com/drive/u/0/folders/1I6WVo1QEYd4UlizHyd4Oid4cjqM78Lsd
