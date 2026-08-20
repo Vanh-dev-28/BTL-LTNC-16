@@ -147,6 +147,8 @@ namespace SpaceInvaders
 
         // Helpers
         SDL_FRect getPlayerHitbox() const;
+        SDL_FRect getPlayerShieldHitbox() const;
+        SDL_FRect getEnemyLaserHitbox(const Bullet &bullet) const;
     };
 
 }

@@ -20,7 +20,6 @@ namespace SpaceInvaders
         powerUps_.clear();
 
         spawnTimer_ = 0.0f;
-
         enemyDirection_ = 1.0f;
 
         switch (currentWave_)
@@ -29,7 +28,7 @@ namespace SpaceInvaders
         {
             // Wave 1: 24 Drones in 3 sequential groups of 8
             const int cols = 8;
-            const float spacingX = 80.0f;
+            const float spacingX = 60.0f; // Cân chỉnh lại 60px để đội hình gọn gàng, không bị chạm biên sớm
             const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
 
             // Helper to spawn a row
@@ -74,7 +73,7 @@ namespace SpaceInvaders
 
             const int rows = 4;
             const int cols = 5;
-            const float spacingX = 80.0f;
+            const float spacingX = 75.0f;
             const float spacingY = 60.0f;
             const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
             const float startY = 100.0f;
@@ -117,8 +116,8 @@ namespace SpaceInvaders
             // Wave 3: Top group + two curved side groups
             const int rows = 4;
             const int cols = 6;
-            const float spacingX = 80.0f;
-            const float spacingY = 60.0f;
+            const float spacingX = 70.0f;
+            const float spacingY = 55.0f;
             const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
             const float startY = 100.0f;
             const float speed = 60.0f + (currentWave_ * 10.0f);
@@ -144,6 +143,7 @@ namespace SpaceInvaders
             }
             break;
         }
+
         case 4:
         {
             // 28 total: 11 Drone, 11 Bomber, 6 HealthSpaceship
@@ -156,12 +156,11 @@ namespace SpaceInvaders
 
             const int rows = 4;
             const int cols = 7;
-            const float spacingX = 80.0f;
-            const float spacingY = 60.0f;
+            const float spacingX = 65.0f;
+            const float spacingY = 55.0f;
             const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
             const float startY = 100.0f;
             const float speed = 60.0f + (currentWave_ * 10.0f);
-            int type_idx = 0;
 
             for (int i = 0; i < rows * cols; ++i)
             {
@@ -197,6 +196,7 @@ namespace SpaceInvaders
             }
             break;
         }
+
         case 5:
         {
             // 32 total: 6 Drone, 13 Bomber, 13 HealthSpaceship
@@ -209,10 +209,10 @@ namespace SpaceInvaders
 
             const int rows = 4;
             const int cols = 8;
-            const float spacingX = 75.0f;
-            const float spacingY = 55.0f;
+            const float spacingX = 60.0f;
+            const float spacingY = 50.0f;
             const float startX = (Constants::SCREEN_WIDTH - (cols - 1) * spacingX) / 2.0f;
-            const float startY = 120.0f;
+            const float startY = 110.0f;
             const float speed = 70.0f + (currentWave_ * 10.0f);
 
             for (int i = 0; i < rows * cols; ++i)

@@ -548,4 +548,36 @@ namespace SpaceInvaders
 
         return {playerHitboxX, playerHitboxY, playerHitboxWidth, playerHitboxHeight};
     }
+
+    SDL_FRect GameScene::getPlayerShieldHitbox() const
+    {
+        const float shieldSize = 80.0f;
+        const float playerSize = 48.0f; // Kích thước sprite của player
+        const float shieldX = player_.x + (playerSize - shieldSize) / 2.0f;
+        const float shieldY = player_.y + (playerSize - shieldSize) / 2.0f;
+        return {shieldX, shieldY, shieldSize, shieldSize};
+    }
+
+    SDL_FRect GameScene::getEnemyLaserHitbox(const Bullet &bullet) const
+    {
+        // Các tính toán này dựa trên texture 'enemy_laser'.
+        // Texture gốc có kích thước 64x64, nhưng thực thể đạn có thể được co giãn.
+        const float baseTextureWidth = 64.0f;
+        const float baseTextureHeight = 64.0f;
+        const float scaleX = bullet.width / baseTextureWidth;
+        const float scaleY = bullet.height / baseTextureHeight;
+
+        // Phần tia sáng thực tế bên trong texture
+        const float hitboxOriginX = 11.0f;    // Tọa độ pixel trong texture
+        const float hitboxOriginY = 16.0f;    // Tọa độ pixel trong texture
+        const float hitboxBaseWidth = 8.0f;   // Kích thước pixel trong texture
+        const float hitboxBaseHeight = 10.0f; // Kích thước pixel trong texture
+
+        const float finalHitboxX = bullet.x + (hitboxOriginX * scaleX);
+        const float finalHitboxY = bullet.y + (hitboxOriginY * scaleY);
+        const float finalHitboxWidth = hitboxBaseWidth * scaleX;
+        const float finalHitboxHeight = hitboxBaseHeight * scaleY;
+
+        return {finalHitboxX, finalHitboxY, finalHitboxWidth, finalHitboxHeight};
+    }
 } // namespace SpaceInvaders

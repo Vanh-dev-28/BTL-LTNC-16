@@ -4,6 +4,7 @@
 #include "Managers/TextureManager.h"
 #include "Utils/Constants.h"
 #include <SDL3/SDL.h>
+#include <cmath>
 
 namespace SpaceInvaders
 {
@@ -88,26 +89,44 @@ namespace SpaceInvaders
 
     void Player::render(Renderer &renderer) const
     {
-        SDL_Texture *playerTexture = TextureManager::instance().getTexture("ship");
-
-        if (playerTexture != nullptr)
+        if (!isAlive())
         {
-            renderer.drawTexture(playerTexture, x, y, 48.0f, 48.0f);
-        }
-        else
-        {
-            renderer.fillRect(x, y, 52.0f, 24.0f, SDL_Color{255, 255, 255, 255});
-            renderer.fillRect(x + 16.0f, y - 12.0f, 20.0f, 16.0f, SDL_Color{255, 255, 255, 255});
+            return;
         }
 
-        if (shieldActive_)
+        // 1. Vẽ hiệu ứng khiên (shield) TRƯỚC
+        if (isShieldActive())
         {
             SDL_Texture *shieldTexture = TextureManager::instance().getTexture("shield_effect");
             if (shieldTexture)
             {
                 const float shieldSize = 80.0f;
-                renderer.drawTexture(shieldTexture, x + (48.0f - shieldSize) / 2.0f, y + (48.0f - shieldSize) / 2.0f, shieldSize, shieldSize);
+                const float playerSize = 48.0f;
+                const float shieldX = x + (playerSize - shieldSize) / 2.0f;
+                const float shieldY = y + (playerSize - shieldSize) / 2.0f;
+
+                // Thêm hiệu ứng nhấp nháy cho khiên thêm sinh động
+                // Alpha sẽ thay đổi từ (150-105) đến (150+105) -> 45 đến 255
+                float alpha = 150.0f + 105.0f * sin(SDL_GetTicks() / 200.0f);
+                SDL_SetTextureAlphaMod(shieldTexture, static_cast<Uint8>(alpha));
+
+                renderer.drawTexture(shieldTexture, shieldX, shieldY, shieldSize, shieldSize);
+
+                // Reset alpha để không ảnh hưởng đến các đối tượng khác
+                SDL_SetTextureAlphaMod(shieldTexture, 255);
             }
+        }
+
+        // 2. Vẽ tàu của người chơi SAU (đè lên trên khiên)
+        SDL_Texture *shipTexture = TextureManager::instance().getTexture("ship");
+        if (shipTexture)
+        {
+            renderer.drawTexture(shipTexture, x, y, 48.0f, 48.0f);
+        }
+        else
+        {
+            renderer.fillRect(x, y, 52.0f, 24.0f, SDL_Color{255, 255, 255, 255});
+            renderer.fillRect(x + 16.0f, y - 12.0f, 20.0f, 16.0f, SDL_Color{255, 255, 255, 255});
         }
     }
 
@@ -139,7 +158,7 @@ namespace SpaceInvaders
         fireball.width = 40.0f;
         fireball.height = 40.0f;
         fireball.x = x + (48.0f / 2.0f) - (fireball.width / 2.0f);
-        fireball.y = y; // Start at player's y
+        fireball.y = y;           // Start at player's y
         fireballCooldown_ = 4.0f; // 4 second cooldown
         return true;
     }

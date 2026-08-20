@@ -12,6 +12,7 @@ namespace SpaceInvaders
 {
     void GameScene::updateBullets(float deltaTime)
     {
+        // Cập nhật vị trí và trạng thái của từng viên đạn
         for (auto &bullet : bullets_)
         {
             bullet.update(deltaTime);
@@ -26,15 +27,15 @@ namespace SpaceInvaders
 
     void GameScene::updateEnemies(float deltaTime)
     {
-        // --- Handle Wave Spawning ---
+        // =================================================================
+        // 1. XỬ LÝ HÀNG CHỜ SINH QUÁI
+        // =================================================================
         if (!pendingEnemies_.empty())
         {
             spawnTimer_ -= deltaTime;
             if (spawnTimer_ <= 0.0f)
             {
                 const auto &spawnData = pendingEnemies_.front();
-
-                // Create an enemy from the spawn data
                 enemies_.emplace_back(
                     spawnData.type,
                     spawnData.movePattern,
@@ -45,16 +46,18 @@ namespace SpaceInvaders
                     spawnData.c1,
                     spawnData.c2);
 
-                // Set timer for the next spawn using the just-spawned enemy's delay
                 spawnTimer_ = spawnData.spawnDelay;
 
                 pendingEnemies_.erase(pendingEnemies_.begin());
             }
         }
 
+        // =================================================================
+        // 2. CẬP NHẬT CÁC BIẾN CHUNG CỦA ĐỘI HÌNH
+        // =================================================================
         m_swarmSharedTime += deltaTime;
 
-        // --- Task E: Expansion/Contraction ---
+        // Hiệu ứng co/giãn đội hình
         const float SCALE_SPEED = 0.2f;
         const float MIN_SCALE = 0.8f;
         const float MAX_SCALE = 1.2f;
@@ -65,12 +68,15 @@ namespace SpaceInvaders
             m_formationScale = std::clamp(m_formationScale, MIN_SCALE, MAX_SCALE);
         }
 
-        // --- Task C: Dive-bomb trigger ---
+        // =================================================================
+        // 3. KÍCH HOẠT QUÁI BỔ NHÀO (DIVE-BOMB)
+        // =================================================================
         m_diveAttackTimer -= deltaTime;
         if (m_diveAttackTimer <= 0.0f)
         {
-            if (currentWave_ >= 3) // Dive attacks start from Wave 3
+            if (currentWave_ >= 3) // Bổ nhào chỉ bắt đầu từ Wave 3 trở đi
             {
+                // Tìm tất cả quái đang trong đội hình (Active) có thể bổ nhào
                 std::vector<int> available_enemies;
                 for (int i = 0; i < enemies_.size(); ++i)
                 {
@@ -82,26 +88,23 @@ namespace SpaceInvaders
 
                 if (!available_enemies.empty())
                 {
-                    int divers = 1;
-                    if (currentWave_ == 4 || currentWave_ == 5)
-                    {
-                        divers = 2;
-                    }
+                    // Số lượng quái bổ nhào cùng lúc tăng ở các wave cuối
+                    int divers = (currentWave_ >= 4) ? 2 : 1;
 
+                    // Chọn ngẫu nhiên quái để bắt đầu bổ nhào
                     for (int i = 0; i < divers && !available_enemies.empty(); ++i)
                     {
                         int rand_idx = rand() % available_enemies.size();
                         int enemy_idx = available_enemies[rand_idx];
 
                         available_enemies.erase(available_enemies.begin() + rand_idx);
-
                         enemies_[enemy_idx].startDive({player_.x, player_.y},
                                                       (rand() % 2 == 0) ? EnemyDivePattern::Straight : EnemyDivePattern::Curved);
                     }
                 }
             }
 
-            // Đặt lại thời gian hồi chiêu hợp lý để người chơi có khoảng trống phản xạ
+            // Đặt lại thời gian hồi chiêu cho lần bổ nhào tiếp theo, tùy thuộc vào wave hiện tại
             if (currentWave_ == 5)
             {
                 m_diveAttackTimer = 2.0f + (static_cast<float>(rand()) / RAND_MAX) * 1.5f; // 2.0s - 3.5s
@@ -112,8 +115,13 @@ namespace SpaceInvaders
             }
         }
 
+        // =================================================================
+        // 4. CẬP NHẬT TỪNG QUÁI VÀ TÍNH TOÁN BIÊN CỦA ĐỘI HÌNH
+        // =================================================================
         bool hitEdge = false;
-        float minX = Constants::SCREEN_WIDTH, maxX = 0;
+        bool hasActiveEnemy = false;
+        float minX = Constants::SCREEN_WIDTH;
+        float maxX = 0.0f;
 
         for (auto &enemy : enemies_)
         {
@@ -122,10 +130,10 @@ namespace SpaceInvaders
                 Vector2 swarmVelocity = {0, 0};
                 if (enemy.getState() == EnemyState::Active)
                 {
-                    // Base horizontal movement
+                    // Vận tốc di chuyển ngang cơ bản của cả đội hình
                     swarmVelocity.x = enemyDirection_ * enemy.getSpeed() * 0.5f;
 
-                    // --- Apply swarm movement patterns ---
+                    // Áp dụng các kiểu di chuyển đặc biệt cho từng pattern
                     if (enemy.getMovementPattern() == EnemyMovementPattern::ZigZag)
                     {
                         swarmVelocity.x += 150.0f * cos(m_swarmSharedTime * 2.0f);
@@ -160,13 +168,15 @@ namespace SpaceInvaders
 
                 if (enemy.getState() == EnemyState::Active)
                 {
+                    // Cập nhật biên (minX, maxX) của đội hình
+                    hasActiveEnemy = true;
                     if (enemy.x < minX)
                         minX = enemy.x;
-                    if (enemy.x > maxX)
-                        maxX = enemy.x;
+                    if (enemy.x + enemy.width > maxX)
+                        maxX = enemy.x + enemy.width;
                 }
 
-                // Task C: Shooting while diving
+                // Cho phép quái bắn ngẫu nhiên khi đang bổ nhào
                 if (enemy.getState() == EnemyState::Diving && (rand() % 150 == 0))
                 {
                     const float bulletWidth = 8.0f;
@@ -176,30 +186,46 @@ namespace SpaceInvaders
             }
         }
 
-        if (minX < 20.0f || maxX > Constants::SCREEN_WIDTH - 68.0f)
+        // =================================================================
+        // 5. XỬ LÝ KHI ĐỘI HÌNH CHẠM BIÊN
+        // =================================================================
+        static float edgeCooldown = 0.0f;
+        edgeCooldown -= deltaTime;
+
+        if (hasActiveEnemy && edgeCooldown <= 0.0f)
         {
-            hitEdge = true;
+            if (minX <= 30.0f && enemyDirection_ < 0.0f) // Chạm biên trái khi đang đi sang trái
+            {
+                hitEdge = true;
+            }
+            else if (maxX >= Constants::SCREEN_WIDTH - 30.0f && enemyDirection_ > 0.0f) // Chạm biên phải khi đang đi sang phải
+            {
+                hitEdge = true;
+            }
         }
 
         if (hitEdge)
         {
-            enemyDirection_ *= -1.0f;
+            enemyDirection_ *= -1.0f; // Đảo chiều di chuyển
+            edgeCooldown = 0.5f;      // Khóa 0.5s để quái có thời gian quay đầu
             for (auto &enemy : enemies_)
             {
                 if (enemy.alive && enemy.getState() == EnemyState::Active)
                 {
-                    // Giảm khoảng cách tụt xuống còn 6px để tránh rơi nhanh
                     enemy.y += 6.0f;
                 }
             }
+            m_formationCenter.y += 6.0f; // Đồng bộ tâm đội hình
         }
 
-        // Kiểm tra Game Over với khoảng đệm an toàn
+        // =================================================================
+        // 6. KIỂM TRA ĐIỀU KIỆN GAME OVER (QUÁI TRÀN XUỐNG)
+        // =================================================================
         for (const auto &enemy : enemies_)
         {
-            // CHỈ xử thua khi quái lọt hẳn xuống mép đáy màn hình (ví dụ SCREEN_HEIGHT - 30px)
             if (enemy.alive &&
                 enemy.getState() == EnemyState::Active &&
+                std::abs(enemy.y - enemy.getTargetPosition().y) < 15.0f && // Tránh xử thua oan khi quái đang lượn
                 (enemy.y + enemy.height >= Constants::SCREEN_HEIGHT - 30.0f))
             {
                 gameOver_ = true;
@@ -208,7 +234,9 @@ namespace SpaceInvaders
             }
         }
 
-        // --- Enemy Swarm Shooting Logic ---
+        // =================================================================
+        // 7. LOGIC BẮN CỦA ĐỘI HÌNH
+        // =================================================================
         enemyFireCooldown_ -= deltaTime;
         if (enemyFireCooldown_ <= 0.0f && !gameOver_)
         {
@@ -230,6 +258,7 @@ namespace SpaceInvaders
                 bullets_.emplace_back(bulletX, shooter.y + shooter.height, 250.0f, BulletOwner::Enemy);
             }
 
+            // Đặt lại thời gian hồi chiêu, thời gian này giảm dần theo wave
             float baseCooldown = 1.5f - (currentWave_ * 0.15f);
             enemyFireCooldown_ = std::max(0.25f, baseCooldown) + (static_cast<float>(rand()) / RAND_MAX) * 0.5f;
         }
@@ -237,6 +266,9 @@ namespace SpaceInvaders
 
     void GameScene::checkCollisions()
     {
+        // =================================================================
+        // VÒNG LẶP CHÍNH: KIỂM TRA TỪNG VIÊN ĐẠN
+        // =================================================================
         for (auto &bullet : bullets_)
         {
             if (!bullet.active)
@@ -244,9 +276,10 @@ namespace SpaceInvaders
                 continue;
             }
 
+            // --- 1. VA CHẠM: ĐẠN NGƯỜI CHƠI vs KẺ ĐỊCH ---
             if (bullet.owner == BulletOwner::Player)
             {
-                // Check collision with enemies
+                // Duyệt qua tất cả kẻ địch để kiểm tra va chạm
                 for (auto &enemy : enemies_)
                 {
                     if (!enemy.alive)
@@ -254,7 +287,7 @@ namespace SpaceInvaders
                         continue;
                     }
 
-                    // AABB collision check (rectangle-rectangle)
+                    // Kiểm tra va chạm hình chữ nhật (AABB)
                     const bool hit = bullet.x < enemy.x + enemy.width &&
                                      bullet.x + bullet.width > enemy.x &&
                                      bullet.y < enemy.y + enemy.height &&
@@ -262,19 +295,15 @@ namespace SpaceInvaders
                     if (hit)
                     {
                         // Đạn thường gây 1 damage
-                        // Fireball gây 2 damage
                         const float damage = (bullet.type == BulletType::Fireball) ? 2.0f : 1.0f;
                         enemy.takeDamage(damage);
 
-                        // Enemy chỉ chết khi HP <= 0
                         if (!enemy.alive)
                         {
                             score_ += 10;
                             spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
                         }
 
-                        // Đạn thường biến mất sau khi trúng 1 enemy
-                        // Fireball tiếp tục bay xuyên qua enemy
                         if (bullet.type != BulletType::Fireball)
                         {
                             bullet.active = false;
@@ -283,47 +312,54 @@ namespace SpaceInvaders
                     }
                 }
             }
+            // --- 2. VA CHẠM: ĐẠN KẺ ĐỊCH vs NGƯỜI CHƠI ---
             else // bullet.owner == BulletOwner::Enemy
             {
-                // Check collision with player
                 if (player_.isAlive())
                 {
-                    // Check collision with shield first
+                    // Ưu tiên kiểm tra va chạm với khiên trước
                     if (player_.isShieldActive())
                     {
-                        const float shieldSize = 80.0f;
-                        const float shieldX = player_.x + (48.0f - shieldSize) / 2.0f;
-                        const float shieldY = player_.y + (48.0f - shieldSize) / 2.0f;
-                        const bool shieldHit = bullet.x < shieldX + shieldSize &&
-                                               bullet.x + bullet.width > shieldX &&
-                                               bullet.y < shieldY + shieldSize &&
-                                               bullet.y + bullet.height > shieldY;
+                        // 1. Lấy thông tin hình tròn của khiên
+                        const SDL_FRect shieldRect = getPlayerShieldHitbox();
+                        const float shieldCenterX = shieldRect.x + shieldRect.w / 2.0f;
+                        const float shieldCenterY = shieldRect.y + shieldRect.h / 2.0f;
+                        const float shieldRadius = shieldRect.w / 2.0f;
+
+                        // 2. Lấy hitbox chính xác của viên đạn laser
+                        const SDL_FRect laserHitbox = getEnemyLaserHitbox(bullet);
+
+                        // 3. Tìm điểm gần nhất trên hitbox của đạn tới tâm của khiên
+                        const float closestX = std::clamp(shieldCenterX, laserHitbox.x, laserHitbox.x + laserHitbox.w);
+                        const float closestY = std::clamp(shieldCenterY, laserHitbox.y, laserHitbox.y + laserHitbox.h);
+
+                        // 4. Tính khoảng cách bình phương từ điểm gần nhất tới tâm khiên
+                        const float distanceX = shieldCenterX - closestX;
+                        const float distanceY = shieldCenterY - closestY;
+                        const float distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+
+                        // 5. So sánh với bán kính bình phương của khiên
+                        const bool shieldHit = distanceSquared < (shieldRadius * shieldRadius);
+
                         if (shieldHit)
                         {
                             bullet.active = false;
-                            continue;
+                            continue; // The bullet is destroyed, move to the next bullet
                         }
                     }
 
-                    // 1. Lấy hitbox của người chơi thông qua hàm trợ giúp để có logic nhất quán
+                    // Nếu không có khiên (hoặc đạn không trúng khiên), kiểm tra va chạm với thân tàu
                     const SDL_FRect playerHitbox = getPlayerHitbox();
 
-                    // 2. Hitbox Bullet (Thu ngắn chiều cao và căn chuẩn tâm sáng)
-                    const float scaleX = bullet.width / 64.0f;
-                    const float scaleY = bullet.height / 64.0f;
+                    // Lấy hitbox chính xác của viên đạn laser
+                    const SDL_FRect laserHitbox = getEnemyLaserHitbox(bullet);
 
-                    const float bulletHitboxWidth = 8.0f * scaleX;
-                    const float bulletHitboxHeight = 10.0f * scaleY; // Giảm từ 14.0f xuống 10.0f để vừa khít tia sáng
-
-                    const float bulletHitboxX = bullet.x + (11.0f * scaleX);
-                    const float bulletHitboxY = bullet.y + (16.0f * scaleY); // Giữ hoặc đẩy nhẹ lên 16.0f/17.0f
-
-                    // 3. Kiểm tra va chạm AABB
+                    // Kiểm tra va chạm giữa hitbox của đạn và hitbox của người chơi
                     const bool hit = bullet.active &&
-                                     (bulletHitboxX < playerHitbox.x + playerHitbox.w) &&
-                                     (bulletHitboxX + bulletHitboxWidth > playerHitbox.x) &&
-                                     (bulletHitboxY < playerHitbox.y + playerHitbox.h) &&
-                                     (bulletHitboxY + bulletHitboxHeight > playerHitbox.y);
+                                     (laserHitbox.x < playerHitbox.x + playerHitbox.w) &&
+                                     (laserHitbox.x + laserHitbox.w > playerHitbox.x) &&
+                                     (laserHitbox.y < playerHitbox.y + playerHitbox.h) &&
+                                     (laserHitbox.y + laserHitbox.h > playerHitbox.y);
 
                     if (hit)
                     {
@@ -334,10 +370,11 @@ namespace SpaceInvaders
             }
         }
 
-        // --- Player-Enemy Collision ---
+        // =================================================================
+        // 3. VA CHẠM: NGƯỜI CHƠI vs KẺ ĐỊCH
+        // =================================================================
         if (player_.isAlive())
         {
-            // Lấy hitbox của người chơi thông qua hàm trợ giúp
             const SDL_FRect playerHitbox = getPlayerHitbox();
 
             for (auto &enemy : enemies_)
@@ -347,7 +384,7 @@ namespace SpaceInvaders
                     continue;
                 }
 
-                // Kiểm tra va chạm AABB giữa hitbox của player và enemy
+                // Kiểm tra va chạm AABB giữa hitbox của người chơi và kẻ địch
                 const bool hit = playerHitbox.x < enemy.x + enemy.width &&
                                  playerHitbox.x + playerHitbox.w > enemy.x &&
                                  playerHitbox.y < enemy.y + enemy.height &&
@@ -355,19 +392,18 @@ namespace SpaceInvaders
 
                 if (hit)
                 {
-                    // Nếu khiên của người chơi đang hoạt động, nó sẽ hấp thụ va chạm và phá hủy kẻ địch.
                     if (player_.isShieldActive())
                     {
-                        enemy.takeDamage(999.0f); // Phá hủy kẻ địch ngay lập tức
+                        // Khiên hấp thụ va chạm, chỉ phá hủy kẻ địch
+                        enemy.takeDamage(999.0f);
                     }
                     else
                     {
-                        // Nếu không có khiên, người chơi chịu sát thương lớn và kẻ địch bị phá hủy.
-                        player_.takeDamage(50.0f); // Một lượng sát thương đáng kể
-                        enemy.takeDamage(999.0f);  // Phá hủy kẻ địch ngay lập tức
+                        // Không có khiên, cả hai đều chịu thiệt hại
+                        player_.takeDamage(50.0f); // Người chơi mất nhiều máu
+                        enemy.takeDamage(999.0f);  // Kẻ địch bị phá hủy
                     }
 
-                    // Nếu kẻ địch bị phá hủy bởi va chạm, cộng điểm và có cơ hội ra power-up
                     if (!enemy.alive)
                     {
                         score_ += 10;

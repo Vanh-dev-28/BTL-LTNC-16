@@ -61,7 +61,7 @@ namespace SpaceInvaders
         const float buttonHeight = 64.0f;
 
         const float topMargin = 20.0f;
-        const float buttonSpacing = 20.0f;
+        const float buttonSpacing = 40.0f;
 
         fireballButtonRect_ = {
             20.0f,
