@@ -39,9 +39,19 @@ namespace SpaceInvaders
         setSize();
     }
 
+    SDL_FRect Bullet::getHitbox() const
+    {
+        if (owner == BulletOwner::Enemy)
+        {
+        constexpr float hitboxWidth = 18.0f;
+        constexpr float hitboxHeight = 45.0f;
+        return SDL_FRect{ x + (width - hitboxWidth) / 2.0f, y + (height - hitboxHeight) / 2.0f, hitboxWidth, hitboxHeight };
+        }   
+        return SDL_FRect{ x, y, width, height };
+    }
+
     void Bullet::setSize()
     {
-        // Phân loại kích thước chuẩn cho từng loại đạn
         if (owner == BulletOwner::Player)
         {
             if (type == BulletType::Fireball)
@@ -49,16 +59,21 @@ namespace SpaceInvaders
                 width = 32.0f;
                 height = 32.0f;
             }
-            else // Đạn thường của người chơi
+            else
             {
                 width = 6.0f;
                 height = 18.0f;
             }
         }
-        else // BulletOwner::Enemy (Laser của quái - to và rõ ràng hơn)
+        else if (owner == BulletOwner::Enemy)
         {
-            width = 50.0f;   // 10.0f * 5
-            height = 125.0f; // 25.0f * 5
+            width = 50.0f;
+            height = 125.0f;
+        }
+        else if (owner == BulletOwner::Companion)
+        {
+            width = 8.0f;
+            height = 20.0f;
         }
     }
 

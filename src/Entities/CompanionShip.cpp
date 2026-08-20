@@ -36,6 +36,13 @@ namespace SpaceInvaders
         return height_;
     }
 
+    SDL_FRect CompanionShip::getHitbox() const
+    {
+        constexpr float hitboxWidth = 26.0f;
+        constexpr float hitboxHeight = 34.0f;
+        return SDL_FRect{ x_ + (width_ - hitboxWidth) / 2.0f, y_ + (height_ - hitboxHeight) / 2.0f, hitboxWidth, hitboxHeight };
+    }
+
     void CompanionShip::update(float deltaTime, float playerX, float playerY)
     {
         if (!active_)
