@@ -5,7 +5,6 @@
 namespace SpaceInvaders
 {
 
-    /** Tracks keyboard and mouse state for the current input frame. */
     class Input
     {
     public:
@@ -20,9 +19,10 @@ namespace SpaceInvaders
         [[nodiscard]] float getMouseY() const;
         void startTextInput();
         void stopTextInput();
-        void handleEvent(const SDL_Event& event);
-        const std::string& getTextInput() const;
+        void handleEvent(const SDL_Event &event);
+        const std::string &getTextInput() const;
         void clearTextInput();
+
     private:
         const bool *keyboardState_{nullptr};
         Uint32 mouseButtons_{0U};

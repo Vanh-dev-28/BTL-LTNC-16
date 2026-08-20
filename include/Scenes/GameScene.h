@@ -12,8 +12,6 @@
 
 namespace SpaceInvaders
 {
-    // Data structure for defining an enemy to be spawned.
-    // This allows for more complex wave designs with per-enemy spawn delays.
     struct EnemySpawnData
     {
         EnemyType type;
@@ -28,7 +26,7 @@ namespace SpaceInvaders
         Vector2 c1 = {0, 0};
         Vector2 c2 = {0, 0};
 
-        float spawnDelay = 0.1f; // Default spawn delay, matches old spawnInterval_
+        float spawnDelay = 0.1f;
     };
 
     class GameScene : public Scene

@@ -7,18 +7,17 @@
 namespace SpaceInvaders
 {
 
-    /** Provides music and sound-effect playback services. */
     class AudioManager
     {
     public:
         static AudioManager &instance();
-        /** Initializes SDL_mixer and opens the default playback device. */
         bool initialize();
         bool playMusic(const std::string &path, int loops = -1);
-        bool playSFX(const std::string& path); //Sound Effect by powerup and skill
+        bool playSFX(const std::string &path); // Sound Effect by powerup and skill
         void setMusicVolume(int volume);
         void stopMusic();
         void clear();
+
     private:
         AudioManager() = default;
         ~AudioManager();
@@ -32,6 +31,6 @@ namespace SpaceInvaders
         std::string currentMusicPath_;
         int musicVolume_ = 100;
         int sfxVolume_ = 50;
-        std::unordered_map<std::string, MIX_Audio*> soundEffects_;
+        std::unordered_map<std::string, MIX_Audio *> soundEffects_;
     };
 } // namespace SpaceInvaders
