@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <SDL3/SDL.h>
 
 namespace SpaceInvaders
 {
@@ -23,6 +24,7 @@ namespace SpaceInvaders
         float getY() const;
         float getWidth() const;
         float getHeight() const;
+        SDL_FRect getHitbox() const;
     private:
         CompanionSide side_;
         float shootTimer_;

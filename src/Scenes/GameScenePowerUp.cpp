@@ -71,9 +71,8 @@ namespace SpaceInvaders
     }
 
     void GameScene::activatePowerUp(PowerUpType type)
-{
-    const std::filesystem::path assetRoot =
-        (std::filesystem::current_path() / ".." / "assets").lexically_normal();
+    {
+    const std::filesystem::path assetRoot = (std::filesystem::current_path() / ".." / "assets").lexically_normal();
 
     switch (type)
     {
@@ -116,127 +115,96 @@ namespace SpaceInvaders
 
         const float companionXOffset = companionDistance + 24.0f;
         const float companionY = playerCenterY - 24.0f;
-    companions_.emplace_back(
-        CompanionSide::Left,
-        playerCenterX - companionXOffset,
-        companionY
-    );
-
-    companions_.emplace_back(
-        CompanionSide::Right,
-        playerCenterX + companionDistance,
-        companionY
-    );
+    companions_.emplace_back( CompanionSide::Left, playerCenterX - companionXOffset, companionY );
+    companions_.emplace_back( CompanionSide::Right, playerCenterX + companionDistance, companionY );
     }
+
     void GameScene::updateCompanion(float deltaTime)
-{
-    if (companions_.empty())
     {
-        return;
-    }
-
-    moveCompanion(deltaTime);
-
-    for (auto& companion : companions_)
-    {
-        if (!companion.isActive())
+        if (companions_.empty())
         {
-            continue;
+            return;
         }
-
-        companion.shoot(bullets_);
-    }
-
-    companions_.erase(
-        std::remove_if(
-            companions_.begin(),
-            companions_.end(),
-            [](const CompanionShip& companion)
-            {
-                return !companion.isActive();
-            }
-        ),
-        companions_.end()
-    );
-}
-
-
-void GameScene::moveCompanion(float deltaTime)
-{
-    if (companions_.empty())
-    {
-        return;
-    }
-
-    constexpr float playerWidth = 48.0f;
-    constexpr float playerHeight = 48.0f;
-
-    const float playerX =
-        player_.x + playerWidth / 2.0f;
-
-    const float playerY =
-        player_.y + playerHeight / 2.0f;
-
-    for (auto& companion : companions_)
-    {
-        if (!companion.isActive())
-        {
-            continue;
-        }
-
-        companion.update(
-            deltaTime,
-            playerX,
-            playerY
-        );
-    }
-}
-
-
-void GameScene::checkCompanionCollision()
-{
-    if (companions_.empty())
-        return;
-
-    for (auto& bullet : bullets_)
-    {
-        if (!bullet.active)
-            continue;
-
-        // Chỉ đạn của enemy mới có thể phá Companion
-        if (bullet.owner != BulletOwner::Enemy)
-            continue;
-
+        moveCompanion(deltaTime);
         for (auto& companion : companions_)
         {
             if (!companion.isActive())
-                continue;
-
-            const bool hit =
-                bullet.x < companion.getX() + companion.getWidth() &&
-                bullet.x + bullet.width > companion.getX() &&
-                bullet.y < companion.getY() + companion.getHeight() &&
-                bullet.y + bullet.height > companion.getY();
-
-            if (hit)
             {
-                companion.destroy();
-                bullet.active = false;
-                break;
+                continue;
+            }
+            companion.shoot(bullets_);
+        }
+        companions_.erase(std::remove_if(companions_.begin(), companions_.end(), [](const CompanionShip& companion)
+            { return !companion.isActive(); } ),companions_.end() );
+    }
+
+    void GameScene::moveCompanion(float deltaTime)
+    {
+        if (companions_.empty())
+        {
+            return;
+        }
+
+        constexpr float playerWidth = 48.0f;
+        constexpr float playerHeight = 48.0f;
+        const float playerX = player_.x + playerWidth / 2.0f;
+        const float playerY = player_.y + playerHeight / 2.0f;
+        for (auto& companion : companions_)
+        {
+            if (!companion.isActive())
+            {
+                continue;
+            }
+        
+            companion.update(deltaTime, playerX, playerY);
+        }
+    }
+
+    void GameScene::checkCompanionCollision()
+    {
+        if (companions_.empty())
+        {
+            return;
+        }
+
+        for (auto& bullet : bullets_)
+        {
+            if (!bullet.active)
+            {
+                continue;
+            }
+
+            if (bullet.owner != BulletOwner::Enemy)
+            {
+                continue;
+            }
+
+            const SDL_FRect bulletHitbox = bullet.getHitbox();
+            for (auto& companion : companions_)
+            {
+                if (!companion.isActive())
+                {
+                    continue;
+                }   
+
+                const SDL_FRect companionHitbox = companion.getHitbox();
+                if (SDL_HasRectIntersectionFloat(&bulletHitbox, &companionHitbox))
+                {
+                    companion.destroy();
+                    bullet.active = false;
+                    break;
+                }
             }
         }
     }
-}
 
-
-void GameScene::renderCompanion(Renderer& renderer)
-{
-    for (const auto& companion : companions_)
+    void GameScene::renderCompanion(Renderer& renderer)
     {
-        if (!companion.isActive())
-            continue;
-
-        companion.render(renderer);
+        for (const auto& companion : companions_)
+        {
+            if (!companion.isActive())
+                continue;
+            companion.render(renderer);
+        }
     }
-}
 }
