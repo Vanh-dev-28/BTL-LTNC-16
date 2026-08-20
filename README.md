@@ -85,50 +85,6 @@ SpaceInvaders/
 
 ## 4. Cách chạy chương trình
 
-### Cách 1 — Tải bản build và chơi ngay, không cần cài môi trường
-
-
-1. Vào mục **Releases** của repository GitHub của nhóm và tải bản game đã build, ví dụ:
-
-   ```text
-   SpaceInvaders.zip
-   ```
-
-2. Giải nén file `.zip` vào một thư mục bất kỳ.
-
-3. Giữ nguyên cấu trúc thư mục sau khi giải nén:
-
-   ```text
-   SpaceInvaders/
-   ├── SpaceInvaders.exe
-   ├── assets/
-   └── các file .dll cần thiết
-   ```
-
-4. Double-click vào:
-
-   ```text
-   SpaceInvaders.exe
-   ```
-
-   để bắt đầu chơi.
----
-
-### Cách 2 — Tải mã nguồn và tự build chương trình
-
-Dành cho người muốn xem, chỉnh sửa hoặc phát triển thêm game.
-
-Dự án sử dụng:
-
-* **C++17**
-* **SDL3**
-* **SDL3_image**
-* **SDL3_ttf**
-* **SDL3_mixer**
-* **CMake**
-* **MinGW / MSYS2 UCRT64**
-* **Visual Studio Code**
-
 #### Bước 1 — Cài đặt Visual Studio Code
 
 Tải và cài đặt Visual Studio Code:
@@ -311,3 +267,7 @@ Game sẽ khởi động và hiển thị **Main Menu**.
 - Settings: thay đổi độ phân giải và âm lượng.
 - Hệ thống âm thanh: nhạc nền và hiệu ứng âm thanh.
 - Đồ họa và giao diện: background scrolling, font, popups ...
+
+## 6. Báo cáo PDF về dự án: https://drive.google.com/file/d/1IsqvshpkZ1v2nm8SPQXTVXwMZK81_rlR/view?usp=sharing
+
+## 7. Video DEMO sản phẩm trò chơi: 
