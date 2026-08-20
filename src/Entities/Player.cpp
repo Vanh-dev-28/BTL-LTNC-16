@@ -8,6 +8,11 @@
 
 namespace SpaceInvaders
 {
+    // Định nghĩa hằng số cho các kỹ năng để dễ dàng quản lý và thay đổi
+    static constexpr float FIREBALL_COOLDOWN = 4.0f;
+    static constexpr float SHIELD_DURATION = 5.0f;
+    static constexpr float SHIELD_COOLDOWN = 10.0f;
+
     Player::Player() : x(0), y(0), speed_(0), fireCooldown_(0.18f), health_(Constants::PLAYER_MAX_HEALTH), maxHealth_(Constants::PLAYER_MAX_HEALTH) {}
 
     void Player::init()
@@ -158,8 +163,8 @@ namespace SpaceInvaders
         fireball.width = 40.0f;
         fireball.height = 40.0f;
         fireball.x = x + (48.0f / 2.0f) - (fireball.width / 2.0f);
-        fireball.y = y;           // Start at player's y
-        fireballCooldown_ = 4.0f; // 4 second cooldown
+        fireball.y = y; // Start at player's y
+        fireballCooldown_ = FIREBALL_COOLDOWN;
         return true;
     }
 
@@ -172,8 +177,8 @@ namespace SpaceInvaders
         if (shieldCooldown_ <= 0.0f)
         {
             shieldActive_ = true;
-            shieldTimer_ = 5.0f;     // 5 second duration
-            shieldCooldown_ = 10.0f; // 10 second cooldown
+            shieldTimer_ = SHIELD_DURATION;
+            shieldCooldown_ = SHIELD_COOLDOWN;
         }
         return true;
     }
@@ -209,23 +214,23 @@ namespace SpaceInvaders
 
     float Player::getFireballCooldownRatio() const
     {
-        if (8.0f <= 0)
+        if (FIREBALL_COOLDOWN <= 0)
             return 0.0f;
-        return std::max(0.0f, fireballCooldown_ / 8.0f);
+        return std::max(0.0f, fireballCooldown_ / FIREBALL_COOLDOWN);
     }
 
     float Player::getShieldCooldownRatio() const
     {
-        if (15.0f <= 0)
+        if (SHIELD_COOLDOWN <= 0)
             return 0.0f;
-        return std::max(0.0f, shieldCooldown_ / 15.0f);
+        return std::max(0.0f, shieldCooldown_ / SHIELD_COOLDOWN);
     }
 
     float Player::getShieldTimeRatio() const
     {
-        if (!shieldActive_ || 5.0f <= 0)
+        if (!shieldActive_ || SHIELD_DURATION <= 0)
             return 0.0f;
-        return std::max(0.0f, shieldTimer_ / 5.0f);
+        return std::max(0.0f, shieldTimer_ / SHIELD_DURATION);
     }
 
     void Player::heal(float amount)

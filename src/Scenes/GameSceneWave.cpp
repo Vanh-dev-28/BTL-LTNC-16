@@ -52,13 +52,8 @@ namespace SpaceInvaders
                 }
             };
 
-            // Group 1 (Row 1)
             spawn_row(100.0f, 60.0f, false);
-
-            // Group 2 (Row 2)
             spawn_row(160.0f, 60.0f, false);
-
-            // Group 3 (Row 3)
             spawn_row(220.0f, 70.0f, true);
             break;
         }

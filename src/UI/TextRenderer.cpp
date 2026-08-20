@@ -7,56 +7,22 @@
 
 namespace SpaceInvaders
 {
-
-bool TextRenderer::drawText(
-    Renderer& renderer,
-    const std::string& fontId,
-    const std::string& text,
-    int x,
-    int y,
-    SDL_Color color)
-{
-    TTF_Font* font = FontManager::instance().getFont(fontId);
-
-    if (font == nullptr)
-        return false;
-
-    SDL_Surface* surface = TTF_RenderText_Blended(
-        font,
-        text.c_str(),
-        text.length(),
-        color
-    );
-
-    if (surface == nullptr)
-        return false;
-
-    SDL_Texture* texture =
-        SDL_CreateTextureFromSurface(
-            renderer.getSDLRenderer(),
-            surface
-        );
-
-    SDL_FRect dst =
+    bool TextRenderer::drawText(Renderer& renderer, const std::string& fontId, const std::string& text, int x, int y, SDL_Color color)
     {
-        (float)x,
-        (float)y,
-        (float)surface->w,
-        (float)surface->h
-    };
+        TTF_Font* font = FontManager::instance().getFont(fontId);
+        if (font == nullptr)
+            return false;
+        
+        SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), text.length(), color);
+        if (surface == nullptr)
+            return false;
 
-    SDL_DestroySurface(surface);
-
-    SDL_RenderTexture(
-        renderer.getSDLRenderer(),
-        texture,
-        nullptr,
-        &dst
-    );
-
-    SDL_DestroyTexture(texture);
-
-    return true;
-}
-
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer.getSDLRenderer(), surface);
+        SDL_FRect dst = { (float)x, (float)y, (float)surface->w, (float)surface->h };
+        SDL_DestroySurface(surface);
+        SDL_RenderTexture(renderer.getSDLRenderer(), texture, nullptr, &dst);
+        SDL_DestroyTexture(texture);
+        
+        return true;
+    }
 }

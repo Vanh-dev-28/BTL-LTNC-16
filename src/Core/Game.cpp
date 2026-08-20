@@ -1,5 +1,4 @@
 #include "Core/Game.h"
-
 #include <iostream>
 #include "Scenes/Scene.h"
 #include "Managers/AudioManager.h"
@@ -30,10 +29,7 @@ namespace SpaceInvaders
         {
             return true;
         }
-
-        // Seed the random number generator
         srand(static_cast<unsigned int>(time(nullptr)));
-
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
         {
             std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
@@ -68,264 +64,175 @@ namespace SpaceInvaders
             return false;
         }
 
-        const std::filesystem::path assetRoot =
-            (std::filesystem::current_path() / ".." / "assets").lexically_normal();
-
+        const std::filesystem::path assetRoot = (std::filesystem::current_path() / ".." / "assets").lexically_normal();
         std::cout << "Current path: " << std::filesystem::current_path() << std::endl;
         std::cout << "Resolved asset root: " << assetRoot << std::endl;
-
         AudioManager &audio = AudioManager::instance();
         audio.setMusicVolume(SettingsManager::instance().getMusicVolume());
 
         if (!audio.playMusic((assetRoot / "audio" / "music" / "background_music.mp3").string()))
         {
             std::cerr << "Failed to play background music\n";
-        }
-
-        if (!FontManager::instance().loadFont(
-                "menu_title",
-                (assetRoot / "fonts" / "Orbitron-Bold.ttf").string(),
-                72))
-        {
-            std::cerr << "Failed to load title font from '"
-                      << (assetRoot / "fonts" / "Orbitron-Bold.ttf")
-                      << "'\n";
             clean();
             return false;
         }
 
-        if (!FontManager::instance().loadFont(
-                "menu",
-                (assetRoot / "fonts" / "Orbitron-Regular.ttf").string(),
-                40))
+        if (!FontManager::instance().loadFont("menu_title", (assetRoot / "fonts" / "Orbitron-Bold.ttf").string(), 72))
         {
-            std::cerr << "Failed to load menu font from '"
-                      << (assetRoot / "fonts" / "Orbitron-Regular.ttf")
-                      << "'\n";
-            clean();
-            return false;
-        }
-        if (!FontManager::instance().loadFont(
-                "hud_font",
-                (assetRoot / "fonts" / "Orbitron-Regular.ttf").string(),
-                20))
-        {
-            std::cerr << "Failed to load hud font from '"
-                      << (assetRoot / "fonts" / "Orbitron-Regular.ttf")
-                      << "'\n";
+            std::cerr << "Failed to load title font from '" << (assetRoot / "fonts" / "Orbitron-Bold.ttf") << "'\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "menu_background",
-                (assetRoot / "image" / "menu" / "background.png").string(),
-                renderer_.getSDLRenderer()))
+        if (!FontManager::instance().loadFont("menu", (assetRoot / "fonts" / "Orbitron-Regular.ttf").string(), 40))
         {
-            std::cerr << "Failed to load menu background from '"
-                      << (assetRoot / "image" / "menu" / "background.png")
-                      << "'\n";
+            std::cerr << "Failed to load menu font from '" << (assetRoot / "fonts" / "Orbitron-Regular.ttf") << "'\n";
             clean();
             return false;
         }
-        if (!TextureManager::instance().loadTexture(
-                "gameplay_background",
-                (assetRoot / "image" / "Background" / "gameplay_background.png").string(),
-                renderer_.getSDLRenderer()))
+        if (!FontManager::instance().loadFont("hud_font", (assetRoot / "fonts" / "Orbitron-Regular.ttf").string(), 20))
         {
-            std::cerr << "Failed to load gameplay background from '"
-                      << (assetRoot / "image" / "Background" / "gameplay_background.png")
-                      << "': " << SDL_GetError() << "\n";
+            std::cerr << "Failed to load hud font from '" << (assetRoot / "fonts" / "Orbitron-Regular.ttf") << "'\n";
             clean();
             return false;
         }
-        if (!TextureManager::instance().loadTexture(
-            "entername_background",
-            (assetRoot / "image" / "Background" / "entername_bg.png").string(),
-            renderer_.getSDLRenderer()))
+
+        if (!TextureManager::instance().loadTexture("menu_background", (assetRoot / "image" / "menu" / "background.png").string(), renderer_.getSDLRenderer()))
         {
-            std::cerr << "Failed to load enter name background from '"
-                    << (assetRoot / "image" / "Background" / "entername_bg.png")
-                    << "': " << SDL_GetError() << "\n";
+            std::cerr << "Failed to load menu background from '" << (assetRoot / "image" / "menu" / "background.png") << "'\n";
             clean();
             return false;
         }
-        if (!TextureManager::instance().loadTexture(
-                "settings_background",
-                "../assets/image/menu/settings_bg.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("gameplay_background", (assetRoot / "image" / "Background" / "gameplay_background.png").string(), renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load gameplay background from '" << (assetRoot / "image" / "Background" / "gameplay_background.png") << "': " << SDL_GetError() << "\n";
+            clean();
+            return false;
+        }
+        if (!TextureManager::instance().loadTexture("entername_background", (assetRoot / "image" / "Background" / "entername_bg.png").string(), renderer_.getSDLRenderer()))
+        {
+            std::cerr << "Failed to load enter name background from '" << (assetRoot / "image" / "Background" / "entername_bg.png") << "': " << SDL_GetError() << "\n";
+            clean();
+            return false;
+        }
+        if (!TextureManager::instance().loadTexture("settings_background", "../assets/image/menu/settings_bg.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load settings background\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-            "ranking_background",
-            (assetRoot / "image" / "menu" / "ranking_bg.png").string(),
-            renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("ranking_background", (assetRoot / "image" / "menu" / "ranking_bg.png").string(), renderer_.getSDLRenderer()))
         {
-            std::cerr << "Failed to load ranking background from '"
-                    << (assetRoot / "image" / "menu" / "ranking_bg.png")
-                    << "': " << SDL_GetError() << "\n";
-
+            std::cerr << "Failed to load ranking background from '" << (assetRoot / "image" / "menu" / "ranking_bg.png") << "': " << SDL_GetError() << "\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "resolution_popup",
-                "../assets/image/menu/popup_bg.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("resolution_popup", "../assets/image/menu/popup_bg.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load resolution popup\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "endgame_popup",
-                "../assets/image/menu/endgame_popup.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("endgame_popup", "../assets/image/menu/endgame_popup.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load endgame popup\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "enemy_bomber",
-                "../assets/image/Enemies/bomber.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("enemy_bomber", "../assets/image/Enemies/bomber.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load enemy_bomber sprite\n";
             clean();
             return false;
         }
-        if (!TextureManager::instance().loadTexture(
-                "enemy_drone",
-                "../assets/image/Enemies/drone.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("enemy_drone", "../assets/image/Enemies/drone.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load enemy_drone sprite\n";
             clean();
             return false;
         }
-        if (!TextureManager::instance().loadTexture(
-                "enemy_health_spaceship",
-                "../assets/image/Enemies/health-spaceship.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("enemy_health_spaceship", "../assets/image/Enemies/health-spaceship.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load enemy_health_spaceship sprite\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "ship",
-                "../assets/image/Ships/fighter.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("ship", "../assets/image/Ships/fighter.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load ship sprite\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "companion_ship",
-                "../assets/image/Ships/companion_ship.png",
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("companion_ship", "../assets/image/Ships/companion_ship.png", renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load companion ship \n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "enemy_laser",
-                (assetRoot / "image" / "Bullet" / "laserBullet.png").string(),
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("enemy_laser", (assetRoot / "image" / "Bullet" / "laserBullet.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load enemy_laser sprite\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "fireball_icon",
-                (assetRoot / "image" / "laze" / "lazeicon.png").string(),
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("fireball_icon", (assetRoot / "image" / "laze" / "lazeicon.png").string(), renderer_.getSDLRenderer()))
         {
-
             std::cerr << "Warning: Failed to load fireball_icon sprite\n";
+            clean();
+            return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "shield_icon",
-                (assetRoot / "image" / "shield" / "shieldicon.png").string(),
-
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("shield_icon", (assetRoot / "image" / "shield" / "shieldicon.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Warning: Failed to load shield_icon sprite\n";
+            clean();
+            return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-
-                "fireball_effect",
-
-                (assetRoot / "image" / "laze" / "fireball.png").string(),
-
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("fireball_effect", (assetRoot / "image" / "laze" / "fireball.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load fireball_effect sprite\n";
             clean();
             return false;
         }
 
-        if (!TextureManager::instance().loadTexture(
-                "shield_effect",
-                (assetRoot / "image" / "shield" / "shieldbackground.png").string(),
-                renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("shield_effect", (assetRoot / "image" / "shield" / "shieldbackground.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load shield_effect sprite\n";
             clean();
             return false;
         }
-        
-        //upload pause_icon
-        if (!TextureManager::instance().loadTexture(
-                "pause_icon",
-                (assetRoot / "image" / "menu" / "pause_icon.png").string(),
-                renderer_.getSDLRenderer()))
+
+        if (!TextureManager::instance().loadTexture("pause_icon", (assetRoot / "image" / "menu" / "pause_icon.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Warning: Failed to load pause_icon\n";
+            clean();
+            return false;
         }
 
-        //upload powerup cone shot
-        if (!TextureManager::instance().loadTexture(
-            "powerup_cone_shot",
-            (assetRoot / "powerups" / "cone_shot.png").string(),
-            renderer_.getSDLRenderer()))
+        if (!TextureManager::instance().loadTexture("powerup_cone_shot", (assetRoot / "powerups" / "cone_shot.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load cone shot power-up\n";
             clean();
             return false;
         }
-        //upload powerup heal
-        if (!TextureManager::instance().loadTexture(
-            "powerup_heal",
-            (assetRoot / "powerups" / "heal.png").string(),
-            renderer_.getSDLRenderer()))
+        
+        if (!TextureManager::instance().loadTexture("powerup_heal", (assetRoot / "powerups" / "heal.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load heal power-up\n";
             clean();
             return false;
         }
-        //upload companion power-up
-        if (!TextureManager::instance().loadTexture(
-            "powerup_companion",
-            (assetRoot / "powerups" / "companion.png").string(),
-            renderer_.getSDLRenderer()))
+        
+        if (!TextureManager::instance().loadTexture("powerup_companion", (assetRoot / "powerups" / "companion.png").string(), renderer_.getSDLRenderer()))
         {
             std::cerr << "Failed to load companion power-up\n";
             clean();
@@ -374,17 +281,13 @@ namespace SpaceInvaders
     void Game::applySettings()
     {
         SettingsManager &settings = SettingsManager::instance();
-
         if (!settings.consumeApplyRequest())
         {
             return;
         }
-
         const std::string &resolution = settings.getResolution();
-
         int width = 1280;
         int height = 720;
-
         if (resolution == "1600x900")
         {
             width = 1600;
@@ -395,9 +298,7 @@ namespace SpaceInvaders
             width = 1920;
             height = 1080;
         }
-
         window_.setSize(width, height);
-        // Kết nối với AudioManager để thay đổi âm lượng nhạc nền
         AudioManager::instance().setMusicVolume(settings.getMusicVolume());
     }
 
@@ -432,5 +333,4 @@ namespace SpaceInvaders
     bool Game::isRunning() const { return running_; }
     Input &Game::input() { return input_; }
     SceneManager &Game::scenes() { return sceneManager_; }
-
 } // namespace SpaceInvaders

@@ -46,6 +46,7 @@ namespace SpaceInvaders
 
         void update(float deltaTime);
         void render(Renderer &renderer) const;
+        SDL_FRect getHitbox() const;
 
     private:
         float velocityX_{0.0f};

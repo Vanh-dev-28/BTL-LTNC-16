@@ -4,10 +4,8 @@
 
 namespace SpaceInvaders
 {
-
-Input& Scene::input() const
-{
-    return sceneManager_->input();
-}
-
+    Input& Scene::input() const
+    {
+        return sceneManager_->input();
+    }
 } // namespace SpaceInvaders

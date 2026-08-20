@@ -102,9 +102,7 @@ namespace SpaceInvaders
 
     void GameScene::update(float deltaTime)
     {
-        // ==========================================
-        // BACKGROUND SCROLLING
-        // ==========================================
+        // --- Cập nhật cuộn nền ---
         backgroundY1_ += backgroundSpeed_ * deltaTime;
         backgroundY2_ += backgroundSpeed_ * deltaTime;
         const float screenHeight = static_cast<float>(Constants::SCREEN_HEIGHT);
@@ -116,18 +114,15 @@ namespace SpaceInvaders
         {
             backgroundY2_ = backgroundY1_ - screenHeight;
         }
-        // ==========================================
-        // 1. PAUSE
-        // ==========================================
+
+        // --- Xử lý trạng thái Pause ---
         if (paused_)
         {
             updatePauseMenu();
             return;
         }
 
-        // ==========================================
-        // 2. PAUSE BUTTON
-        // ==========================================
+        // --- Xử lý nút Pause ---
         const float mouseX = input().getMouseX();
         const float mouseY = input().getMouseY();
 
@@ -143,9 +138,7 @@ namespace SpaceInvaders
             return;
         }
 
-        // ==========================================
-        // 3. ENTER PLAYER NAME
-        // ==========================================
+        // --- Xử lý màn hình nhập tên ---
         if (enteringPlayerName_)
         {
             playerName_ = input().getTextInput();
@@ -162,9 +155,7 @@ namespace SpaceInvaders
             return;
         }
 
-        // ==========================================
-        // 4. POWER-UP TIMER
-        // ==========================================
+        // --- Cập nhật thời gian Power-up ---
         if (coneShotActive_)
         {
             coneShotTimer_ -= deltaTime;
@@ -176,18 +167,14 @@ namespace SpaceInvaders
             }
         }
 
-        // ==========================================
-        // 5. GAME OVER
-        // ==========================================
+        // --- Xử lý trạng thái Game Over ---
         if (gameOver_)
         {
             updateEndGame();
             return;
         }
 
-        // ==========================================
-        // 6. WAVE TRANSITION
-        // ==========================================
+        // --- Xử lý chuyển Wave ---
         if (inWaveTransition_)
         {
             waveTransitionTimer_ -= deltaTime;
@@ -213,9 +200,7 @@ namespace SpaceInvaders
             return;
         }
 
-        // ==========================================
-        // 7. PLAYER ABILITIES
-        // ==========================================
+        // --- Xử lý kỹ năng người chơi ---
         const std::filesystem::path assetRoot = (std::filesystem::current_path() / ".." / "assets").lexically_normal();
         if (input().isKeyPressed(SDL_SCANCODE_F))
         {
@@ -233,17 +218,13 @@ namespace SpaceInvaders
             }
         }
 
-        // ==========================================
-        // 8. PLAYER
-        // ==========================================
+        // --- Cập nhật người chơi ---
         player_.update(
             deltaTime,
             bullets_,
             coneShotActive_);
 
-        // ==========================================
-        // 9. GAME SYSTEMS
-        // ==========================================
+        // --- Cập nhật các hệ thống game ---
         updateBullets(deltaTime);
         updateEnemies(deltaTime);
         checkCollisions();
@@ -252,9 +233,7 @@ namespace SpaceInvaders
         updateCompanion(deltaTime);
         checkCompanionCollision();
 
-        // ==========================================
-        // 10. WAVE COMPLETE
-        // ==========================================
+        // --- Kiểm tra hoàn thành Wave ---
         if (allEnemiesDefeated())
         {
             currentWave_++;
@@ -275,9 +254,7 @@ namespace SpaceInvaders
             pendingEnemies_.clear();
         }
 
-        // ==========================================
-        // 11. PLAYER DEAD
-        // ==========================================
+        // --- Kiểm tra người chơi thua ---
         if (!player_.isAlive())
         {
             gameOver_ = true;
