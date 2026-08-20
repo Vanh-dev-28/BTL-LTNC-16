@@ -113,47 +113,6 @@ namespace SpaceInvaders
 
         player_.render(renderer);
 
-        // ====================================================
-        // DEBUG DRAW HITBOXES (Đồng bộ chuẩn 100%)
-        // ====================================================
-        // ====================================================
-        // DEBUG DRAW HITBOXES (Đã thu ngắn chiều cao đạn)
-        // ====================================================
-        {
-            // 1. Vẽ Hitbox Player (Xanh lá)
-            const float pW = 40.0f;
-            const float pH = 40.0f;
-            const float pX = player_.x + (48.0f - pW) / 2.0f;
-            const float pY = player_.y + (48.0f - pH) / 2.0f;
-
-            renderer.drawRect(pX, pY, pW, pH, SDL_Color{0, 255, 0, 255});
-
-            // 2. Vẽ Hitbox Bullet (Đỏ)
-            for (const auto &bullet : bullets_)
-            {
-                if (bullet.active)
-                {
-                    const float scaleX = bullet.width / 64.0f;
-                    const float scaleY = bullet.height / 64.0f;
-
-                    const float bW = 8.0f * scaleX;
-                    const float bH = 10.0f * scaleY; // Đồng bộ giảm xuống 10.0f
-                    const float bX = bullet.x + (11.0f * scaleX);
-                    const float bY = bullet.y + (16.0f * scaleY);
-
-                    renderer.drawRect(bX, bY, bW, bH, SDL_Color{255, 0, 0, 255});
-                }
-            }
-
-            // 3. Vẽ Hitbox Enemies (Vàng)
-            for (const auto &enemy : enemies_)
-            {
-                renderer.drawRect(enemy.x, enemy.y, enemy.width, enemy.height, SDL_Color{255, 255, 0, 255});
-            }
-        }
-        // ====================================================
-        // ====================================================
-
         TTF_Font *hudFont = FontManager::instance().getFont("hud_font");
         if (hudFont && player_.isAlive())
         {
@@ -575,5 +534,18 @@ namespace SpaceInvaders
             exitColor,
             popupX + 486.0f * sx,
             popupY + 200.0f * sy);
+    }
+
+    SDL_FRect GameScene::getPlayerHitbox() const
+    {
+        const float playerSpriteWidth = 48.0f;
+        const float playerSpriteHeight = 48.0f;
+        const float playerHitboxWidth = 40.0f;
+        const float playerHitboxHeight = 40.0f;
+
+        const float playerHitboxX = player_.x + (playerSpriteWidth - playerHitboxWidth) / 2.0f;
+        const float playerHitboxY = player_.y + (playerSpriteHeight - playerHitboxHeight) / 2.0f;
+
+        return {playerHitboxX, playerHitboxY, playerHitboxWidth, playerHitboxHeight};
     }
 } // namespace SpaceInvaders

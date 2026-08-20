@@ -53,8 +53,8 @@ namespace SpaceInvaders
             Playing,
             EndGame
         };
-        //Background loops
-        SDL_Texture* gameplayBackground_{nullptr};
+        // Background loops
+        SDL_Texture *gameplayBackground_{nullptr};
         float backgroundY1_{0.0f};
         float backgroundY2_{0.0f};
         float backgroundSpeed_{80.0f};
@@ -144,6 +144,9 @@ namespace SpaceInvaders
         void checkCompanionCollision();
         void moveCompanion(float deltaTime);
         void spawnCompanions();
+
+        // Helpers
+        SDL_FRect getPlayerHitbox() const;
     };
 
 }

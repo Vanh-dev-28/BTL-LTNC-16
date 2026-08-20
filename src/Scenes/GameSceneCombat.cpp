@@ -305,16 +305,8 @@ namespace SpaceInvaders
                         }
                     }
 
-                    // Make the player's hitbox smaller than the sprite for more forgiving gameplay.
-                    // This ignores the "wings" and makes it feel fairer.
-                    // 1. Hitbox Player (Căn giữa)
-                    const float playerSpriteWidth = 48.0f;
-                    const float playerSpriteHeight = 48.0f;
-                    const float playerHitboxWidth = 40.0f;
-                    const float playerHitboxHeight = 40.0f;
-
-                    const float playerHitboxX = player_.x + (playerSpriteWidth - playerHitboxWidth) / 2.0f;
-                    const float playerHitboxY = player_.y + (playerSpriteHeight - playerHitboxHeight) / 2.0f;
+                    // 1. Lấy hitbox của người chơi thông qua hàm trợ giúp để có logic nhất quán
+                    const SDL_FRect playerHitbox = getPlayerHitbox();
 
                     // 2. Hitbox Bullet (Thu ngắn chiều cao và căn chuẩn tâm sáng)
                     const float scaleX = bullet.width / 64.0f;
@@ -328,15 +320,58 @@ namespace SpaceInvaders
 
                     // 3. Kiểm tra va chạm AABB
                     const bool hit = bullet.active &&
-                                     (bulletHitboxX < playerHitboxX + playerHitboxWidth) &&
-                                     (bulletHitboxX + bulletHitboxWidth > playerHitboxX) &&
-                                     (bulletHitboxY < playerHitboxY + playerHitboxHeight) &&
-                                     (bulletHitboxY + bulletHitboxHeight > playerHitboxY);
+                                     (bulletHitboxX < playerHitbox.x + playerHitbox.w) &&
+                                     (bulletHitboxX + bulletHitboxWidth > playerHitbox.x) &&
+                                     (bulletHitboxY < playerHitbox.y + playerHitbox.h) &&
+                                     (bulletHitboxY + bulletHitboxHeight > playerHitbox.y);
 
                     if (hit)
                     {
                         player_.takeDamage(Constants::ENEMY_LASER_DAMAGE);
                         bullet.active = false;
+                    }
+                }
+            }
+        }
+
+        // --- Player-Enemy Collision ---
+        if (player_.isAlive())
+        {
+            // Lấy hitbox của người chơi thông qua hàm trợ giúp
+            const SDL_FRect playerHitbox = getPlayerHitbox();
+
+            for (auto &enemy : enemies_)
+            {
+                if (!enemy.alive)
+                {
+                    continue;
+                }
+
+                // Kiểm tra va chạm AABB giữa hitbox của player và enemy
+                const bool hit = playerHitbox.x < enemy.x + enemy.width &&
+                                 playerHitbox.x + playerHitbox.w > enemy.x &&
+                                 playerHitbox.y < enemy.y + enemy.height &&
+                                 playerHitbox.y + playerHitbox.h > enemy.y;
+
+                if (hit)
+                {
+                    // Nếu khiên của người chơi đang hoạt động, nó sẽ hấp thụ va chạm và phá hủy kẻ địch.
+                    if (player_.isShieldActive())
+                    {
+                        enemy.takeDamage(999.0f); // Phá hủy kẻ địch ngay lập tức
+                    }
+                    else
+                    {
+                        // Nếu không có khiên, người chơi chịu sát thương lớn và kẻ địch bị phá hủy.
+                        player_.takeDamage(50.0f); // Một lượng sát thương đáng kể
+                        enemy.takeDamage(999.0f);  // Phá hủy kẻ địch ngay lập tức
+                    }
+
+                    // Nếu kẻ địch bị phá hủy bởi va chạm, cộng điểm và có cơ hội ra power-up
+                    if (!enemy.alive)
+                    {
+                        score_ += 10;
+                        spawnPowerUp(enemy.x + enemy.width / 2.0f - 24.0f, enemy.y);
                     }
                 }
             }
